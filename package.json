@@ -1,7 +1,7 @@
 {
   "name": "interskiplist",
-  "version": "4.2.2",
-  "description": "Interval Skiplist, a Binary Search Tool",
+  "version": "1.0.0",
+  "description": "Interval Skiplist, a Binary Search Tool. A slight shim over https://github.com/atom-archive/interval-skip-list",
   "main": "lib/main.js",
   "scripts": {
     "build": "coffee --map -o lib -c src",
