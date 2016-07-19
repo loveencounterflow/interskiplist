@@ -1,0 +1,37 @@
+{
+  "name": "interskiplist",
+  "version": "4.2.2",
+  "description": "Interval Skiplist, a Binary Search Tool",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "coffee --map -o lib -c src",
+    "push": "git add . && git commit -m'update' && git push",
+    "doctoc": "doctoc README.md",
+    "pub": "npm run build && npm run doctoc && npm run push && npm version patch && npm publish",
+    "test-travis": "node lib/tests.js",
+    "test": "npm run build && node lib/tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loveencounterflow/interskiplist.git"
+  },
+  "keywords": [
+    "intervalskiplist",
+    "interval",
+    "skiplist",
+    "binary search"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loveencounterflow/interskiplist/issues"
+  },
+  "homepage": "https://github.com/loveencounterflow/interskiplist",
+  "dependencies": {
+    "cnd": "^4.1.1",
+    "interval-skip-list": "^2.0.1"
+  },
+  "devDependencies": {
+    "guy-test": "^1.2.3"
+  }
+}
