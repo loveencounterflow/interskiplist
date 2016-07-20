@@ -174,40 +174,7 @@ show = ( me ) ->
   debug rpr find_id_text isl, [ 21, 24, ]
   debug rpr find_id_text isl, [  4,  8, ]
   # search()
-  throw Error "there were #{error_count} errors" unless error_count is 0
-  #.........................................................................................................
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
-@[ "Unicode demo" ] = ( T ) ->
-  unicode_areas = ISL.new()
-  last_cid      = 0x10ffff
-  page_idx      = -1
-  loop
-    page_idx += 1
-    page_id   = "page-x#{page_idx.toString 16}"
-    lo        = page_idx  * 0x80
-    hi        = lo        + 0x7f
-    ISL.add_interval unicode_areas, lo, hi, page_id
-    break if lo > last_cid
-  #.........................................................................................................
-  rsg_registry = require '../../../ncr/lib/character-sets-and-ranges'
-  for csg, ranges of rsg_registry[ 'names-and-ranges-by-csg' ]
-    continue unless csg in [ 'u', 'jzr', ]
-    for range in ranges
-      name        = range[ 'range-name' ]
-      rsg         = range[ 'rsg'        ]
-      lo          = range[ 'first-cid'  ]
-      hi          = range[ 'last-cid'   ]
-      ISL.add_interval unicode_areas, lo, hi, name, { name, lo, hi, rsg, }
-  #.........................................................................................................
-  # for cid in [ 0x0 .. 0x300 ]
-  #   debug ( cid.toString 16 ), find_id_text unicode_areas, cid
-  for glyph in Array.from "helo äöü你好𢕒𡕴𡕨𠤇"
-    cid     = glyph.codePointAt 0
-    cid_hex = hex cid
-    # debug glyph, cid_hex, find_id_text unicode_areas, cid
-    help glyph, cid_hex, JSON.stringify ISL.find_all_values unicode_areas, cid
+  debug '4430', ISL.get_values isl
   #.........................................................................................................
   return null
 

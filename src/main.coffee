@@ -19,7 +19,7 @@ CND                       = require 'cnd'
 #-----------------------------------------------------------------------------------------------------------
 @add_interval = ( me, lo, hi, id, value ) ->
   throw new Error "need an ID" unless id?
-  # value = id if value is undefined
+  value = id if value is undefined
   me[ '%self' ].insert id, lo, hi
   me[ 'value-by-ids' ][ id ] = value ? null
   return id
