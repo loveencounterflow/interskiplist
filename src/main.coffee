@@ -84,6 +84,10 @@ echo                      = CND.echo.bind CND
   return ( ( @get_value me, id ) for id in @find_any_ids me, probes )
 
 #-----------------------------------------------------------------------------------------------------------
+@find_all_values = ( me, probes... ) ->
+  return ( ( @get_value me, id ) for id in @find_all_ids me, probes )
+
+#-----------------------------------------------------------------------------------------------------------
 @find_all_names = ( me, probes... ) ->
   return ( ( @get_name me, id ) for id in @find_all_ids me, probes )
 
