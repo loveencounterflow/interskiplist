@@ -179,11 +179,26 @@ show = ( me ) ->
   return null
 
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "test ranges" ] = ( T ) ->
+  isl      = ISL.new()
+  f = ->
+    me interval_idx = -1
+    @add_range = ( me, name, lo, hi, value = null ) =>
+      me[ '']
+      interval_idx += +1
+      interval_id   = "interval##{interval_idx}"
+      return @add_interval me, lo, hi, interval_id, value
+  f.apply ISL
+  #.........................................................................................................
+
+
 ############################################################################################################
 unless module.parent?
   include = [
     "test interval tree 1"
     "test interval tree 2"
+    "test ranges"
   ]
   # @_prune()
   @_main()
