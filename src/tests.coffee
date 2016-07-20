@@ -35,21 +35,38 @@ ISL                       = require './main'
 hex = ( n ) -> '0x' + n.toString 16
 
 #-----------------------------------------------------------------------------------------------------------
-find_id_text = ( me, probe ) ->
-  R = ISL.find_any_ids me, probe
+find_ids_text = ( me, probe ) ->
+  R = ISL.find_all_ids me, probe
+  R.sort()
+  return R.join ','
+
+#-----------------------------------------------------------------------------------------------------------
+find_names_text = ( me, probe ) ->
+  R = ISL.find_all_names me, probe
   R.sort()
   return R.join ','
 
 #-----------------------------------------------------------------------------------------------------------
 show = ( me ) ->
-  echo '  0         1         2         3         4         5         6         7         8         '
-  echo '  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
+  echo '                      0         1         2         3         4         5         6         7         8         '
+  echo '                      012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
   for id, [ lo, hi, ] of ISL.get_intervals me
-    [ lo, hi, ] = [ hi, lo, ] if lo > hi
+    lo_closed = yes
+    hi_closed = yes
+    # [ lo, hi, ] = [ hi, lo, ] if lo > hi
+    if lo < 0
+      lo        = 0
+      lo_closed = no
+    if hi > 89
+      hi        = 89
+      hi_closed = no
+    id += ' ' while id.length < 20
     if lo is hi
-      echo id, ( ' '.repeat lo ) + 'H'
+      echo id + '  ' + ( ' '.repeat lo ) + 'H'
       continue
-    echo id, ( ' '.repeat lo ) + '[' + ( '-'.repeat hi - lo - 1 ) + ']'
+    left  = if lo_closed then '[' else '-'
+    right = if hi_closed then ']' else '-'
+    echo id + '  ' + ( ' '.repeat lo ) + left + ( '-'.repeat hi - lo - 1 ) + right
 
 
 ###
@@ -94,9 +111,9 @@ show = ( me ) ->
     SL.add_interval skiplist, lo, hi, id, value
   for n in [ 0 .. 15 ]
     help n, \
-      ( ( SL.find_any_ids skiplist, n ).join ',' ), \
-      ( SL.find_any_intervals skiplist, n ), \
-      ( SL.find_any_values skiplist, n )
+      ( ( SL.find_all_ids skiplist, n ).join ',' ), \
+      ( SL.find_all_intervals skiplist, n ), \
+      ( SL.find_all_values skiplist, n )
   # show skiplist[ '%self' ][ 'root' ]
   # SL.add_interval skiplist, [ 10, 13, 'FF' ]
   return null
@@ -121,35 +138,103 @@ show = ( me ) ->
     [ 10, 13, 'H',  ]
     ]
   #.........................................................................................................
-  for [ lo, hi, id, value, ] in intervals
-    ISL.add_interval isl, lo, hi, id, value
+  for [ lo, hi, id, ] in intervals
+    ISL.add_interval isl, { lo, hi, id, }
   show isl
   #.........................................................................................................
   # search()
-  T.eq ( find_id_text isl,  0 ), ''
-  T.eq ( find_id_text isl,  1 ), 'A'
-  T.eq ( find_id_text isl,  2 ), 'A,B'
-  T.eq ( find_id_text isl,  3 ), 'A,B,C'
-  T.eq ( find_id_text isl,  4 ), 'B,C,D'
-  T.eq ( find_id_text isl,  5 ), 'B,C,E'
-  T.eq ( find_id_text isl,  6 ), 'B,C,E'
-  T.eq ( find_id_text isl,  7 ), 'B,C,E'
-  T.eq ( find_id_text isl,  8 ), 'B,F1,F2,G'
-  T.eq ( find_id_text isl,  9 ), 'B,F1,F2,G'
-  T.eq ( find_id_text isl, 10 ), 'B,F1,F2,G,H'
-  T.eq ( find_id_text isl, 11 ), 'B,F1,F2,G,H'
-  T.eq ( find_id_text isl, 12 ), 'B,F1,F2,G,H'
-  T.eq ( find_id_text isl, 13 ), 'B,G,H'
-  T.eq ( find_id_text isl, 14 ), 'B,G'
-  T.eq ( find_id_text isl, 15 ), 'G'
-  T.eq ( find_id_text isl, 16 ), 'G'
-  T.eq ( find_id_text isl, 17 ), 'G'
-  T.eq ( find_id_text isl, 18 ), 'G'
+  T.eq ( find_ids_text isl,  0 ), ''
+  T.eq ( find_ids_text isl,  1 ), 'A'
+  T.eq ( find_ids_text isl,  2 ), 'A,B'
+  T.eq ( find_ids_text isl,  3 ), 'A,B,C'
+  T.eq ( find_ids_text isl,  4 ), 'B,C,D'
+  T.eq ( find_ids_text isl,  5 ), 'B,C,E'
+  T.eq ( find_ids_text isl,  6 ), 'B,C,E'
+  T.eq ( find_ids_text isl,  7 ), 'B,C,E'
+  T.eq ( find_ids_text isl,  8 ), 'B,F1,F2,G'
+  T.eq ( find_ids_text isl,  9 ), 'B,F1,F2,G'
+  T.eq ( find_ids_text isl, 10 ), 'B,F1,F2,G,H'
+  T.eq ( find_ids_text isl, 11 ), 'B,F1,F2,G,H'
+  T.eq ( find_ids_text isl, 12 ), 'B,F1,F2,G,H'
+  T.eq ( find_ids_text isl, 13 ), 'B,G,H'
+  T.eq ( find_ids_text isl, 14 ), 'B,G'
+  T.eq ( find_ids_text isl, 15 ), 'G'
+  T.eq ( find_ids_text isl, 16 ), 'G'
+  T.eq ( find_ids_text isl, 17 ), 'G'
+  T.eq ( find_ids_text isl, 18 ), 'G'
   # ISL.add_interval isl, [ 10, 13, 'FF' ]
+  # delete isl[ '%self' ]
+  # debug '©29478', isl
   return null
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "test interval tree 2" ] = ( T ) ->
+  #.........................................................................................................
+  isl  = ISL.new()
+  intervals = [
+    [   1,  3,  'orion' ]
+    [   2, 14,  'orion' ]
+    [   3,  7,  'orion' ]
+    [   4,  4,  'orion' ]
+    [   5,  7,  'cygnus' ]
+    [   5,  7,  'orion' ]
+    [   8, 12,  'aldebaran' ]
+    [ -12,  8,  'aldebaran' ]
+    [   8, 22,  'aldebaran' ]
+    [  10, 13,  'aldebaran' ]
+    [  11, 15,  'cygnus' ]
+    ]
+  #.........................................................................................................
+  for [ lo, hi, name, ] in intervals
+    ISL.add_interval isl, { lo, hi, name, }
+  show isl
+  #.........................................................................................................
+  T.eq ( find_names_text isl,  0 ), "aldebaran"
+  T.eq ( find_names_text isl,  1 ), "aldebaran,orion"
+  T.eq ( find_names_text isl,  2 ), "aldebaran,orion"
+  T.eq ( find_names_text isl,  3 ), "aldebaran,orion"
+  T.eq ( find_names_text isl,  4 ), "aldebaran,orion"
+  T.eq ( find_names_text isl,  5 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl,  6 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl,  7 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl,  8 ), "aldebaran,orion"
+  T.eq ( find_names_text isl,  9 ), "aldebaran,orion"
+  T.eq ( find_names_text isl, 10 ), "aldebaran,orion"
+  T.eq ( find_names_text isl, 11 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl, 12 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl, 13 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl, 14 ), "aldebaran,cygnus,orion"
+  T.eq ( find_names_text isl, 15 ), "aldebaran,cygnus"
+  T.eq ( find_names_text isl, 16 ), "aldebaran"
+  T.eq ( find_names_text isl, 17 ), "aldebaran"
+  T.eq ( find_names_text isl, 18 ), "aldebaran"
+  #.........................................................................................................
+  # debug JSON.stringify find_names_text isl,  0
+  # debug JSON.stringify find_names_text isl,  1
+  # debug JSON.stringify find_names_text isl,  2
+  # debug JSON.stringify find_names_text isl,  3
+  # debug JSON.stringify find_names_text isl,  4
+  # debug JSON.stringify find_names_text isl,  5
+  # debug JSON.stringify find_names_text isl,  6
+  # debug JSON.stringify find_names_text isl,  7
+  # debug JSON.stringify find_names_text isl,  8
+  # debug JSON.stringify find_names_text isl,  9
+  # debug JSON.stringify find_names_text isl, 10
+  # debug JSON.stringify find_names_text isl, 11
+  # debug JSON.stringify find_names_text isl, 12
+  # debug JSON.stringify find_names_text isl, 13
+  # debug JSON.stringify find_names_text isl, 14
+  # debug JSON.stringify find_names_text isl, 15
+  # debug JSON.stringify find_names_text isl, 16
+  # debug JSON.stringify find_names_text isl, 17
+  # debug JSON.stringify find_names_text isl, 18
+  #.........................................................................................................
+  # delete isl[ '%self' ]
+  # debug '©29478', isl
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "test interval tree 3" ] = ( T ) ->
   isl      = ISL.new()
   intervals = [
     [ 17, 19, 'A', ]
@@ -165,14 +250,14 @@ show = ( me ) ->
   # ISL._decorate isl[ '%self' ][ 'root' ]
   # search()
   error_count = 0
-  # error_count += eq ( find_id_text isl, 0 ), ''
-  # debug rpr find_id_text isl, [ 23, 25, ] # 'C'
-  # debug rpr find_id_text isl, [ 12, 14, ] # ''
-  # debug rpr find_id_text isl, [ 21, 23, ] # 'G,C'
-  debug rpr find_id_text isl, [  8,  9, ] # 'B,D,F'
-  debug rpr find_id_text isl, [  5,  8, ]
-  debug rpr find_id_text isl, [ 21, 24, ]
-  debug rpr find_id_text isl, [  4,  8, ]
+  # error_count += eq ( find_ids_text isl, 0 ), ''
+  # debug rpr find_ids_text isl, [ 23, 25, ] # 'C'
+  # debug rpr find_ids_text isl, [ 12, 14, ] # ''
+  # debug rpr find_ids_text isl, [ 21, 23, ] # 'G,C'
+  debug rpr find_ids_text isl, [  8,  9, ] # 'B,D,F'
+  debug rpr find_ids_text isl, [  5,  8, ]
+  debug rpr find_ids_text isl, [ 21, 24, ]
+  debug rpr find_ids_text isl, [  4,  8, ]
   # search()
   debug '4430', ISL.get_values isl
   #.........................................................................................................
@@ -202,9 +287,10 @@ unless module.parent?
   include = [
     "test interval tree 1"
     "test interval tree 2"
-    "test ranges"
+    # "test interval tree 3"
+    # "test ranges"
   ]
-  # @_prune()
+  @_prune()
   @_main()
 
   # @[ "test interval tree 1" ]()
