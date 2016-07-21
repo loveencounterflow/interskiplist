@@ -205,11 +205,11 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [  5,  8, ]
   # debug rpr find_ids_text isl, [ 21, 24, ]
   # debug rpr find_ids_text isl, [  4,  8, ]
-  debug ISL.find_values_with_any_points isl, 18, 22
-  debug ( v for v in ISL.find_values_with_any_points isl, 18, 22 when v[ 'type' ] is 'block' )
-  # debug ISL.find_values_with_all_points isl, [ 2, 30, ]
-  # debug ISL.find_values_with_any_points isl, 18
-  # debug ISL.find_values_with_all_points isl, 18
+  debug ISL.find_entries_with_any_points isl, 18, 22
+  debug ( v for v in ISL.find_entries_with_any_points isl, 18, 22 when v[ 'type' ] is 'block' )
+  # debug ISL.find_entries_with_all_points isl, [ 2, 30, ]
+  # debug ISL.find_entries_with_any_points isl, 18
+  # debug ISL.find_entries_with_all_points isl, 18
   # search()
   # debug '4430', ISL.get_values isl
   #.........................................................................................................
@@ -267,8 +267,8 @@ show = ( me ) ->
   #.........................................................................................................
   f = ->
     #-----------------------------------------------------------------------------------------------------------
-    @sort_values = ( me, values ) ->
-      values.sort ( a, b ) ->
+    @sort_entries = ( me, entries ) ->
+      entries.sort ( a, b ) ->
         [ a_size, b_size, ] = [ a[ 'size' ], b[ 'size' ], ]
         return -1 if a_size > b_size
         return +1 if a_size < b_size
@@ -276,25 +276,23 @@ show = ( me ) ->
         return +1 if a_idx > b_idx
         return -1 if a_idx < b_idx
         return  0
-      return values
+      return entries
     #-----------------------------------------------------------------------------------------------------------
-    @find_reduced_value = ( me, points..., settings ) ->
+    @find_reduced_entry = ( me, points..., settings ) ->
       unless CND.isa_pod settings
         points.push settings
         settings = {}
-      values = @find_values_with_all_points me, points...
-      @sort_values me, values
+      entries = @find_entries_with_all_points me, points...
+      @sort_entries me, entries
       R = {}
-      for value in values
-        for k, v of value
+      for entry in entries
+        for key, value of entry
           # if reducer 0
-          # ( R[ k ] ?= [] ).push v
-          R[ k ] = v
+          # ( R[ key ] ?= [] ).push value
+          R[ key ] = value
       return R
-    # #-----------------------------------------------------------------------------------------------------------
-    # @find_accumulated_value = ( me, points... ) ->
-    #   values = @find_values_with_all_points me, points...
-    #   @sort_values me, values
+    #-----------------------------------------------------------------------------------------------------------
+    return null
   f.apply ISLX
   #.........................................................................................................
   isl = ISLX.new()
@@ -304,10 +302,10 @@ show = ( me ) ->
     d[ 'idx'  ]   = idx
     ISLX.insert isl, d
   #.........................................................................................................
-  value = ISLX.find_reduced_value isl, '《'.codePointAt 0
-  debug JSON.stringify value
-  help value
-  T.eq value, {"lo":12298,"hi":12298,"name":"style:glyph-0x300a","tex":"cnsymNew","size":1,"idx":0,"id":"style:glyph-0x300a[0]","rsg":"u-cjk-sym","is_cjk":true,"style":{"raise":-0.2}}
+  entry = ISLX.find_reduced_entry isl, '《'.codePointAt 0
+  debug JSON.stringify entry
+  help entry
+  T.eq entry, {"lo":12298,"hi":12298,"name":"style:glyph-0x300a","tex":"cnsymNew","size":1,"idx":0,"id":"style:glyph-0x300a[0]","rsg":"u-cjk-sym","is_cjk":true,"style":{"raise":-0.2}}
   #.........................................................................................................
   return null
 

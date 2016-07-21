@@ -21,7 +21,7 @@ echo                      = CND.echo.bind CND
   R =
     '~isa':           'CND/interskiplist'
     '%self':          substrate
-    'value-by-ids':   {}
+    'entry-by-ids':   {}
     'count-by-names': {}
     'ids-by-names':   {}
     'name-by-ids':    {}
@@ -45,11 +45,11 @@ echo                      = CND.echo.bind CND
   return @_insert me, lo, hi, id, settings
 
 #-----------------------------------------------------------------------------------------------------------
-@_insert = ( me, lo, hi, id, value ) ->
+@_insert = ( me, lo, hi, id, entry ) ->
   throw new Error "need an ID" unless id?
-  value = id if value is undefined
+  entry = { id, } if entry is undefined
   me[ '%self' ].insert id, lo, hi
-  me[ 'value-by-ids' ][ id ] = value ? null
+  me[ 'entry-by-ids' ][ id ] = entry ? null
   return id
 
 #-----------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @interval_of  = ( me, id ) -> me[ '%self' ].intervalsByMarker[ id ]
-@value_of     = ( me, id ) -> me[ 'value-by-ids'            ][ id ]
+@entry_of     = ( me, id ) -> me[ 'entry-by-ids'            ][ id ]
 @name_of      = ( me, id ) -> me[ 'name-by-ids'             ][ id ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -66,9 +66,9 @@ echo                      = CND.echo.bind CND
   return ( @interval_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
-@values_of = ( me, ids = null ) ->
-  return me[ 'value-by-ids' ] unless ids?
-  return ( @value_of me, id for id in ids )
+@entries_of = ( me, ids = null ) ->
+  return me[ 'entry-by-ids' ] unless ids?
+  return ( @entry_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
 @names_of = ( me, ids = null ) ->
@@ -89,8 +89,8 @@ echo                      = CND.echo.bind CND
   return me[ '%self' ].findContaining points...
 
 #-----------------------------------------------------------------------------------------------------------
-@find_values_with_any_points  = ( me, points... ) -> @values_of me, @find_ids_with_any_points me, points...
-@find_values_with_all_points  = ( me, points... ) -> @values_of me, @find_ids_with_all_points me, points...
+@find_entries_with_any_points  = ( me, points... ) -> @entries_of me, @find_ids_with_any_points me, points...
+@find_entries_with_all_points  = ( me, points... ) -> @entries_of me, @find_ids_with_all_points me, points...
 @find_names_with_any_points   = ( me, points... ) -> @names_of me, @find_ids_with_any_points me, points...
 @find_names_with_all_points   = ( me, points... ) -> @names_of me, @find_ids_with_all_points me, points...
 
