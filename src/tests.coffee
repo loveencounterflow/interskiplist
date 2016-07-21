@@ -215,20 +215,99 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
-
 #-----------------------------------------------------------------------------------------------------------
-@[ "test ranges" ] = ( T ) ->
-  isl      = ISL.new()
-  f = ->
-    # me interval_idx = -1
-    @add_range = ( me, name, lo, hi, value = null ) =>
-      me[ '']
-      interval_idx += +1
-      interval_id   = "interval##{interval_idx}"
-      return @insert me, lo, hi, interval_id, value
-  f.apply ISL
+@[ "preview: sort by size and insertion order" ] = ( T ) ->
+  ###
+  《 0x300a
+  ###
+  descriptions = [
+    #.......................................................................................................
+    {
+      lo:         0x300a
+      hi:         0x300a
+      name:       'style:glyph-0x300a'
+      rsg:        'u-cjk-sym'
+      style:      { raise: -0.2 } }
+    #.......................................................................................................
+    {
+      lo:         0x0
+      hi:         0xffff
+      name:       'plane:Basic Multilingual Plane (BMP)' }
+    #.......................................................................................................
+    {
+      lo:         0x2e80
+      hi:         0x33ff
+      name:       'area:CJK Miscellaneous Area' }
+    #.......................................................................................................
+    {
+      lo:         0x3000
+      hi:         0x303f
+      name:       'block:CJK Symbols and Punctuation'
+      rsg:        'u-cjk-sym'
+      is_cjk:     true
+      tex:        'cnsymOld' }
+    #.......................................................................................................
+    {
+      lo:         0x3000
+      hi:         0x303f
+      name:       'block:CJK Symbols and Punctuation'
+      rsg:        'u-cjk-sym'
+      is_cjk:     true
+      tex:        'cnsymNew' }
+    #.......................................................................................................
+    {
+      lo:         0x0
+      hi:         0x10ffff
+      name:       'style:fallback'
+      tex:        'mktsRsgFb' }
+    #.......................................................................................................
+    ]
   #.........................................................................................................
-  g = ->
+  ISLX = Object.assign {}, ISL
+  #.........................................................................................................
+  f = ->
+    #-----------------------------------------------------------------------------------------------------------
+    @sort_values = ( me, values ) ->
+      values.sort ( a, b ) ->
+        [ a_size, b_size, ] = [ a[ 'size' ], b[ 'size' ], ]
+        return -1 if a_size > b_size
+        return +1 if a_size < b_size
+        [ a_idx, b_idx, ] = [ a[ 'idx' ], b[ 'idx' ], ]
+        return +1 if a_idx > b_idx
+        return -1 if a_idx < b_idx
+        return  0
+      return values
+    #-----------------------------------------------------------------------------------------------------------
+    @find_reduced_value = ( me, points..., settings ) ->
+      unless CND.isa_pod settings
+        points.push settings
+        settings = {}
+      values = @find_values_with_all_points me, points...
+      @sort_values me, values
+      R = {}
+      for value in values
+        for k, v of value
+          # if reducer 0
+          # ( R[ k ] ?= [] ).push v
+          R[ k ] = v
+      return R
+    # #-----------------------------------------------------------------------------------------------------------
+    # @find_accumulated_value = ( me, points... ) ->
+    #   values = @find_values_with_all_points me, points...
+    #   @sort_values me, values
+  f.apply ISLX
+  #.........................................................................................................
+  isl = ISLX.new()
+  for d, idx in descriptions
+    [ type, _, ]  = d[ 'name' ].split ':'
+    d[ 'size' ]   = d[ 'hi' ] - d[ 'lo' ] + 1
+    d[ 'idx'  ]   = idx
+    ISLX.insert isl, d
+  #.........................................................................................................
+  value = ISLX.find_reduced_value isl, '《'.codePointAt 0
+  debug JSON.stringify value
+  help value
+  T.eq value, {"lo":12298,"hi":12298,"name":"style:glyph-0x300a","tex":"cnsymNew","size":1,"idx":0,"id":"style:glyph-0x300a[0]","rsg":"u-cjk-sym","is_cjk":true,"style":{"raise":-0.2}}
   #.........................................................................................................
   return null
 
@@ -240,14 +319,15 @@ unless module.parent?
     "test interval tree 1"
     "test interval tree 2"
     "test interval tree 3"
-    # "test ranges"
+    "preview: sort by size and insertion order"
   ]
-  @_prune()
+  # @_prune()
   @_main()
 
   # @[ "test interval tree 1" ]()
   # @[ "test interval tree 2" ]()
 
+  ###
   isl = ISL.new()
   d = isl[ '%self' ]
   ISL.insert isl, id: 'A', lo: 3, hi: 6
@@ -263,7 +343,7 @@ unless module.parent?
   debug d.findIntersecting 5, 6
   debug d.findIntersecting 5, 6, 7
   debug d.findIntersecting 5, 6, 7, 12
-
+  ###
 
 
 
