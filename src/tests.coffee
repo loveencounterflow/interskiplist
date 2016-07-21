@@ -35,14 +35,15 @@ ISL                       = require './main'
 hex = ( n ) -> '0x' + n.toString 16
 
 #-----------------------------------------------------------------------------------------------------------
-find_ids_text = ( me, probe ) ->
-  R = ISL.find_all_ids me, probe
+find_ids_text = ( me, points... ) ->
+  R = ISL.find_ids_with_all_points me, points...
   R.sort()
   return R.join ','
 
 #-----------------------------------------------------------------------------------------------------------
-find_names_text = ( me, probe ) ->
-  R = ISL.find_all_names me, probe
+find_names_text = ( me, points... ) ->
+  # debug '8322', ISL.find_ids_with_all_points me, points...
+  R = ISL.names_of me, ISL.find_ids_with_all_points me, points...
   R.sort()
   return R.join ','
 
@@ -50,7 +51,7 @@ find_names_text = ( me, probe ) ->
 show = ( me ) ->
   echo '                      0         1         2         3         4         5         6         7         8         '
   echo '                      012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
-  for id, [ lo, hi, ] of ISL.get_intervals me
+  for id, [ lo, hi, ] of ISL.intervals_of me
     lo_closed = yes
     hi_closed = yes
     # [ lo, hi, ] = [ hi, lo, ] if lo > hi
@@ -67,57 +68,6 @@ show = ( me ) ->
     left  = if lo_closed then '[' else '-'
     right = if hi_closed then ']' else '-'
     echo id + '  ' + ( ' '.repeat lo ) + left + ( '-'.repeat hi - lo - 1 ) + right
-
-
-###
-#-----------------------------------------------------------------------------------------------------------
-@_demo = ->
-  badge = 'CND/INTERSKIPLIST/demo'
-  help  = CND.get_logger 'help',      badge
-  urge  = CND.get_logger 'urge',      badge
-  SL    = @
-  show  = ( node ) ->
-    this_key    = node[ 'key' ]
-    this_value  = node[ 'value' ]
-    this_m      = node[ get_m_sym ]()
-    help this_key, this_value, this_m
-    show left_node  if (  left_node = node[ 'left'  ] )?
-    show right_node if ( right_node = node[ 'right' ] )?
-    return null
-  skiplist  = SL.new()
-  # intervals = [
-  #   [ 3, 7, 'A', ]
-  #   [ 5, 7, 'B', ]
-  #   [ 8, 12, 'C1', ]
-  #   [ 8, 12, 'C2', ]
-  #   [ 2, 14, 'D', null ]
-  #   [ 4, 4, 'E', [ 'helo', ] ]
-  #   [ 10, 13, 'F', ]
-  #   [ 8, 22, 'G', ]
-  #   [ 1, 3, 'H', ]
-  #   ]
-  intervals = [
-    [ 1, 3, 'A', ]
-    [ 2, 14, 'B', ]
-    [ 3, 7, 'C', ]
-    [ 4, 4, 'D', ]
-    [ 5, 7, 'E', ]
-    [ 8, 12, 'F1', ]
-    [ 8, 12, 'F2', ]
-    [ 8, 22, 'G', ]
-    [ 10, 13, 'H', ]
-    ]
-  for [ lo, hi, id, value, ] in intervals
-    SL.add_interval skiplist, lo, hi, id, value
-  for n in [ 0 .. 15 ]
-    help n, \
-      ( ( SL.find_all_ids skiplist, n ).join ',' ), \
-      ( SL.find_all_intervals skiplist, n ), \
-      ( SL.find_all_values skiplist, n )
-  # show skiplist[ '%self' ][ 'root' ]
-  # SL.add_interval skiplist, [ 10, 13, 'FF' ]
-  return null
-###
 
 
 #===========================================================================================================
@@ -139,7 +89,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   for [ lo, hi, id, ] in intervals
-    ISL.add_interval isl, { lo, hi, id, }
+    ISL.insert isl, { lo, hi, id, }
   show isl
   #.........................................................................................................
   # search()
@@ -162,7 +112,7 @@ show = ( me ) ->
   T.eq ( find_ids_text isl, 16 ), 'G'
   T.eq ( find_ids_text isl, 17 ), 'G'
   T.eq ( find_ids_text isl, 18 ), 'G'
-  # ISL.add_interval isl, [ 10, 13, 'FF' ]
+  # ISL.insert isl, [ 10, 13, 'FF' ]
   # delete isl[ '%self' ]
   # debug '©29478', isl
   return null
@@ -186,7 +136,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   for [ lo, hi, name, ] in intervals
-    ISL.add_interval isl, { lo, hi, name, }
+    ISL.insert isl, { lo, hi, name, }
   show isl
   #.........................................................................................................
   T.eq ( find_names_text isl,  0 ), "aldebaran"
@@ -245,7 +195,7 @@ show = ( me ) ->
     [  7, 10, 'F', ]
     [ 16, 22, 'G', ]
     ]
-  ISL.add_interval isl, interval... for interval in intervals
+  ISL.insert isl, { lo, hi, id, } for [ lo, hi, id, ] in intervals
   show isl
   # ISL._decorate isl[ '%self' ][ 'root' ]
   # search()
@@ -254,12 +204,16 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [ 23, 25, ] # 'C'
   # debug rpr find_ids_text isl, [ 12, 14, ] # ''
   # debug rpr find_ids_text isl, [ 21, 23, ] # 'G,C'
-  debug rpr find_ids_text isl, [  8,  9, ] # 'B,D,F'
-  debug rpr find_ids_text isl, [  5,  8, ]
-  debug rpr find_ids_text isl, [ 21, 24, ]
-  debug rpr find_ids_text isl, [  4,  8, ]
+  # debug rpr find_ids_text isl, [  8,  9, ] # 'B,D,F'
+  # debug rpr find_ids_text isl, [  5,  8, ]
+  # debug rpr find_ids_text isl, [ 21, 24, ]
+  # debug rpr find_ids_text isl, [  4,  8, ]
+  debug ISL.find_ids_with_any_points isl, [ 2, 30, ]
+  debug ISL.find_ids_with_all_points isl, [ 2, 30, ]
+  debug ISL.find_ids_with_any_points isl, 18
+  debug ISL.find_ids_with_all_points isl, 18
   # search()
-  debug '4430', ISL.get_values isl
+  # debug '4430', ISL.get_values isl
   #.........................................................................................................
   return null
 
@@ -273,7 +227,7 @@ show = ( me ) ->
       me[ '']
       interval_idx += +1
       interval_id   = "interval##{interval_idx}"
-      return @add_interval me, lo, hi, interval_id, value
+      return @insert me, lo, hi, interval_id, value
   f.apply ISL
   #.........................................................................................................
   g = ->
@@ -287,7 +241,7 @@ unless module.parent?
   include = [
     "test interval tree 1"
     "test interval tree 2"
-    # "test interval tree 3"
+    "test interval tree 3"
     # "test ranges"
   ]
   @_prune()
@@ -295,5 +249,23 @@ unless module.parent?
 
   # @[ "test interval tree 1" ]()
   # @[ "test interval tree 2" ]()
+
+  isl = ISL.new()
+  d = isl[ '%self' ]
+  ISL.insert isl, id: 'A', lo: 3, hi: 6
+  ISL.insert isl, id: 'B', lo: 9, hi: 10
+  ISL.insert isl, id: 'C', lo: 5, hi: 10
+  ISL.insert isl, id: 'D', lo: 2, hi: 15
+  show isl
+  debug d.findContaining 5
+  debug d.findContaining 5, 6
+  debug d.findContaining 5, 6, 7
+  debug d.findContaining 5, 6, 7, 12
+  # debug d.findIntersecting 5
+  debug d.findIntersecting 5, 6
+  debug d.findIntersecting 5, 6, 7
+  debug d.findIntersecting 5, 6, 7, 12
+
+
 
 
