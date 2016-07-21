@@ -52,57 +52,6 @@ show = ( me ) ->
     echo id, ( ' '.repeat lo ) + '[' + ( '-'.repeat hi - lo - 1 ) + ']'
 
 
-###
-#-----------------------------------------------------------------------------------------------------------
-@_demo = ->
-  badge = 'CND/INTERSKIPLIST/demo'
-  help  = CND.get_logger 'help',      badge
-  urge  = CND.get_logger 'urge',      badge
-  SL    = @
-  show  = ( node ) ->
-    this_key    = node[ 'key' ]
-    this_value  = node[ 'value' ]
-    this_m      = node[ get_m_sym ]()
-    help this_key, this_value, this_m
-    show left_node  if (  left_node = node[ 'left'  ] )?
-    show right_node if ( right_node = node[ 'right' ] )?
-    return null
-  skiplist  = SL.new()
-  # intervals = [
-  #   [ 3, 7, 'A', ]
-  #   [ 5, 7, 'B', ]
-  #   [ 8, 12, 'C1', ]
-  #   [ 8, 12, 'C2', ]
-  #   [ 2, 14, 'D', null ]
-  #   [ 4, 4, 'E', [ 'helo', ] ]
-  #   [ 10, 13, 'F', ]
-  #   [ 8, 22, 'G', ]
-  #   [ 1, 3, 'H', ]
-  #   ]
-  intervals = [
-    [ 1, 3, 'A', ]
-    [ 2, 14, 'B', ]
-    [ 3, 7, 'C', ]
-    [ 4, 4, 'D', ]
-    [ 5, 7, 'E', ]
-    [ 8, 12, 'F1', ]
-    [ 8, 12, 'F2', ]
-    [ 8, 22, 'G', ]
-    [ 10, 13, 'H', ]
-    ]
-  for [ lo, hi, id, value, ] in intervals
-    SL.add_interval skiplist, lo, hi, id, value
-  for n in [ 0 .. 15 ]
-    help n, \
-      ( ( SL.find_any_ids skiplist, n ).join ',' ), \
-      ( SL.find_any_intervals skiplist, n ), \
-      ( SL.find_any_values skiplist, n )
-  # show skiplist[ '%self' ][ 'root' ]
-  # SL.add_interval skiplist, [ 10, 13, 'FF' ]
-  return null
-###
-
-
 #===========================================================================================================
 # TESTS
 #-----------------------------------------------------------------------------------------------------------
