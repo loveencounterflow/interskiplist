@@ -43,7 +43,7 @@ find_ids_text = ( me, points... ) ->
 #-----------------------------------------------------------------------------------------------------------
 find_names_text = ( me, points... ) ->
   # debug '8322', ISL.find_ids_with_all_points me, points...
-  R = ISL.names_of me, ISL.find_ids_with_all_points me, points...
+  R = ISL.find_names_with_all_points me, points...
   R.sort()
   return R.join ','
 
@@ -187,15 +187,12 @@ show = ( me ) ->
 @[ "test interval tree 3" ] = ( T ) ->
   isl      = ISL.new()
   intervals = [
-    [ 17, 19, 'A', ]
-    [  5,  8, 'B', ]
-    [ 21, 24, 'C', ]
-    [  4,  8, 'D', ]
-    [ 15, 18, 'E', ]
-    [  7, 10, 'F', ]
-    [ 16, 22, 'G', ]
+    [ 17, 19, 'plane', 'A', ]
+    [  5,  8, 'plane', 'B', ]
+    [ 21, 24, 'block', 'A', ]
+    [  4,  8, 'block', 'D', ]
     ]
-  ISL.insert isl, { lo, hi, id, } for [ lo, hi, id, ] in intervals
+  ISL.insert isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
   show isl
   # ISL._decorate isl[ '%self' ][ 'root' ]
   # search()
@@ -208,10 +205,11 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [  5,  8, ]
   # debug rpr find_ids_text isl, [ 21, 24, ]
   # debug rpr find_ids_text isl, [  4,  8, ]
-  debug ISL.find_ids_with_any_points isl, [ 2, 30, ]
-  debug ISL.find_ids_with_all_points isl, [ 2, 30, ]
-  debug ISL.find_ids_with_any_points isl, 18
-  debug ISL.find_ids_with_all_points isl, 18
+  debug ISL.find_values_with_any_points isl, 18, 22
+  debug ( v for v in ISL.find_values_with_any_points isl, 18, 22 when v[ 'type' ] is 'block' )
+  # debug ISL.find_values_with_all_points isl, [ 2, 30, ]
+  # debug ISL.find_values_with_any_points isl, 18
+  # debug ISL.find_values_with_all_points isl, 18
   # search()
   # debug '4430', ISL.get_values isl
   #.........................................................................................................
