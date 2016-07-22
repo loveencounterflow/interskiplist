@@ -145,10 +145,12 @@ the above CSS rules in CoffeeScript using InterSkipList:
 # Create a SkipList `css_rules`:
 css_rules = ISL.new()
 
-# Insert 3 contiguous intervals:
+# Insert 3 contiguous intervals; we'll use the `name`s momentarily:
 ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
 ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
 ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+
+# Test the rules with our sample characters:
 console.log ISL.aggregate css_rules, 'A'  # --> { font_family: 'Arial' }
 console.log ISL.aggregate css_rules, '&'  # --> { font_family: 'Baskerville' }
 console.log ISL.aggregate css_rules, '人' # --> { font_family: 'Sun-ExtA' }
