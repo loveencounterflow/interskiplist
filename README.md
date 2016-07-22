@@ -17,12 +17,15 @@ Install as `npm install --save interskiplist`.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [IntervalSkipList](#intervalskiplist)
+- [InterSkipList](#interskiplist)
+  - [Intro](#intro)
+    - [Background](#background)
+  - [Intended Usage and Audience](#intended-usage-and-audience)
 - [Example 1](#example-1)
 - [API](#api)
   - [@aggregate = ( me, points, reducers ) ->](#@aggregate---me-points-reducers---)
   - [@entries_of = ( me, ids = null ) ->](#@entries_of---me-ids--null---)
-  - [@entry_of     = ( me, id ) ->](#@entry_of-------me-id---)
+  - [@entry_of = ( me, id ) ->](#@entry_of---me-id---)
   - [@find_entries_with_all_points = ( me, P... ) ->](#@find_entries_with_all_points---me-p---)
   - [@find_entries_with_any_points = ( me, P... ) ->](#@find_entries_with_any_points---me-p---)
   - [@find_ids_with_all_points = ( me, points ) ->](#@find_ids_with_all_points---me-points---)
@@ -33,7 +36,7 @@ Install as `npm install --save interskiplist`.
   - [@interval_of  = ( me, id ) ->](#@interval_of----me-id---)
   - [@intervals_from_points = ( me, points, mixins... ) ->](#@intervals_from_points---me-points-mixins---)
   - [@intervals_of = ( me, ids = null ) ->](#@intervals_of---me-ids--null---)
-  - [@name_of      = ( me, id ) ->](#@name_of--------me-id---)
+  - [@name_of = ( me, id ) ->](#@name_of---me-id---)
   - [@names_of = ( me, ids = null ) ->](#@names_of---me-ids--null---)
   - [@new = ( settings ) ->](#@new---settings---)
   - [@remove = ( me, id ) ->](#@remove---me-id---)
@@ -43,7 +46,80 @@ Install as `npm install --save interskiplist`.
 
 **Caveat** Below examples are all written in CoffeeScript.
 
-# IntervalSkipList
+# InterSkipList
+
+## Intro
+
+### Background
+
+(Skip Lists)[https://en.wikipedia.org/wiki/Skip_list], in particular Interval Skip Lists, are a great
+alternative to the more classical trees of various kinds to organize data so that searching remains
+performant even with large amounts of data. As for the technical backgrounds, those interested should head
+for the Wikipedia article linked above, or for any of (the great videos on the
+topic)[https://www.youtube.com/watch?v=IXRzBVUgGl8] available. Let me just say that skip lists are built
+not in a deterministic way, but with a random factor thrown in, which is nifty because this technique
+enables a simple design that is yet *probably* quite close to the 'ideal' structure for the data at hand.
+
+The present module does not add anything to its underlying of the skip list proper, which is provided
+by [atom-archive/interval-skip-list](https://github.com/atom-archive/interval-skip-list), a 100% JS module
+that used to be used in the Atom Editor. It has since been replaced by another module that I chose not to
+integrate as its use of C components makes installation inherently more complex and error-prone.
+
+## Intended Usage and Audience
+
+**InterSkipList focuses on providing a small API that is tailored to suit a number of use cases, first and
+foremost to simplify and speed up dealing with contiguous and non-contiguous ranges of Unicode characters
+(codepoints)**.
+
+To clarify this point, it is perhaps easiest to have a quick look at how CSS `unicode-range` works, why it
+is a great tool to organize your HTML styling needs and what you can do with that concept outside of
+HTML/CSS (becaue as such, InterSkipList has nothing to do with HTML or CSS).
+
+Here's an [example](https://24ways.org/2011/creating-custom-font-stacks-with-unicode-range) for using
+`unicode-range` in CSS; the range is just a single codepoint (`U+26`) in this case; it defines an abstract
+font family named `my-custom-font` that will be applied only to that single codepoint—the `&`
+ampersand—and that rule will come into effect everywhere where the `my-custom-font` font family
+is selected for use:
+
+
+```css
+@font-face {
+    font-family: 'my-custom-font';
+    src: local('Baskerville');
+    unicode-range: U+26; }
+
+p {
+  font-family: 'my-custom-font'; }
+
+```
+
+The real utility of this device only starts to shine, though, when we start to exploit the fact that CSS
+allows (1)&nbsp;multiple (2)&nbsp;ranges of Unicode codepoints that can be combined with different fonts; it
+is then possible to build a hierarchy of ranges such that lots of characters in a given text will be
+displayed with a base font, more restricted ranges of characters in a more suitable font, and some single
+glyphs with an even more specilaized typeface. In CSS, you can write, for example:
+
+
+```css
+@font-face {
+    font-family: 'my-custom-font';
+    src: local('Arial');
+    unicode-range: U+0000-U+10FFFF; }
+
+@font-face {
+    font-family: 'my-custom-font';
+    src: local('Sun-ExtA');
+    unicode-range: U+4E00-U+9FFF; }
+
+@font-face {
+    font-family: 'my-custom-font';
+    src: local('Baskerville');
+    unicode-range: U+26; }
+```
+
+which will display the text `<p>A&人</p>` using Arial for the `A`, Baskerville for the `&`, and Sun-ExtA for
+the `人` glyphs.
+
 
 # Example 1
 
@@ -98,7 +174,7 @@ ISL.find_names_with_all_points isl, [ '2', 'e', ] ---> [ 'basic-latin' ]
 
 ## @aggregate = ( me, points, reducers ) ->
 ## @entries_of = ( me, ids = null ) ->
-## @entry_of     = ( me, id ) ->
+## @entry_of = ( me, id ) ->
 ## @find_entries_with_all_points = ( me, P... ) ->
 ## @find_entries_with_any_points = ( me, P... ) ->
 ## @find_ids_with_all_points = ( me, points ) ->
@@ -109,7 +185,7 @@ ISL.find_names_with_all_points isl, [ '2', 'e', ] ---> [ 'basic-latin' ]
 ## @interval_of  = ( me, id ) ->
 ## @intervals_from_points = ( me, points, mixins... ) ->
 ## @intervals_of = ( me, ids = null ) ->
-## @name_of      = ( me, id ) ->
+## @name_of = ( me, id ) ->
 ## @names_of = ( me, ids = null ) ->
 ## @new = ( settings ) ->
 ## @remove = ( me, id ) ->
