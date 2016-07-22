@@ -370,7 +370,7 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "characters as points 3" ] = ( T ) ->
-  isl  = ISL.new()
+  isl = ISL.new()
   ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
   ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
   ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
@@ -416,6 +416,38 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "readme example 1" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+  #.........................................................................................................
+  for chr in 'aeiouAEIOU'
+    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+  consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
+  for interval in ISL.intervals_from_points isl, consonants, { name: 'consonant', }
+    ISL.insert isl, interval
+  digits = Array.from '0123456789'
+  for interval in ISL.intervals_from_points isl, digits, { name: 'digit', }
+    ISL.insert isl, interval
+  #.........................................................................................................
+  show isl
+  #.........................................................................................................
+  console.log ISL.find_names_with_all_points isl, [ 'c'     , ]
+  console.log ISL.find_names_with_all_points isl, [ 'C'     , ]
+  console.log ISL.find_names_with_all_points isl, [ 'c', 'C', ]
+  console.log ISL.find_names_with_all_points isl, [ 'C', 'C', ]
+  console.log ISL.find_names_with_all_points isl, [ 'C', 'A', ]
+  console.log ISL.find_names_with_all_points isl, [ 'c', 'A', ]
+  console.log ISL.find_names_with_all_points isl, [ 'A', 'e', ]
+  console.log ISL.find_names_with_all_points isl, [ 'i', 'e', ]
+  console.log ISL.find_names_with_all_points isl, [ '2', 'e', ]
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -429,6 +461,7 @@ unless module.parent?
     "characters as points 3"
     "intervals_from_points"
     "new API for points"
+    "readme example 1"
   ]
   @_prune()
   @_main()

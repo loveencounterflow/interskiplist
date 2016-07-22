@@ -1,7 +1,7 @@
 {
   "name": "interskiplist",
   "version": "0.2.4",
-  "description": "Interval Skiplist, a Binary Search Tool. A slight shim over https://github.com/atom-archive/interval-skip-list",
+  "description": "Binary Search for Numeric & Character Intervals; great for CSS-Unicode-Range-like tasks",
   "main": "lib/main.js",
   "scripts": {
     "build": "coffee --map -o lib -c src",
@@ -17,11 +17,17 @@
   },
   "keywords": [
     "intervalskiplist",
+    "css",
+    "unicode",
+    "unicode-range",
+    "range",
     "interval",
     "skiplist",
+    "search",
+    "binary",
     "binary search"
   ],
-  "author": "",
+  "author": "loveencounterflow",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/loveencounterflow/interskiplist/issues"
