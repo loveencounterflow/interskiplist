@@ -448,6 +448,16 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "readme example 2" ] = ( T ) ->
+  css_rules = ISL.new()
+  ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'css', font_family: 'Arial',        }
+  ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'css', font_family: 'Sun-ExtA',     }
+  ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'css', font_family: 'Baskerville',  }
+  debug ISL.aggregate css_rules, 'A' #, { font_family: 'list', }
+  debug ISL.aggregate css_rules, '&' #, { font_family: 'list', }
+  debug ISL.aggregate css_rules, '人' #, { font_family: 'list', }
+
 
 ############################################################################################################
 unless module.parent?
@@ -462,6 +472,7 @@ unless module.parent?
     "intervals_from_points"
     "new API for points"
     "readme example 1"
+    "readme example 2"
   ]
   @_prune()
   @_main()

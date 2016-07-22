@@ -21,6 +21,8 @@ Install as `npm install --save interskiplist`.
   - [Intro](#intro)
     - [Background](#background)
   - [Intended Usage and Audience](#intended-usage-and-audience)
+    - [An Example Using CSS Unicode-Range](#an-example-using-css-unicode-range)
+    - [Same Example Using InterSkipList](#same-example-using-interskiplist)
 - [Example 1](#example-1)
 - [API](#api)
   - [@aggregate = ( me, points, reducers ) ->](#@aggregate---me-points-reducers---)
@@ -71,6 +73,8 @@ integrate as its use of C components makes installation inherently more complex 
 foremost to simplify and speed up dealing with contiguous and non-contiguous ranges of Unicode characters
 (codepoints)**.
 
+### An Example Using CSS Unicode-Range
+
 To clarify this point, it is perhaps easiest to have a quick look at how CSS `unicode-range` works, why it
 is a great tool to organize your HTML styling needs and what you can do with that concept outside of
 HTML/CSS (becaue as such, InterSkipList has nothing to do with HTML or CSS).
@@ -90,7 +94,6 @@ is selected for use:
 
 p {
   font-family: 'my-custom-font'; }
-
 ```
 
 The real utility of this device only starts to shine, though, when we start to exploit the fact that CSS
@@ -115,11 +118,38 @@ glyphs with an even more specilaized typeface. In CSS, you can write, for exampl
     font-family: 'my-custom-font';
     src: local('Baskerville');
     unicode-range: U+26; }
+
+p {
+  font-family: 'my-custom-font'; }
 ```
 
 which will display the text `<p>A&人</p>` using Arial for the `A`, Baskerville for the `&`, and Sun-ExtA for
 the `人` glyphs.
 
+### Same Example Using InterSkipList
+
+When you wanted to implement CSS `unicode-range` by yourself, you could try and code that in a number of
+ways, and you could probably come up with a solution that works in not too long a time. However, one problem
+with your 100% homebrew solution will likely be that it is not going to scale nicely: either you will need a
+lot of memory and pre-compute too much, or your solution will become a drag once you have to scan many
+thousands of codepoints for a real-world text: as such, the problem does not look too complex, but the devil
+is in the scalability of given algorithm's space and time requirements. Which is why binary search trees,
+tries, &c&c are important topics in computer science. InterSkipList offers one specific implementation to
+the problem, one that is hopefully both simple yet powerful and performant enough for a broad range of uses.
+Let's have a look at how to rewrite the gist of the above CSS rules in CoffeeScript using InterSkipList:
+
+```coffee
+# Create a SkipList `css_rules`:
+css_rules = ISL.new()
+
+# Insert 3 contiguous intervals:
+ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
+ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+console.log ISL.aggregate css_rules, 'A'
+console.log ISL.aggregate css_rules, '&'
+console.log ISL.aggregate css_rules, '人'
+```
 
 # Example 1
 
