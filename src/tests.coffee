@@ -206,7 +206,7 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [ 21, 24, ]
   # debug rpr find_ids_text isl, [  4,  8, ]
   debug ISL.find_entries_with_any_points isl, 18, 22
-  debug ( v for v in ISL.find_entries_with_any_points isl, 18, 22 when v[ 'type' ] is 'block' )
+  debug ( entry for entry in ISL.find_entries_with_any_points isl, 18, 22 when entry[ 'type' ] is 'block' )
   # debug ISL.find_entries_with_all_points isl, [ 2, 30, ]
   # debug ISL.find_entries_with_any_points isl, 18
   # debug ISL.find_entries_with_all_points isl, 18
@@ -220,7 +220,7 @@ show = ( me ) ->
   ###
   《 0x300a
   ###
-  descriptions = [
+  entries = [
     #.......................................................................................................
     {
       lo:         0x300a
@@ -263,49 +263,18 @@ show = ( me ) ->
     #.......................................................................................................
     ]
   #.........................................................................................................
-  ISLX = Object.assign {}, ISL
-  #.........................................................................................................
-  f = ->
-    #-----------------------------------------------------------------------------------------------------------
-    @sort_entries = ( me, entries ) ->
-      entries.sort ( a, b ) ->
-        [ a_size, b_size, ] = [ a[ 'size' ], b[ 'size' ], ]
-        return -1 if a_size > b_size
-        return +1 if a_size < b_size
-        [ a_idx, b_idx, ] = [ a[ 'idx' ], b[ 'idx' ], ]
-        return +1 if a_idx > b_idx
-        return -1 if a_idx < b_idx
-        return  0
-      return entries
-    #-----------------------------------------------------------------------------------------------------------
-    @find_reduced_entry = ( me, points..., settings ) ->
-      unless CND.isa_pod settings
-        points.push settings
-        settings = {}
-      entries = @find_entries_with_all_points me, points...
-      @sort_entries me, entries
-      R = {}
-      for entry in entries
-        for key, value of entry
-          # if reducer 0
-          # ( R[ key ] ?= [] ).push value
-          R[ key ] = value
-      return R
-    #-----------------------------------------------------------------------------------------------------------
-    return null
-  f.apply ISLX
-  #.........................................................................................................
-  isl = ISLX.new()
-  for d, idx in descriptions
-    [ type, _, ]  = d[ 'name' ].split ':'
-    d[ 'size' ]   = d[ 'hi' ] - d[ 'lo' ] + 1
-    d[ 'idx'  ]   = idx
-    ISLX.insert isl, d
-  #.........................................................................................................
-  entry = ISLX.find_reduced_entry isl, '《'.codePointAt 0
+  isl = ISL.new()
+  ISL.insert isl, entry for entry in entries
+  replacers =
+    # rsg:    'skip'
+    style:  'list'
+    tex:    'list'
+    rsg:    'assign'
+    # style: ( facets ) ->
+  entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
   debug JSON.stringify entry
   help entry
-  T.eq entry, {"lo":12298,"hi":12298,"name":"style:glyph-0x300a","tex":"cnsymNew","size":1,"idx":0,"id":"style:glyph-0x300a[0]","rsg":"u-cjk-sym","is_cjk":true,"style":{"raise":-0.2}}
+  T.eq entry, {"tex":["mktsRsgFb","cnsymOld","cnsymNew"],"rsg":"u-cjk-sym","is_cjk":true,"style":[{"raise":-0.2}]}
   #.........................................................................................................
   return null
 

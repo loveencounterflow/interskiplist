@@ -22,34 +22,32 @@ echo                      = CND.echo.bind CND
     '~isa':           'CND/interskiplist'
     '%self':          substrate
     'entry-by-ids':   {}
-    'count-by-names': {}
+    'idx-by-names':   {}
     'ids-by-names':   {}
     'name-by-ids':    {}
+    'idx':            -1
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@insert = ( me, settings ) ->
+@insert = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  throw new Error "expected a POD, got a #{CND.type_of settings}" unless CND.isa_pod settings
-  { lo, hi, id, name, } = settings
+  throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
+  { lo, hi, id, name, } = entry
   throw new Error "expected setting for 'lo', found none" unless lo?
   throw new Error "expected setting for 'hi', found none" unless hi?
   throw new Error "expected at least one setting for 'name' or 'id', found none" unless name? or id?
-  name ?= '*'
-  idx   = ( me[ 'count-by-names' ][ name ] = ( me[ 'count-by-names' ][ name ] ? 0 ) + 1 ) - 1
-  id   ?= "#{name}[#{idx}]"
-  settings[ 'id'    ]       = id
-  settings[ 'name'  ]       = name
-  me[ 'name-by-ids' ][ id ] = name
+  name                       ?= '*'
+  group_idx                   = ( me[ 'idx-by-names' ][ name ] = ( me[ 'idx-by-names' ][ name ] ? -1 ) + 1 )
+  global_idx                  = ( me[ 'idx' ] += +1 )
+  id                         ?= "#{name}[#{group_idx}]"
+  entry[ 'size'  ]            = hi - lo + 1
+  entry[ 'id'    ]            = id
+  entry[ 'idx'   ]            = global_idx
+  entry[ 'name'  ]            = name
+  me[ 'name-by-ids'   ][ id ] = name
+  me[ 'entry-by-ids'  ][ id ] = entry ? null
   ( me[ 'ids-by-names' ][ name ] ?= [] ).push id
-  return @_insert me, lo, hi, id, settings
-
-#-----------------------------------------------------------------------------------------------------------
-@_insert = ( me, lo, hi, id, entry ) ->
-  throw new Error "need an ID" unless id?
-  entry = { id, } if entry is undefined
   me[ '%self' ].insert id, lo, hi
-  me[ 'entry-by-ids' ][ id ] = entry ? null
   return id
 
 #-----------------------------------------------------------------------------------------------------------
@@ -104,6 +102,46 @@ unique = ( list ) ->
     R.push element
   return R
 
+
+#===========================================================================================================
+# AGGREGATION
+#-----------------------------------------------------------------------------------------------------------
+@sort_entries = ( me, entries ) ->
+  entries.sort ( a, b ) ->
+    [ a_size, b_size, ] = [ a[ 'size' ], b[ 'size' ], ]
+    return -1 if a_size > b_size
+    return +1 if a_size < b_size
+    [ a_idx, b_idx, ] = [ a[ 'idx' ], b[ 'idx' ], ]
+    return +1 if a_idx > b_idx
+    return -1 if a_idx < b_idx
+    return  0
+  return entries
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate = ( me, points..., reducers ) ->
+  unless CND.isa_pod reducers
+    points.push reducers
+    reducers = {}
+  entries = @find_entries_with_all_points me, points...
+  @sort_entries me, entries
+  R         = {}
+  cache     = {}
+  averages  = {}
+  for entry in entries
+    for key, value of entry
+      continue if key in [ 'idx', 'id', 'name', 'lo', 'hi', 'size', ]
+      switch ( reducer = reducers[ key ] ) ? 'assign'
+        when 'skip'     then continue
+        when 'list'     then ( R[ key ]      ?= [] ).push value
+        when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
+        when 'assign'   then R[ key ]         = value
+        when 'average'  then averages[ key ]  = ( averages[ key ] ? 0 ) + value
+        else
+          throw new Error "unknwon reducer #{rpr reducer}" unless CND.isa_function reducer
+          ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
+  for key, facets of cache
+    R[ key ] = reducers[ key ] facets, R, entries
+  return R
 
 
 
