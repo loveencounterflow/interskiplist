@@ -100,7 +100,7 @@ The real utility of this device only starts to shine, though, when we start to e
 allows (1)&nbsp;multiple (2)&nbsp;ranges of Unicode codepoints that can be combined with different fonts; it
 is then possible to build hierarchies of ranges—for example such that lots of characters in a given text
 will be displayed with a base font, more restricted ranges of characters in a more suitable font, and some
-single glyphs with an even more specilaized typeface. In CSS, you can write, for example:
+single glyphs with an even more specilaized typeface. In CSS, you could write:
 
 
 ```css
