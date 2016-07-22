@@ -46,6 +46,8 @@ Install as `npm install --save interskiplist`.
 
 # Example 1
 
+In this example, we build an Interval SkipList `isl` from some ASCII characters:
+
 ```coffee
 #...........................................................................................................
 isl = ISL.new()
