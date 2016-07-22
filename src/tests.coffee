@@ -35,23 +35,33 @@ ISL                       = require './main'
 hex = ( n ) -> '0x' + n.toString 16
 
 #-----------------------------------------------------------------------------------------------------------
-find_ids_text = ( me, points... ) ->
-  R = ISL.find_ids_with_all_points me, points...
+find_ids_text = ( me, P... ) ->
+  R = ISL.find_ids_with_all_points me, P...
   R.sort()
   return R.join ','
 
 #-----------------------------------------------------------------------------------------------------------
-find_names_text = ( me, points... ) ->
-  # debug '8322', ISL.find_ids_with_all_points me, points...
-  R = ISL.find_names_with_all_points me, points...
+find_names_text = ( me, P... ) ->
+  # debug '8322', ISL.find_ids_with_all_points me, P...
+  R = ISL.find_names_with_all_points me, P...
   R.sort()
   return R.join ','
+
+#-----------------------------------------------------------------------------------------------------------
+list = ( me ) ->
+  for entry in ISL.entries_of me
+    [ type, _, ] = ( entry[ 'name' ] ? '???/' ).split ':'
+    help ( CND.grey type + '/' ) + ( CND.steel 'interval' ) + ': ' + ( CND.yellow "#{hex entry[ 'lo' ]}-#{hex entry[ 'hi' ]}" )
+    for key, value of entry
+      # continue if key in [ 'lo', 'hi', 'id', ]
+      help ( CND.grey type + '/' ) + ( CND.steel key ) + ': ' + ( CND.yellow value )
+  return null
 
 #-----------------------------------------------------------------------------------------------------------
 show = ( me ) ->
-  echo '                      0         1         2         3         4         5         6         7         8         '
-  echo '                      012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
-  debug '4921', ISL.intervals_of me
+  echo '                      0         1         2         3         4         5         6         7         8         9         0         1         2         3         4         5         6         7         8         9         '
+  echo '                      01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
+  debug '4921', me[ 'min' ], me[ 'max' ]
   for id, [ lo, hi, ] of ISL.intervals_of me
     lo_closed = yes
     hi_closed = yes
@@ -59,12 +69,12 @@ show = ( me ) ->
     if lo < 0
       lo        = 0
       lo_closed = no
-    if hi > 89
-      hi        = 89
+    if hi > 199
+      hi        = 199
       hi_closed = no
     id += ' ' while id.length < 20
-    if lo > 89 and hi > 89
-      echo id id + '  ' + ( ' '.repeat 89 ) + '->'
+    if lo > 199 and hi > 199
+      echo id id + '  ' + ( ' '.repeat 199 ) + '->'
       continue
     if lo is hi
       echo id + '  ' + ( ' '.repeat lo ) + 'H'
@@ -209,14 +219,30 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [  5,  8, ]
   # debug rpr find_ids_text isl, [ 21, 24, ]
   # debug rpr find_ids_text isl, [  4,  8, ]
-  debug ISL.find_entries_with_any_points isl, 18, 22
-  debug ( entry for entry in ISL.find_entries_with_any_points isl, 18, 22 when entry[ 'type' ] is 'block' )
+  debug ISL.find_entries_with_any_points isl, [ 18, 22, ]
+  debug ( entry for entry in ISL.find_entries_with_any_points isl, [ 18, 22, ] when entry[ 'type' ] is 'block' )
   # debug ISL.find_entries_with_all_points isl, [ 2, 30, ]
   # debug ISL.find_entries_with_any_points isl, 18
   # debug ISL.find_entries_with_all_points isl, 18
   # search()
   # debug '4430', ISL.get_values isl
   #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "new API for points" ] = ( T ) ->
+  isl      = ISL.new()
+  intervals = [
+    [ 17, 19, 'plane', 'A', ]
+    [  5,  8, 'plane', 'B', ]
+    [ 21, 24, 'block', 'A', ]
+    [  4,  8, 'block', 'D', ]
+    ]
+  ISL.insert isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
+  ( ISL.find_ids_with_any_points isl, 7      )
+  ( ISL.find_ids_with_any_points isl, [ 7, ] )
+  ( ISL.find_ids_with_any_points isl, [ 7, 8, ] )
+  T.throws 'expected 2 arguments, got 3', -> ISL.find_ids_with_any_points isl, 7, 8
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -283,16 +309,109 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "characters as points" ] = ( T ) ->
+@[ "characters as points 1" ] = ( T ) ->
+  a_cid = 'a'.codePointAt 0
+  z_cid = 'z'.codePointAt 0
+  #.........................................................................................................
+  isl  = ISL.new()
+  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'Basic Latin:Lower Case', }
+  entry = ( ISL.entries_of isl )[ 0 ]
+  T.eq entry[ 'lo'   ], a_cid
+  T.eq entry[ 'hi'   ], z_cid
+  T.eq isl[ 'min'  ],   a_cid
+  T.eq isl[ 'max'  ],   z_cid
+  T.eq isl[ 'fmin' ],   a_cid
+  T.eq isl[ 'fmax' ],   z_cid
   #.........................................................................................................
   isl  = ISL.new()
   ISL.insert isl, { lo: 'a', hi: 'z', name: 'Basic Latin:Lower Case', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'Basic Latin:Upper Case', }
-  for letter in 'aeiouAEIOU'
-    ISL.insert isl, { lo: letter, hi: letter, name: 'Basic Latin:Vowels', }
-  # show isl
+  entry = ( ISL.entries_of isl )[ 0 ]
+  T.eq entry[ 'lo'   ], a_cid
+  T.eq entry[ 'hi'   ], z_cid
+  T.eq isl[ 'min'  ],   a_cid
+  T.eq isl[ 'max'  ],   z_cid
+  T.eq isl[ 'fmin' ],   a_cid
+  T.eq isl[ 'fmax' ],   z_cid
   #.........................................................................................................
-  T.eq ( find_ids_text isl,  0 ), ''
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "characters as points 2" ] = ( T ) ->
+  a_cid = 'a'.codePointAt 0
+  z_cid = 'z'.codePointAt 0
+  A_cid = 'A'.codePointAt 0
+  Z_cid = 'Z'.codePointAt 0
+  c_cid = 'c'.codePointAt 0
+  C_cid = 'C'.codePointAt 0
+  #.........................................................................................................
+  isl  = ISL.new()
+  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'letter', }
+  ISL.insert isl, { lo: A_cid, hi: Z_cid, name: 'letter', }
+  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'lower', }
+  ISL.insert isl, { lo: A_cid, hi: Z_cid, name: 'upper', }
+  # #.........................................................................................................
+  # debug '5201-1', rpr find_names_text isl, c_cid
+  # debug '5201-2', rpr find_names_text isl, C_cid
+  # debug '5201-3', rpr find_names_text isl, c_cid, C_cid
+  # debug '5201-4', rpr find_names_text isl, C_cid, C_cid
+  # debug '5201-5', rpr find_names_text isl, C_cid, A_cid
+  # debug '5201-6', rpr find_names_text isl, c_cid, A_cid
+  #.........................................................................................................
+  T.eq ( find_names_text isl, [ c_cid         ] ), 'letter,lower'
+  T.eq ( find_names_text isl, [ C_cid         ] ), 'letter,upper'
+  T.eq ( find_names_text isl, [ c_cid, C_cid, ] ), 'letter'
+  T.eq ( find_names_text isl, [ C_cid, C_cid, ] ), 'letter,upper'
+  T.eq ( find_names_text isl, [ C_cid, A_cid, ] ), 'letter,upper'
+  T.eq ( find_names_text isl, [ c_cid, A_cid, ] ), 'letter'
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "characters as points 3" ] = ( T ) ->
+  isl  = ISL.new()
+  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+  #.........................................................................................................
+  for chr in 'aeiouAEIOU'
+    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+  for chr in 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
+    ISL.insert isl, { lo: chr, hi: chr, name: 'consonant', }
+  for chr in '0123456789'
+    ISL.insert isl, { lo: chr, hi: chr, name: 'digit', }
+  #.........................................................................................................
+  # list isl
+  #.........................................................................................................
+  T.eq ( find_names_text isl, [ 'c'     , ] ), 'basic-latin,consonant,letter,lower'
+  T.eq ( find_names_text isl, [ 'C'     , ] ), 'basic-latin,consonant,letter,upper'
+  T.eq ( find_names_text isl, [ 'c', 'C', ] ), 'basic-latin,consonant,letter'
+  T.eq ( find_names_text isl, [ 'C', 'C', ] ), 'basic-latin,consonant,letter,upper'
+  T.eq ( find_names_text isl, [ 'C', 'A', ] ), 'basic-latin,letter,upper'
+  T.eq ( find_names_text isl, [ 'c', 'A', ] ), 'basic-latin,letter'
+  T.eq ( find_names_text isl, [ 'A', 'e', ] ), 'basic-latin,letter,vowel'
+  T.eq ( find_names_text isl, [ 'i', 'e', ] ), 'basic-latin,letter,lower,vowel'
+  T.eq ( find_names_text isl, [ '2', 'e', ] ), 'basic-latin'
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "intervals_from_points" ] = ( T ) ->
+  isl = ISL.new()
+  # debug ISL.intervals_from_points isl, Array.from 'abcefg'
+  T.eq ( ISL.intervals_from_points isl, [ 3, 4, 5, ] ), [ { lo: 3, hi: 5, }, ]
+  T.eq ( ISL.intervals_from_points isl, [ 3, 4, 5, 7, 8, 9, 10 ] ), [ { lo: 3, hi: 5, }, { lo: 7, hi: 10, }, ]
+  T.eq ( ISL.intervals_from_points isl, [ 7, 10 ] ), [ { lo: 7, hi: 7, }, { lo: 10, hi: 10, }, ]
+  A_cid = 'A'.codePointAt 0
+  B_cid = 'B'.codePointAt 0
+  C_cid = 'C'.codePointAt 0
+  X_cid = 'X'.codePointAt 0
+  Y_cid = 'Y'.codePointAt 0
+  Z_cid = 'Z'.codePointAt 0
+  T.eq ( ISL.intervals_from_points isl, Array.from 'CBABAXZY' ), [ { lo: A_cid, hi: C_cid, }, { lo: X_cid, hi: Z_cid, }, ]
+  T.eq ( ISL.intervals_from_points isl, ( Array.from 'CBABAXZY' ), { name: 'foo', } ), [ { lo: A_cid, hi: C_cid, name: 'foo', }, { lo: X_cid, hi: Z_cid, name: 'foo', }, ]
+  #.........................................................................................................
   return null
 
 
@@ -303,11 +422,15 @@ unless module.parent?
     "test interval tree 2"
     "test interval tree 3"
     "aggregation"
-    "characters as points"
+    "characters as points 1"
+    "characters as points 2"
+    "characters as points 3"
+    "intervals_from_points"
+    "new API for points"
   ]
-  # @_prune()
+  @_prune()
   @_main()
 
-  # @[ "characters as points" ]()
+  # @[ "new API for points" ]()
 
 

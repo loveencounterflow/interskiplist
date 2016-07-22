@@ -26,16 +26,23 @@ echo                      = CND.echo.bind CND
     'ids-by-names':   {}
     'name-by-ids':    {}
     'idx':            -1
+    'min':            null
+    'max':            null
+    'fmin':           null
+    'fmax':           null
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 as_number = ( x ) ->
   return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
-  unless ( CND.type_of x ) is 'text'
+  unless ( type = CND.type_of x ) is 'text'
     throw new Error "expected number or single character text, got a #{type}"
   unless ( length = ( Array.from x ).length ) is 1
     throw new Error "expected single character text, got one of length #{length}"
   return x.codePointAt 0
+
+#-----------------------------------------------------------------------------------------------------------
+as_numbers = ( list ) -> ( as_number x for x in list )
 
 #-----------------------------------------------------------------------------------------------------------
 @insert = ( me, entry ) ->
@@ -51,10 +58,22 @@ as_number = ( x ) ->
   group_idx                   = ( me[ 'idx-by-names' ][ name ] = ( me[ 'idx-by-names' ][ name ] ? -1 ) + 1 )
   global_idx                  = ( me[ 'idx' ] += +1 )
   id                         ?= "#{name}[#{group_idx}]"
-  entry[ 'size'  ]            = hi - lo + 1
-  entry[ 'id'    ]            = id
+  entry[ 'lo'    ]            = lo
+  entry[ 'hi'    ]            = hi
   entry[ 'idx'   ]            = global_idx
+  entry[ 'id'    ]            = id
   entry[ 'name'  ]            = name
+  entry[ 'size'  ]            = hi - lo + 1
+  me[ 'min'           ]      ?= lo
+  me[ 'min'           ]       = Math.min me[ 'min' ], lo
+  me[ 'max'           ]      ?= hi
+  me[ 'max'           ]       = Math.max me[ 'max' ], lo
+  if CND.isa_number lo
+    me[ 'fmin'  ]              ?= lo
+    me[ 'fmin'  ]               = Math.min me[ 'fmin' ], lo
+  if CND.isa_number hi
+    me[ 'fmax'  ]              ?= hi
+    me[ 'fmax'  ]               = Math.max me[ 'fmax' ], lo
   me[ 'name-by-ids'   ][ id ] = name
   me[ 'entry-by-ids'  ][ id ] = entry ? null
   ( me[ 'ids-by-names' ][ name ] ?= [] ).push id
@@ -76,7 +95,7 @@ as_number = ( x ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @entries_of = ( me, ids = null ) ->
-  return me[ 'entry-by-ids' ] unless ids?
+  return ( entry for _, entry of me[ 'entry-by-ids' ] ) unless ids?
   return ( @entry_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
@@ -85,23 +104,82 @@ as_number = ( x ) ->
   return unique ( @name_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
-@find_ids_with_any_points = ( me, points... ) ->
+@find_ids_with_any_points = ( me, points ) ->
+  ### TAINT should be possible to call w/o any points to get all IDs ###
+  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+  points = [ points, ] unless CND.isa_list points
   ### Note: `Intervalskiplist::findIntersecting` needs more than a single probe, so we fall back to
   `::findContaining` in case a single probe was given. ###
-  return @find_ids_with_any_points me, points[ 0 ]... if CND.isa_list points[ 0 ]
-  return @find_ids_with_all_points me, points... if points.length < 2
+  return @find_ids_with_all_points me, points if points.length < 2
+  points = as_numbers points
   return me[ '%self' ].findIntersecting points...
 
 #-----------------------------------------------------------------------------------------------------------
-@find_ids_with_all_points = ( me, points... ) ->
-  return @find_ids_with_all_points me, points[ 0 ]... if CND.isa_list points[ 0 ]
+@find_ids_with_all_points = ( me, points ) ->
+  ### TAINT should be possible to call w/o any points to get no IDs ###
+  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+  points = [ points, ] unless CND.isa_list points
+  points = as_numbers points
   return me[ '%self' ].findContaining points...
 
 #-----------------------------------------------------------------------------------------------------------
-@find_entries_with_any_points  = ( me, points... ) -> @entries_of me, @find_ids_with_any_points me, points...
-@find_entries_with_all_points  = ( me, points... ) -> @entries_of me, @find_ids_with_all_points me, points...
-@find_names_with_any_points   = ( me, points... ) -> @names_of me, @find_ids_with_any_points me, points...
-@find_names_with_all_points   = ( me, points... ) -> @names_of me, @find_ids_with_all_points me, points...
+### TAINT what happens when these methods are called with no points? ###
+@find_entries_with_any_points = ( me, P... ) -> @entries_of me, @find_ids_with_any_points me, P...
+@find_entries_with_all_points = ( me, P... ) -> @entries_of me, @find_ids_with_all_points me, P...
+@find_names_with_any_points   = ( me, P... ) -> @names_of   me, @find_ids_with_any_points me, P...
+
+#-----------------------------------------------------------------------------------------------------------
+@find_names_with_all_points = ( me, points ) ->
+  ### TAINT should be possible to call w/o any points to get no names ###
+  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+  points = [ points, ] unless CND.isa_list points
+  return [] if points.length is 0
+  R = @find_names_with_any_points me, points[ 0 ]
+  # debug '1101-1', points[ 0 ], @find_ids_with_any_points me, points[ 0 ]
+  # debug '1101-1', points[ 0 ], @find_names_with_any_points me, points[ 0 ]
+  # debug '1101-1', points[ 0 ], me[ 'name-by-ids' ]
+  return R if points.length < 2
+  R = new Set R
+  # debug '1101-2', R
+  for point_idx in [ 1 ... points.length ]
+    point = points[ point_idx ]
+    names = @find_names_with_any_points me, point
+    # help '3200', R, names
+    R.forEach ( name ) -> R.delete name unless name in names
+    # warn '3200', R, names
+  return Array.from R
+
+#-----------------------------------------------------------------------------------------------------------
+@intervals_from_points = ( me, points, mixins... ) ->
+  mixin = ( lohi ) ->
+    return lohi unless mixins.length > 0
+    return Object.assign {}, mixins..., lohi
+  points = [ points, ] unless CND.isa_list points
+  points = unique as_numbers points
+  points.sort ( a, b ) ->
+    return +1 if a > b
+    return -1 if a < b
+    return  0
+  R           = []
+  last_point  = null
+  last_lo     = null
+  last_hi     = null
+  for point in points
+    unless last_lo?
+      last_lo     = point
+      last_hi     = point
+      last_point  = point
+      continue
+    if point is last_point + 1
+      last_hi     = point
+      last_point  = point
+      continue
+    R.push ( mixin { lo: last_lo, hi: last_hi, } )
+    last_lo     = point
+    last_hi     = point
+    last_point  = point
+  R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 unique = ( list ) ->
