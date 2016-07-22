@@ -29,6 +29,15 @@ echo                      = CND.echo.bind CND
   return R
 
 #-----------------------------------------------------------------------------------------------------------
+as_number = ( x ) ->
+  return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
+  unless ( CND.type_of x ) is 'text'
+    throw new Error "expected number or single character text, got a #{type}"
+  unless ( length = ( Array.from x ).length ) is 1
+    throw new Error "expected single character text, got one of length #{length}"
+  return x.codePointAt 0
+
+#-----------------------------------------------------------------------------------------------------------
 @insert = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
@@ -36,6 +45,8 @@ echo                      = CND.echo.bind CND
   throw new Error "expected setting for 'lo', found none" unless lo?
   throw new Error "expected setting for 'hi', found none" unless hi?
   throw new Error "expected at least one setting for 'name' or 'id', found none" unless name? or id?
+  lo                          = as_number lo
+  hi                          = as_number hi
   name                       ?= '*'
   group_idx                   = ( me[ 'idx-by-names' ][ name ] = ( me[ 'idx-by-names' ][ name ] ? -1 ) + 1 )
   global_idx                  = ( me[ 'idx' ] += +1 )

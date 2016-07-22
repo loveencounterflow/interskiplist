@@ -51,6 +51,7 @@ find_names_text = ( me, points... ) ->
 show = ( me ) ->
   echo '                      0         1         2         3         4         5         6         7         8         '
   echo '                      012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789'
+  debug '4921', ISL.intervals_of me
   for id, [ lo, hi, ] of ISL.intervals_of me
     lo_closed = yes
     hi_closed = yes
@@ -62,6 +63,9 @@ show = ( me ) ->
       hi        = 89
       hi_closed = no
     id += ' ' while id.length < 20
+    if lo > 89 and hi > 89
+      echo id id + '  ' + ( ' '.repeat 89 ) + '->'
+      continue
     if lo is hi
       echo id + '  ' + ( ' '.repeat lo ) + 'H'
       continue
@@ -216,7 +220,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "preview: sort by size and insertion order" ] = ( T ) ->
+@[ "aggregation" ] = ( T ) ->
   ###
   《 0x300a
   ###
@@ -278,6 +282,18 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "characters as points" ] = ( T ) ->
+  #.........................................................................................................
+  isl  = ISL.new()
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'Basic Latin:Lower Case', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'Basic Latin:Upper Case', }
+  for letter in 'aeiouAEIOU'
+    ISL.insert isl, { lo: letter, hi: letter, name: 'Basic Latin:Vowels', }
+  # show isl
+  #.........................................................................................................
+  T.eq ( find_ids_text isl,  0 ), ''
+  return null
 
 
 ############################################################################################################
@@ -286,31 +302,12 @@ unless module.parent?
     "test interval tree 1"
     "test interval tree 2"
     "test interval tree 3"
-    "preview: sort by size and insertion order"
+    "aggregation"
+    "characters as points"
   ]
   # @_prune()
   @_main()
 
-  # @[ "test interval tree 1" ]()
-  # @[ "test interval tree 2" ]()
-
-  ###
-  isl = ISL.new()
-  d = isl[ '%self' ]
-  ISL.insert isl, id: 'A', lo: 3, hi: 6
-  ISL.insert isl, id: 'B', lo: 9, hi: 10
-  ISL.insert isl, id: 'C', lo: 5, hi: 10
-  ISL.insert isl, id: 'D', lo: 2, hi: 15
-  show isl
-  debug d.findContaining 5
-  debug d.findContaining 5, 6
-  debug d.findContaining 5, 6, 7
-  debug d.findContaining 5, 6, 7, 12
-  # debug d.findIntersecting 5
-  debug d.findIntersecting 5, 6
-  debug d.findIntersecting 5, 6, 7
-  debug d.findIntersecting 5, 6, 7, 12
-  ###
-
+  # @[ "characters as points" ]()
 
 
