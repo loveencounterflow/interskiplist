@@ -207,11 +207,10 @@ unique = ( list ) ->
   return entries
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate = ( me, points..., reducers ) ->
-  unless CND.isa_pod reducers
-    points.push reducers
-    reducers = {}
-  entries = @find_entries_with_all_points me, points...
+@aggregate = ( me, points, reducers = {} ) ->
+  if reducers? and not CND.isa_pod reducers
+    throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
+  entries = @find_entries_with_all_points me, points
   @sort_entries me, entries
   R         = {}
   cache     = {}

@@ -243,6 +243,8 @@ show = ( me ) ->
   ( ISL.find_ids_with_any_points isl, [ 7, ] )
   ( ISL.find_ids_with_any_points isl, [ 7, 8, ] )
   T.throws 'expected 2 arguments, got 3', -> ISL.find_ids_with_any_points isl, 7, 8
+  T.throws 'expected 2 arguments, got 3', -> ISL.find_ids_with_all_points isl, 7, 8
+  T.throws 'expected a POD for reducer, got a number', -> ISL.aggregate isl, 7, 8
   return null
 
 #-----------------------------------------------------------------------------------------------------------
