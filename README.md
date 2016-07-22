@@ -18,6 +18,7 @@ Install as `npm install --save interskiplist`.
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [IntervalSkipList](#intervalskiplist)
+- [Example 1](#example-1)
 - [API](#api)
   - [@aggregate = ( me, points, reducers ) ->](#@aggregate---me-points-reducers---)
   - [@entries_of = ( me, ids = null ) ->](#@entries_of---me-ids--null---)
