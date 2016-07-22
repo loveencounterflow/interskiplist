@@ -6,12 +6,12 @@
 
 Binary Search for Numeric & Character Intervals; great for CSS-Unicode-Range-like tasks.
 
-[![npm version](https://badge.fury.io/js/pipedreams.svg)](https://www.npmjs.com/package/pipedreams)
-[![Build Status](https://travis-ci.org/loveencounterflow/pipedreams.svg?branch=master)](https://travis-ci.org/loveencounterflow/pipedreams)
+[![npm version](https://badge.fury.io/js/interskiplist.svg)](https://www.npmjs.com/package/interskiplist)
+[![Build Status](https://travis-ci.org/loveencounterflow/interskiplist.svg?branch=master)](https://travis-ci.org/loveencounterflow/interskiplist)
 ![stability-almost stable](https://img.shields.io/badge/stability-almost%20stable-orange.svg)
-![slogan-NodeJS streams made rad easy](https://img.shields.io/badge/slogan-NodeJS%20streams%20made%20rad%20easy-blue.svg)
+![slogan-Binary Search FTW](https://img.shields.io/badge/slogan-Binary%20Search%20FTW-blue.svg)
 
-Install as `npm install --save pipedreams`.
+Install as `npm install --save interskiplist`.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
