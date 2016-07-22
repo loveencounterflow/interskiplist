@@ -134,7 +134,7 @@ with your 100% homebrew solution will likely be that it is not going to scale ni
 lot of memory and pre-compute too much, or your solution will become a drag once you have to scan many
 thousands of codepoints for a real-world text: as such, the problem does not look too complex, but the devil
 is in the scalability of given algorithm's space and time requirements. Which is why binary search trees,
-tries, &c&c are important topics in computer science. Fortunately, we can build on a lot of prior art in
+tries and so on are important topics in computer science. Fortunately, we can build on a lot of prior art in
 this respect (which is why I avoided to re-implementa skip tree myself but used an existing solution).
 
 InterSkipList offers one specific implementation to the problem, one that is hopefully both simple yet
@@ -149,10 +149,13 @@ css_rules = ISL.new()
 ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
 ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
 ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
-console.log ISL.aggregate css_rules, 'A'
-console.log ISL.aggregate css_rules, '&'
-console.log ISL.aggregate css_rules, '人'
+console.log ISL.aggregate css_rules, 'A'  # --> { font_family: 'Arial' }
+console.log ISL.aggregate css_rules, '&'  # --> { font_family: 'Baskerville' }
+console.log ISL.aggregate css_rules, '人' # --> { font_family: 'Sun-ExtA' }
 ```
+
+
+
 
 # Example 1
 
