@@ -1,6 +1,6 @@
 {
   "name": "interskiplist",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Interval Skiplist, a Binary Search Tool. A slight shim over https://github.com/atom-archive/interval-skip-list",
   "main": "lib/main.js",
   "scripts": {
