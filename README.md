@@ -159,8 +159,8 @@ find │   ids   │ with │ all │ points
      └─────────┘      └─────┘
 ```
 
-When using the `find` methods, you can give any number of points; if you query for more than point you have
-to pass a list of values; codepoints may be given as numbers or as single-character texts. When using
+When using the `find` methods, you can give any number of points; if you query for more than one point you
+have to pass a list of values; codepoints may be given as numbers or as single-character texts. When using
 several probes, the `all` methods will only return data for those intervals that contain each single probe,
 and the `any` methods will return data for those intervals that contain at least one probe. When you query
 for a single point, there is no distinction between the two.
@@ -210,8 +210,8 @@ cjk_entry =
 The above data structures will be returned by the methods `ISL.entries_of`, `ISL.entry_of`,
 `ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. Using these methods brings us one
 step closer to the implementation of a CSS-Unicode-Range-like functionality; however, when you query the
-data for a given codepoint and get back five or ten objects with lots of data, that task may become a little
-cumbersome. But do not fear, there's a convenience method that can help a great deal:
+data for a given codepoint and get back five or ten objects with lots of data each, that task may become a
+little cumbersome. But do not fear, there's a convenience method that can help a great deal:
 
 
 ```coffee
@@ -221,8 +221,29 @@ ISL.aggregate sample, '&'  # --> { name: 'ampersand', font_family: 'Baskerville'
 ISL.aggregate sample, '人' # --> { name: 'cjk', font_family: 'Sun-ExtA' }
 ```
 
+The above demonstrates the basic functionality of `aggregate`:
 
+* it finds applicable entries by executing `find_entries_with_all_points`—that means you can pass in one or
+  any number of points, and the returned structure will give you a lowest-common-denominator description.
 
+* it then iterates over the key/value pairs of all entries found, in insertion order, skipping the keys
+  `idx`, `id`, `lo`, `hi` and `size` (unless told otherwise), and assigns the values to the result (again
+  unless told otherwise); since assignment is done in interval insertion order, attributes of later entries
+  will replace attributes of earlier entries. This is essentially how CSS works (otherwise equivalent rules that come later in the stylesheet win over earlier
+  ones), and it is also how `Object.assign` works (for which reason it is dubbed 'assign' mode).
+
+* You may configure exactly how aggregation proceeds on a per-element basis. Just pass in a third argument
+  whose keys are interval entry attribute keys and whose values describe the mode of operation. You can
+  choose between
+  * `'include'` (to include a key/value pair otherwise skipped),
+  * `'skip'` (to omit an key/value pair otherwise included)
+  * `'assign'` (to use 'assign' mode, as described above)
+  * `'list'` (to build a list of all occurring values under that key)
+  * `'add'` (to add up all numeric values under that key)
+  * `'average'` (to get the average numeric value under that key)
+
+  You can also pass in, say, `'*': 'list'` to use 'list' mode as a default for all elements not configured
+  otherwise.
 
 # Example 1
 
