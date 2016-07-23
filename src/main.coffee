@@ -130,7 +130,13 @@ as_numbers = ( list ) -> ( as_number x for x in list )
   `::findContaining` in case a single probe was given. ###
   return @find_ids_with_all_points me, points if points.length < 2
   points = as_numbers points
-  return me[ '%self' ].findIntersecting points...
+  ### TAINT findIntersecting appears to be not working as advertising, workaraound: ###
+  # return me[ '%self' ].findIntersecting points...
+  R = new Set()
+  for point in points
+    ids = me[ '%self' ].findContaining point
+    R.add id for id in ids
+  return @sort_ids me, Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_all_points = ( me, points ) ->
@@ -230,13 +236,39 @@ unique = ( list ) ->
   return ids
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate = ( me, points, reducers = {} ) ->
+@aggregate = ( me, points_or_entries, reducers = {} ) ->
   if reducers? and not CND.isa_pod reducers
     throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
-  entries           = @find_entries_with_all_points me, points
+  # #.........................................................................................................
+  # switch arity = arguments.length
+  #   when 2, 4
+  #     null
+  #   when 3
+  #     unless CND.isa_text mode
+  #       reducers  = mode
+  #       mode      = 'all'
+  #   else throw new Error "expected between 2 and 4 arguments, got #{arity}"
+  # #.........................................................................................................
+  # mode = 'any'
+  # switch mode
+  #   when 'all' then entries = @find_entries_with_all_points me, points
+  #   when 'any' then entries = @find_entries_with_any_points me, points
+  #   else throw new Error "unknow mode #{rpr mode}"
+  points_or_entries = [ points_or_entries, ] unless CND.isa_list points_or_entries
+  points            = []
+  entries           = []
+  for points_or_entry in points_or_entries
+    if ( CND.type_of points_or_entry ) in [ 'number', 'text', ]
+      points.push points_or_entry
+    else
+      entries.push points_or_entry
+  entries.splice 0, 0, ( @find_entries_with_all_points me, points )...
+  @sort_entries me, entries
+  #.........................................................................................................
   R                 = {}
   cache             = {}
   averages          = {}
+  common            = {}
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
   #.........................................................................................................
@@ -250,6 +282,7 @@ unique = ( list ) ->
         when 'list'     then ( R[ key ]      ?= [] ).push value
         when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
         when 'assign'   then R[ key ]         = value
+        when 'all'      then ( common[ key ] ?= [] ).push value
         when 'average'
           target      = averages[ key ] ?= [ 0, 0, ]
           target[ 0 ] = target[ 0 ] + value
@@ -261,6 +294,10 @@ unique = ( list ) ->
   #.........................................................................................................
   for key, [ sum, count, ] of averages
     R[ key ] = sum / count
+  #.........................................................................................................
+  debug '2200', common
+  for key, values of common
+    R[ key ] = values[ 0 ] if ( values.length is 1 ) or CND.equals values...
   #.........................................................................................................
   for key, ids_and_values of cache
     R[ key ] = reducers[ key ] ids_and_values, R, entries

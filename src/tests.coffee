@@ -499,17 +499,32 @@ show = ( me ) ->
 @[ "readme example 2" ] = ( T ) ->
   samples = ISL.new()
   ISL.insert samples, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
+  ISL.insert samples, { lo:   0x00, hi:     0xff, name: 'ascii',     font_family: 'Arial',        }
   ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+  ISL.insert samples, { lo: 0x3040, hi:   0x309f, name: 'cjk',       font_family: 'Sun-ExtA',     }
   ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
-  # debug 'rx2-1', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
-  # debug 'rx2-2', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  # debug 'rx2-3', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
-  debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
-  debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
-  # debug 'rx2-7', ISL.aggregate samples, 'A' #, { font_family: 'list', }
-  # debug 'rx2-8', ISL.aggregate samples, '&' #, { font_family: 'list', }
-  # debug 'rx2-9', ISL.aggregate samples, '人' #, { font_family: 'list', }
+  debug 'rx2-1', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+  debug 'rx2-2', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  debug 'rx2-3', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  # debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
+  # debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  # debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  debug 'rx2-7', ISL.aggregate samples, 'A' #, { font_family: 'list', }
+  debug 'rx2-8', ISL.aggregate samples, '&' #, { font_family: 'list', }
+  debug 'rx2-9', ISL.aggregate samples, '人' #, { font_family: 'list', }
+  replacers = { '*': 'list', name: 'include', }
+  debug 'rx2-10', ISL.aggregate samples, 'A', replacers
+  debug 'rx2-11', ISL.aggregate samples, '&', replacers
+  debug 'rx2-12', ISL.aggregate samples, '人', replacers
+  replacers = { '*': 'list', name: 'all', font_family: 'all', }
+  # debug 'rx2-13', ISL.aggregate samples, ( Array.from 'Abcd'           ), replacers
+  # debug 'rx2-14', ISL.aggregate samples, ( Array.from 'Abcd人'          ), replacers
+  # debug 'rx2-15', ISL.aggregate samples, ( Array.from '人はるのそらのした'      ), replacers
+  f = ( entries ) -> ( entry[ 'font_family' ] for entry in entries )
+  debug 'rx2-16 人',  f ISL.find_entries_with_any_points samples, ( Array.from '人'      )
+  debug 'rx2-17 は',  f ISL.find_entries_with_any_points samples, ( Array.from 'は'      )
+  debug 'rx2-18 人は', f ISL.find_entries_with_any_points samples, ( Array.from '人は'      )
+  # debug 'rx2-19 人は', ISL.find_entries_with_all_points samples, ( Array.from '人は'      )
   # delete samples[ '%self' ]
   # debug samples
   #.........................................................................................................
@@ -539,6 +554,29 @@ show = ( me ) ->
   T.eq ( ISL.names_of isl, [ 'bar', 'foo', 'baz', 'gnu', '22', ] ), names_by_insertion_order
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "demo discontiguous ranges" ] = ( T ) ->
+  u = ISL.new()
+  ISL.insert u, { lo:  0x4e00,  hi:  0x9fff,  name: 'cjk', id: 'u-cjk',         }
+  ISL.insert u, { lo:  0xff00,  hi:  0xffef,  name: 'cjk', id: 'u-halfull',     }
+  ISL.insert u, { lo:  0x3400,  hi:  0x4dbf,  name: 'cjk', id: 'u-cjk-xa',      }
+  ISL.insert u, { lo: 0x20000,  hi: 0x2a6df,  name: 'cjk', id: 'u-cjk-xb',      }
+  ISL.insert u, { lo: 0x2a700,  hi: 0x2b73f,  name: 'cjk', id: 'u-cjk-xc',      }
+  ISL.insert u, { lo: 0x2b740,  hi: 0x2b81f,  name: 'cjk', id: 'u-cjk-xd',      }
+  ISL.insert u, { lo: 0x2b820,  hi: 0x2ceaf,  name: 'cjk', id: 'u-cjk-xe',      }
+  ISL.insert u, { lo:  0xf900,  hi:  0xfaff,  name: 'cjk', id: 'u-cjk-cmpi1',   }
+  ISL.insert u, { lo: 0x2f800,  hi: 0x2fa1f,  name: 'cjk', id: 'u-cjk-cmpi2',   }
+  ISL.insert u, { lo:  0x2f00,  hi:  0x2fdf,  name: 'cjk', id: 'u-cjk-rad1',    }
+  ISL.insert u, { lo:  0x2e80,  hi:  0x2eff,  name: 'cjk', id: 'u-cjk-rad2',    }
+  ISL.insert u, { lo:  0x3000,  hi:  0x303f,  name: 'cjk', id: 'u-cjk-sym',     }
+  ISL.insert u, { lo:  0x31c0,  hi:  0x31ef,  name: 'cjk', id: 'u-cjk-strk',    }
+  ISL.insert u, { lo:  0x30a0,  hi:  0x30ff,  name: 'cjk', id: 'u-cjk-kata',    }
+  ISL.insert u, { lo:  0x3040,  hi:  0x309f,  name: 'cjk', id: 'u-cjk-hira',    }
+  ISL.insert u, { lo:  0xac00,  hi:  0xd7af,  name: 'cjk', id: 'u-hang-syl',    }
+  ISL.insert u, { lo:  0x3200,  hi:  0x32ff,  name: 'cjk', id: 'u-cjk-enclett', }
+  Array.from ''
+
+
 ############################################################################################################
 unless module.parent?
   include = [
@@ -556,6 +594,7 @@ unless module.parent?
     "readme example 2"
     "intervals without ID, name"
     "preserve insertion order"
+    "demo discontiguous ranges"
   ]
   # @_prune()
   @_main()

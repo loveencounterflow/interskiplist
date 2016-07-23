@@ -240,34 +240,67 @@ The above demonstrates the basic functionality of `aggregate`:
   * `'assign'` (to use 'assign' mode, as described above)
   * `'list'` (to build a list of all occurring values under that key)
   * `'add'` (to add up all numeric values under that key)
+  * `'all'` (to get a value that is common to all entries)
   * `'average'` (to get the average numeric value under that key)
+  * Lastly, you can pass in a function that accepts a list of `[ id, value, ]` pairs (and, optionally,
+    the return value of `aggregate` and the list of entries). The values for keys so configured will
+    be whatever the respective function returns.
 
-  You can also pass in, say, `'*': 'list'` to use 'list' mode as a default for all elements not configured
-  otherwise.
+  To set a mode for all keys not configured explicitly, use the `'*'` (asterisk) key.
 
-# Example 1
+Example:
 
-In this example, we build an Interval SkipList `isl` from some ASCII characters:
+```coffee
+replacers = { '*': 'list', name: 'include', }
+ISL.aggregate samples, 'A', replacers
+ISL.aggregate samples, '&', replacers
+ISL.aggregate samples, '人', replacers
+```
+
+Output:
+
+```coffee
+{ name: [ 'base' ], font_family: [ 'Arial' ] }
+{ name: [ 'base', 'ampersand' ], font_family: [ 'Arial', 'Baskerville' ] }
+{ name: [ 'base', 'cjk' ], font_family: [ 'Arial', 'Sun-ExtA' ] }
+```
+
+## Discontiguous Intervals
+
+In the preceding discussion, we have only used continuous intervals, that is, ranges that are fully
+described by giving a lower and an upper bound. In real life, however, discontinuous ranges are common. In
+Unicode, for example, CJK characters are split over around 20 blocks (a Unicode 'block' being a continuous
+range of codepoints whose boundaries are normally multiples of 128); accordingly, to add a tag to indicate
+'this is a CJK codepoint', we have to insert 20 contiguous intervals to the skip list.
+
+InterSkipList enables discontinuous ranges by making clever use of the interval `name` attribute. It is
+quite simple: each interval must have its own unique ID, but a name can be used for any number of intervals.
+Then, when you query the skip list for intervals containing one or more points, you will be given a list of
+names in insertion order, with duplicates removed. For example:
+
+### Example
+
+In this example, we build an Interval SkipList `ascii` from some ASCII characters:
 
 ```coffee
 #...........................................................................................................
-isl = ISL.new()
-ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
-ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
-ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
-ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
-ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+ascii = ISL.new()
+ISL.insert ascii, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+ISL.insert ascii, { lo: 'a', hi: 'z', name: 'letter', }
+ISL.insert ascii, { lo: 'A', hi: 'Z', name: 'letter', }
+ISL.insert ascii, { lo: 'a', hi: 'z', name: 'lower', }
+ISL.insert ascii, { lo: 'A', hi: 'Z', name: 'upper', }
 #...........................................................................................................
 for chr in 'aeiouAEIOU'
-  ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+  ISL.insert ascii, { lo: chr, hi: chr, name: 'vowel', }
 #...........................................................................................................
 consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
-for interval in ISL.intervals_from_points isl, consonants, { name: 'consonant', }
-  ISL.insert isl, interval
+for interval in ISL.intervals_from_points ascii, consonants, { name: 'consonant', }
+  ISL.insert ascii, interval
 #...........................................................................................................
 digits = Array.from '0123456789'
-for interval in ISL.intervals_from_points isl, digits, { name: 'digit', }
-  ISL.insert isl, interval
+for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', }
+  ISL.insert ascii, interval
 ```
 
 ```
@@ -283,15 +316,15 @@ consonants      ...                        [-] [-] [---] [---] [---]       [-] [
 digits          ...      [--------]
 ```
 ```
-ISL.find_names_with_all_points isl, [ 'c'     , ] ---> [ 'basic-latin', 'letter', 'lower', 'consonant' ]
-ISL.find_names_with_all_points isl, [ 'C'     , ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
-ISL.find_names_with_all_points isl, [ 'c', 'C', ] ---> [ 'basic-latin', 'letter', 'consonant' ]
-ISL.find_names_with_all_points isl, [ 'C', 'C', ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
-ISL.find_names_with_all_points isl, [ 'C', 'A', ] ---> [ 'basic-latin', 'letter', 'upper' ]
-ISL.find_names_with_all_points isl, [ 'c', 'A', ] ---> [ 'basic-latin', 'letter' ]
-ISL.find_names_with_all_points isl, [ 'A', 'e', ] ---> [ 'basic-latin', 'letter', 'vowel' ]
-ISL.find_names_with_all_points isl, [ 'i', 'e', ] ---> [ 'basic-latin', 'letter', 'lower', 'vowel' ]
-ISL.find_names_with_all_points isl, [ '2', 'e', ] ---> [ 'basic-latin' ]
+ISL.find_names_with_all_points ascii, [ 'c'     , ] ---> [ 'basic-latin', 'letter', 'lower', 'consonant' ]
+ISL.find_names_with_all_points ascii, [ 'C'     , ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
+ISL.find_names_with_all_points ascii, [ 'c', 'C', ] ---> [ 'basic-latin', 'letter', 'consonant' ]
+ISL.find_names_with_all_points ascii, [ 'C', 'C', ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
+ISL.find_names_with_all_points ascii, [ 'C', 'A', ] ---> [ 'basic-latin', 'letter', 'upper' ]
+ISL.find_names_with_all_points ascii, [ 'c', 'A', ] ---> [ 'basic-latin', 'letter' ]
+ISL.find_names_with_all_points ascii, [ 'A', 'e', ] ---> [ 'basic-latin', 'letter', 'vowel' ]
+ISL.find_names_with_all_points ascii, [ 'i', 'e', ] ---> [ 'basic-latin', 'letter', 'lower', 'vowel' ]
+ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [ 'basic-latin' ]
 ```
 
 # API
