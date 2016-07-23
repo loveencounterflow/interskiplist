@@ -354,51 +354,6 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "readme example 1" ] = ( T ) ->
-  isl = ISL.new()
-  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
-  #.........................................................................................................
-  for chr in 'aeiouAEIOU'
-    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
-  consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
-  for interval in ISL.intervals_from_points isl, consonants, { name: 'consonant', }
-    ISL.insert isl, interval
-  digits = Array.from '0123456789'
-  for interval in ISL.intervals_from_points isl, digits, { name: 'digit', }
-    ISL.insert isl, interval
-  #.........................................................................................................
-  show isl
-  #.........................................................................................................
-  console.log ISL.find_names_with_all_points isl, [ 'c'     , ]
-  console.log ISL.find_names_with_all_points isl, [ 'C'     , ]
-  console.log ISL.find_names_with_all_points isl, [ 'c', 'C', ]
-  console.log ISL.find_names_with_all_points isl, [ 'C', 'C', ]
-  console.log ISL.find_names_with_all_points isl, [ 'C', 'A', ]
-  console.log ISL.find_names_with_all_points isl, [ 'c', 'A', ]
-  console.log ISL.find_names_with_all_points isl, [ 'A', 'e', ]
-  console.log ISL.find_names_with_all_points isl, [ 'i', 'e', ]
-  console.log ISL.find_names_with_all_points isl, [ '2', 'e', ]
-  #.........................................................................................................
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
-@[ "readme example 2" ] = ( T ) ->
-  samples = ISL.new()
-  ISL.insert samples, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
-  ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
-  ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
-  debug ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
-  debug ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  debug ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
-  debug ISL.aggregate samples, 'A' #, { font_family: 'list', }
-  debug ISL.aggregate samples, '&' #, { font_family: 'list', }
-  debug ISL.aggregate samples, '人' #, { font_family: 'list', }
-
-#-----------------------------------------------------------------------------------------------------------
 @[ "intervals without ID, name" ] = ( T ) ->
   isl = ISL.new()
   ISL.insert isl, { lo: 'a', 'hi': 'z', }
@@ -507,6 +462,54 @@ show = ( me ) ->
   debug JSON.stringify ISL.aggregate isl, 5, aggregation_settings
   T.eq ( ISL.aggregate isl, 5, aggregation_settings ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
   return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "readme example 1" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
+  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
+  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+  #.........................................................................................................
+  for chr in 'aeiouAEIOU'
+    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+  consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
+  for interval in ISL.intervals_from_points isl, consonants, { name: 'consonant', }
+    ISL.insert isl, interval
+  digits = Array.from '0123456789'
+  for interval in ISL.intervals_from_points isl, digits, { name: 'digit', }
+    ISL.insert isl, interval
+  #.........................................................................................................
+  show isl
+  #.........................................................................................................
+  console.log ISL.find_names_with_all_points isl, [ 'c'     , ]
+  console.log ISL.find_names_with_all_points isl, [ 'C'     , ]
+  console.log ISL.find_names_with_all_points isl, [ 'c', 'C', ]
+  console.log ISL.find_names_with_all_points isl, [ 'C', 'C', ]
+  console.log ISL.find_names_with_all_points isl, [ 'C', 'A', ]
+  console.log ISL.find_names_with_all_points isl, [ 'c', 'A', ]
+  console.log ISL.find_names_with_all_points isl, [ 'A', 'e', ]
+  console.log ISL.find_names_with_all_points isl, [ 'i', 'e', ]
+  console.log ISL.find_names_with_all_points isl, [ '2', 'e', ]
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "readme example 2" ] = ( T ) ->
+  samples = ISL.new()
+  ISL.insert samples, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
+  ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+  ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+  # debug 'rx2-1', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+  # debug 'rx2-2', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  # debug 'rx2-3', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
+  debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  # debug 'rx2-7', ISL.aggregate samples, 'A' #, { font_family: 'list', }
+  # debug 'rx2-8', ISL.aggregate samples, '&' #, { font_family: 'list', }
+  # debug 'rx2-9', ISL.aggregate samples, '人' #, { font_family: 'list', }
 
 
 ############################################################################################################

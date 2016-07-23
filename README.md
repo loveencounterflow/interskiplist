@@ -50,9 +50,7 @@ Install as `npm install --save interskiplist`.
 
 # InterSkipList
 
-## Intro
-
-### Background
+## Background
 
 (Skip Lists)[https://en.wikipedia.org/wiki/Skip_list], in particular Interval Skip Lists, are a great
 alternative to the more classical trees of various kinds to organize data so that searching remains
@@ -134,30 +132,86 @@ Let's have a look at how to rewrite the gist of the above CSS rules in CoffeeScr
 sample = ISL.new()
 
 # Insert 3 contiguous intervals; we'll use the `name`s momentarily:
-ISL.insert sample, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
+ISL.insert sample, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
 ISL.insert sample, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
 ISL.insert sample, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
 ```
-Having created and populated the `sample` interval skiplist, we can now go and query the data
-with one of the 'find' methods. There are six of these, and they're named after the pattern
+
+We have named the intervals with terms that suggest their scope.
+
+> Observe that the `cjk` (i.e. 'Chinese, Japanese, Korean') range is not nearly exhaustive w.r.t. Unicode's
+> character repertoire—for example, there are over 42,000 more CJK characters in the range `0x20000 ..
+> 0x2a6df`. As a general rule, when you want to work with a subset of Unicode codepoints for a specific
+> purpose (e.g. 'all the characters needed to write French', or 'uppercase Latin letters, with and without
+> diacritics'), you will neither get only characters from a single, contiguous range, nor will codepoint
+> values (like `26<sub>16</sub> = 38<sub>10</sub>`) neatly map to any received way of sorting. The 'Basic
+> Latin' (ASCII) block is more the exception than the rule. We'll get to talk about non-contiguous ranges in
+> a moment.
+
+Having created and populated the `sample` interval skiplist, we can now go and query the data with one of
+the 'find' methods. There are six of these, and they're named after the pattern
 
 ```
-ISL.find_[ ids | names | entries ]_with_[ all | any ]_points
+     ┌─────────┐
+     │  names  │      ┌─────┐
+find │   ids   │ with │ all │ points
+     │ entries │      │ any │
+     └─────────┘      └─────┘
 ```
 
+When using the `find` methods, you can give any number of points; if you query for more than point you have
+to pass a list of values; codepoints may be given as numbers or as single-character texts. When using
+several probes, the `all` methods will only return data for those intervals that contain each single probe,
+and the `any` methods will return data for those intervals that contain at least one probe. When you query
+for a single point, there is no distinction between the two.
 
-
+Here we retrieve the names of the intervals that contain, repsectively, one of the three codepoints 'A', '&'
+and '人':
 
 ```coffee
-ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
-ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+ISL.find_names_with_all_points samples, 'A' # --> [ 'base', ]
+ISL.find_names_with_all_points samples, '&' # --> [ 'base', 'ampersand', ]
+ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
+```
+
+Note that the ordering of results of the `find` methods is not defined—searching for applicable names for
+`'&'` could just as well have resulted in `[ 'ampersand', 'base', ]`. That is good enough for some uses
+cases, but to apply, say, a set of formatting rules against characters, we certainly must know what
+applicable rules take precedence of which others. This is where `ISL.sort_entries` and `ISL.aggregate` come
+in. Let's first search for 'entries'—those are the JS objects we passed in for each interval, amended with a few
+essential attributes (an ID and an insertion order index):
+
+```coffee
+base_entry = {
+  lo:               0
+  hi:               1114111
+  name:             'base'
+  font_family:      'Arial'
+  idx:              0
+  id:               'latin[0]'
+  size:             1114112
+ampersand_entry = {
+  lo:               38
+  hi:               38
+  name:             'ampersand'
+  font_family:      'Baskerville'
+  idx:              2
+  id:               'ampersand[0]'
+  size:             1
+cjk_entry = {
+  lo:               19968
+  hi:               40959
+  name:             'cjk'
+  font_family:      'Sun-ExtA'
+  idx:              1
+  id:               'cjk[0]'
+  size:             20992
 ```
 
 
 ```coffee
 # Test the rules with our sample characters:
-ISL.aggregate sample, 'A'  # --> { name: 'latin', font_family: 'Arial' }
+ISL.aggregate sample, 'A'  # --> { name: 'base', font_family: 'Arial' }
 ISL.aggregate sample, '&'  # --> { name: 'ampersand', font_family: 'Baskerville' }
 ISL.aggregate sample, '人' # --> { name: 'cjk', font_family: 'Sun-ExtA' }
 ```
