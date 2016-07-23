@@ -209,25 +209,39 @@ unique = ( list ) ->
 @aggregate = ( me, points, reducers = {} ) ->
   if reducers? and not CND.isa_pod reducers
     throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
-  entries = @find_entries_with_all_points me, points
+  entries           = @find_entries_with_all_points me, points
+  R                 = {}
+  cache             = {}
+  averages          = {}
+  exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
+  reducer_fallback  = reducers[ '*' ] ? 'assign'
+  #.........................................................................................................
   @sort_entries me, entries
-  R         = {}
-  cache     = {}
-  averages  = {}
   for entry in entries
     for key, value of entry
-      continue if key in [ 'idx', 'id', 'lo', 'hi', 'size', ]
-      switch ( reducer = reducers[ key ] ) ? 'assign'
+      continue if key in exclude
+      reducer = ( reducer = reducers[ key ] ) ? reducer_fallback
+      reducer = reducer_fallback if reducer is 'include'
+      switch reducer
         when 'skip'     then continue
         when 'list'     then ( R[ key ]      ?= [] ).push value
         when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
         when 'assign'   then R[ key ]         = value
-        when 'average'  then averages[ key ]  = ( averages[ key ] ? 0 ) + value
+        when 'average'
+          target      = averages[ key ] ?= [ 0, 0, ]
+          target[ 0 ] = target[ 0 ] + value
+          target[ 1 ] = target[ 1 ] + 1
         else
+          ### TAINT repeats typecheck on each iteration ###
           throw new Error "unknwon reducer #{rpr reducer}" unless CND.isa_function reducer
           ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
-  for key, facets of cache
-    R[ key ] = reducers[ key ] facets, R, entries
+  #.........................................................................................................
+  for key, [ sum, count, ] of averages
+    R[ key ] = sum / count
+  #.........................................................................................................
+  for key, ids_and_values of cache
+    R[ key ] = reducers[ key ] ids_and_values, R, entries
+  #.........................................................................................................
   return R
 
 

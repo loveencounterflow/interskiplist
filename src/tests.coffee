@@ -248,82 +248,6 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "aggregation" ] = ( T ) ->
-  ###
-  《 0x300a
-  ###
-  entries = [
-    #.......................................................................................................
-    {
-      lo:         0x300a
-      hi:         0x300a
-      type:       'style'
-      name:       'glyph-0x300a'
-      rsg:        'u-cjk-sym'
-      style:      { raise: -0.2 } }
-    #.......................................................................................................
-    {
-      lo:         0x0
-      hi:         0xffff
-      type:       'plane'
-      name:       'Basic Multilingual Plane (BMP)' }
-    #.......................................................................................................
-    {
-      lo:         0x2e80
-      hi:         0x33ff
-      type:       'area'
-      name:       'CJK Miscellaneous Area' }
-    #.......................................................................................................
-    {
-      lo:         0x3000
-      hi:         0x303f
-      type:       'block'
-      name:       'CJK Symbols and Punctuation'
-      rsg:        'u-cjk-sym'
-      is_cjk:     true
-      tex:        'cnsymOld' }
-    #.......................................................................................................
-    {
-      lo:         0x3000
-      hi:         0x303f
-      type:       'block'
-      name:       'CJK Symbols and Punctuation'
-      rsg:        'u-cjk-sym'
-      is_cjk:     true
-      tex:        'cnsymNew' }
-    #.......................................................................................................
-    {
-      lo:         0x0
-      hi:         0x10ffff
-      type:       'style'
-      name:       'fallback'
-      tex:        'mktsRsgFb' }
-    #.......................................................................................................
-    ]
-  #.........................................................................................................
-  isl = ISL.new()
-  ISL.insert isl, entry for entry in entries
-  replacers =
-    # rsg:    'skip'
-    type:   'list'
-    style:  'list'
-    tex:    'list'
-    rsg:    'assign'
-    # style: ( facets ) ->
-  entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
-  debug JSON.stringify entry
-  help entry
-  T.eq entry, {
-    type: [ 'style', 'plane', 'area', 'block', 'block', 'style' ],
-    name: 'glyph-0x300a',
-    tex: [ 'mktsRsgFb', 'cnsymOld', 'cnsymNew' ],
-    rsg: 'u-cjk-sym',
-    is_cjk: true,
-    style: [ { raise: -0.2 } ] }
-  #.........................................................................................................
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
 @[ "characters as points 1" ] = ( T ) ->
   a_cid = 'a'.codePointAt 0
   z_cid = 'z'.codePointAt 0
@@ -489,13 +413,110 @@ show = ( me ) ->
   return null
 
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "aggregation 1" ] = ( T ) ->
+  ###
+  《 0x300a
+  ###
+  entries = [
+    #.......................................................................................................
+    {
+      lo:         0x300a
+      hi:         0x300a
+      type:       'style'
+      name:       'glyph-0x300a'
+      rsg:        'u-cjk-sym'
+      style:      { raise: -0.2 } }
+    #.......................................................................................................
+    {
+      lo:         0x0
+      hi:         0xffff
+      type:       'plane'
+      name:       'Basic Multilingual Plane (BMP)' }
+    #.......................................................................................................
+    {
+      lo:         0x2e80
+      hi:         0x33ff
+      type:       'area'
+      name:       'CJK Miscellaneous Area' }
+    #.......................................................................................................
+    {
+      lo:         0x3000
+      hi:         0x303f
+      type:       'block'
+      name:       'CJK Symbols and Punctuation'
+      rsg:        'u-cjk-sym'
+      is_cjk:     true
+      tex:        'cnsymOld' }
+    #.......................................................................................................
+    {
+      lo:         0x3000
+      hi:         0x303f
+      type:       'block'
+      name:       'CJK Symbols and Punctuation'
+      rsg:        'u-cjk-sym'
+      is_cjk:     true
+      tex:        'cnsymNew' }
+    #.......................................................................................................
+    {
+      lo:         0x0
+      hi:         0x10ffff
+      type:       'style'
+      name:       'fallback'
+      tex:        'mktsRsgFb' }
+    #.......................................................................................................
+    ]
+  #.........................................................................................................
+  isl = ISL.new()
+  ISL.insert isl, entry for entry in entries
+  replacers =
+    # rsg:    'skip'
+    type:   'list'
+    style:  'list'
+    tex:    'list'
+    rsg:    'assign'
+    # style: ( facets ) ->
+  entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
+  debug JSON.stringify entry
+  help entry
+  T.eq entry, {
+    type: [ 'style', 'plane', 'area', 'block', 'block', 'style' ],
+    name: 'glyph-0x300a',
+    tex: [ 'mktsRsgFb', 'cnsymOld', 'cnsymNew' ],
+    rsg: 'u-cjk-sym',
+    is_cjk: true,
+    style: [ { raise: -0.2 } ] }
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "aggregation 2" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 0, hi: 10, id: 'wide',   count: 10, length: 10, foo: 'D',  }
+  ISL.insert isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
+  aggregation_settings =
+    '*':    'list'
+    id:     'include'
+    lo:     'assign'
+    hi:     'assign'
+    name:   'assign'
+    count:  'add'
+    length: 'average'
+    foo:    ( ids_and_values ) ->
+      return ( ( value.toLowerCase() for [ id, value, ] in ids_and_values ). join '' ) + '!'
+  debug JSON.stringify ISL.aggregate isl, 5, aggregation_settings
+  T.eq ( ISL.aggregate isl, 5, aggregation_settings ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
+  return null
+
+
 ############################################################################################################
 unless module.parent?
   include = [
     "test interval tree 1"
     "test interval tree 2"
     "test interval tree 3"
-    "aggregation"
+    "aggregation 1"
+    "aggregation 2"
     "characters as points 1"
     "characters as points 2"
     "characters as points 3"
