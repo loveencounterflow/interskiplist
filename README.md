@@ -144,7 +144,7 @@ We have named the intervals with terms that suggest their scope.
 > 0x2a6df`. As a general rule, when you want to work with a subset of Unicode codepoints for a specific
 > purpose (e.g. 'all the characters needed to write French', or 'uppercase Latin letters, with and without
 > diacritics'), you will neither get only characters from a single, contiguous range, nor will codepoint
-> values (like `26<sub>16</sub> = 38<sub>10</sub>`) neatly map to any received way of sorting. The 'Basic
+> values (like 26<sub>16</sub> = 38<sub>10</sub>) neatly map to any received way of sorting. The 'Basic
 > Latin' (ASCII) block is more the exception than the rule. We'll get to talk about non-contiguous ranges in
 > a moment.
 
