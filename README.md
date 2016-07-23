@@ -143,10 +143,10 @@ We have named the intervals with terms that suggest their scope.
 > character repertoire—for example, there are over 42,000 more CJK characters in the range `0x20000 ..
 > 0x2a6df`. As a general rule, when you want to work with a subset of Unicode codepoints for a specific
 > purpose (e.g. 'all the characters needed to write French', or 'uppercase Latin letters, with and without
-> diacritics'), you will neither get only characters from a single, contiguous range, nor will codepoint
-> values (like 26<sub>16</sub> = 38<sub>10</sub>) neatly map to any received way of sorting. The 'Basic
-> Latin' (ASCII) block is more the exception than the rule. We'll get to talk about non-contiguous ranges in
-> a moment.
+> diacritics'), you will neither get only characters from a single, contiguous range, nor will sorting
+> naïvely by codepoint values (like 26<sub>16</sub> = 38<sub>10</sub>) necessarily yield dictionary order.
+> The 'Basic Latin' (ASCII) block is more the exception than the rule. We'll get to talk about
+> non-contiguous ranges in a moment.
 
 Having created and populated the `sample` interval skiplist, we can now go and query the data with one of
 the 'find' methods. There are six of these, and they're named after the pattern
@@ -165,8 +165,8 @@ several probes, the `all` methods will only return data for those intervals that
 and the `any` methods will return data for those intervals that contain at least one probe. When you query
 for a single point, there is no distinction between the two.
 
-Here we retrieve the names of the intervals that contain, repsectively, one of the three codepoints 'A', '&'
-and '人':
+Here we retrieve the names of the intervals that contain, respectively, one of the three codepoints `'A'`,
+`'&'` and `'人'`:
 
 ```coffee
 ISL.find_names_with_all_points samples, 'A' # --> [ 'base', ]
@@ -174,15 +174,16 @@ ISL.find_names_with_all_points samples, '&' # --> [ 'base', 'ampersand', ]
 ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
 ```
 
-Note that the ordering of results of the `find` methods is not defined—searching for applicable names for
-`'&'` could just as well have resulted in `[ 'ampersand', 'base', ]`. That is good enough for some uses
-cases, but to apply, say, a set of formatting rules against characters, we certainly must know what
-applicable rules take precedence of which others. This is where `ISL.sort_entries` and `ISL.aggregate` come
-in. Let's first search for 'entries'—those are the JS objects we passed in for each interval, amended with a few
-essential attributes (an ID and an insertion order index):
+Note that the ordering of results of the `find` methods is not defined—searching for applicable interval
+names for `'&'` could just as well have resulted in `[ 'ampersand', 'base', ]`. That is good enough for some
+uses cases, but to apply, say, a set of formatting rules against characters, we certainly must know which
+rules take precedence over which ones. This is where `ISL.sort_entries` and `ISL.aggregate` come in.
+
+Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
+be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
 
 ```coffee
-base_entry = {
+base_entry =
   lo:               0
   hi:               1114111
   name:             'base'
@@ -190,7 +191,7 @@ base_entry = {
   idx:              0
   id:               'latin[0]'
   size:             1114112
-ampersand_entry = {
+ampersand_entry =
   lo:               38
   hi:               38
   name:             'ampersand'
@@ -198,7 +199,7 @@ ampersand_entry = {
   idx:              2
   id:               'ampersand[0]'
   size:             1
-cjk_entry = {
+cjk_entry =
   lo:               19968
   hi:               40959
   name:             'cjk'
@@ -207,6 +208,10 @@ cjk_entry = {
   id:               'cjk[0]'
   size:             20992
 ```
+
+The above data structures will be returned by the methods `ISL.entries_of`,
+`ISL.entry_of`, `ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. We can sort a number
+of given entries by considering that for the use case discussed here, certainly a smaller interval
 
 
 ```coffee
