@@ -196,12 +196,8 @@ unique = ( list ) ->
 #-----------------------------------------------------------------------------------------------------------
 @sort_entries = ( me, entries ) ->
   entries.sort ( a, b ) ->
-    [ a_size, b_size, ] = [ a[ 'size' ], b[ 'size' ], ]
-    return -1 if a_size > b_size
-    return +1 if a_size < b_size
-    [ a_idx, b_idx, ] = [ a[ 'idx' ], b[ 'idx' ], ]
-    return +1 if a_idx > b_idx
-    return -1 if a_idx < b_idx
+    return +1 if a.idx > b.idx
+    return -1 if a.idx < b.idx
     return  0
   return entries
 
