@@ -148,8 +148,6 @@ ISL.find_[ ids | names | entries ]_with_[ all | any ]_points
 
 
 
-
-
 ```coffee
 ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
 ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
