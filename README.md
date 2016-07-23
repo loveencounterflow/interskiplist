@@ -209,9 +209,9 @@ cjk_entry =
   size:             20992
 ```
 
-The above data structures will be returned by the methods `ISL.entries_of`,
-`ISL.entry_of`, `ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. We can sort a number
-of given entries by considering that for the use case discussed here, certainly a smaller interval
+The above data structures will be returned by the methods `ISL.entries_of`, `ISL.entry_of`,
+`ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. We can sort a number of given
+entries by considering that for the use case discussed here, certainly
 
 
 ```coffee

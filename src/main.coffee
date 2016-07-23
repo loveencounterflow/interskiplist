@@ -25,6 +25,8 @@ echo                      = CND.echo.bind CND
     'idx-by-names':   {}
     'ids-by-names':   {}
     'name-by-ids':    {}
+    'idx-by-ids':     {}
+    'ids':            []
     'idx':            -1
     'min':            null
     'max':            null
@@ -74,33 +76,50 @@ as_numbers = ( list ) -> ( as_number x for x in list )
     me[ 'fmax'  ]              ?= hi
     me[ 'fmax'  ]               = Math.max me[ 'fmax' ], lo
   me[ 'name-by-ids'   ][ id ] = name
+  me[ 'idx-by-ids'    ][ id ] = global_idx
   me[ 'entry-by-ids'  ][ id ] = entry ? null
   ( me[ 'ids-by-names' ][ name ] ?= [] ).push id
   me[ '%self' ].insert id, lo, hi
+  me[ 'ids' ].push id
   return id
 
 #-----------------------------------------------------------------------------------------------------------
 @remove = ( me, id ) -> me[ '%self' ].remove id
 
 #-----------------------------------------------------------------------------------------------------------
-@interval_of  = ( me, id ) -> me[ '%self' ].intervalsByMarker[ id ]
-@entry_of     = ( me, id ) -> me[ 'entry-by-ids'            ][ id ]
-@name_of      = ( me, id ) -> me[ 'name-by-ids'             ][ id ]
+@interval_of = ( me, id ) ->
+  throw new Error "unknown ID #{rpr id}" unless ( R = me[ '%self' ].intervalsByMarker[ id ] )?
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
-@intervals_of = ( me, ids = null ) ->
+@entry_of = ( me, id ) ->
+  throw new Error "unknown ID #{rpr id}" unless ( R = me[ 'entry-by-ids' ][ id ] )?
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@name_of = ( me, id ) ->
+  throw new Error "unknown ID #{rpr id}" unless ( R = me[ 'name-by-ids' ][ id ] )?
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@_intervals_of = ( me, ids = null ) ->
   return me[ '%self' ].intervalsByMarker unless ids?
   return ( @interval_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
-@entries_of = ( me, ids = null ) ->
+@_entries_of = ( me, ids = null ) ->
   return ( entry for _, entry of me[ 'entry-by-ids' ] ) unless ids?
   return ( @entry_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
-@names_of = ( me, ids = null ) ->
+@_names_of = ( me, ids = null ) ->
   return me[ 'name-by-ids' ] unless ids?
   return unique ( @name_of me, id for id in ids )
+
+#-----------------------------------------------------------------------------------------------------------
+@intervals_of = ( me, ids = null ) -> @_intervals_of me, if ids? then ( @sort_ids me, ids ) else null
+@entries_of   = ( me, ids = null ) -> @_entries_of   me, if ids? then ( @sort_ids me, ids ) else null
+@names_of     = ( me, ids = null ) -> @_names_of     me, if ids? then ( @sort_ids me, ids ) else null
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
@@ -196,10 +215,19 @@ unique = ( list ) ->
 #-----------------------------------------------------------------------------------------------------------
 @sort_entries = ( me, entries ) ->
   entries.sort ( a, b ) ->
-    return +1 if a.idx > b.idx
-    return -1 if a.idx < b.idx
+    return +1 if a[ 'idx' ] > b[ 'idx' ]
+    return -1 if a[ 'idx' ] < b[ 'idx' ]
     return  0
   return entries
+
+#-----------------------------------------------------------------------------------------------------------
+@sort_ids = ( me, ids ) ->
+  idxs = me[ 'idx-by-ids' ]
+  ids.sort ( a, b ) ->
+    return +1 if idxs[ a ] > idxs[ b ]
+    return -1 if idxs[ a ] < idxs[ b ]
+    return  0
+  return ids
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate = ( me, points, reducers = {} ) ->
@@ -212,7 +240,6 @@ unique = ( list ) ->
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
   #.........................................................................................................
-  @sort_entries me, entries
   for entry in entries
     for key, value of entry
       continue if key in exclude

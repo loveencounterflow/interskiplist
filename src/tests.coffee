@@ -510,7 +510,34 @@ show = ( me ) ->
   # debug 'rx2-7', ISL.aggregate samples, 'A' #, { font_family: 'list', }
   # debug 'rx2-8', ISL.aggregate samples, '&' #, { font_family: 'list', }
   # debug 'rx2-9', ISL.aggregate samples, '人' #, { font_family: 'list', }
+  # delete samples[ '%self' ]
+  # debug samples
+  #.........................................................................................................
+  return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "preserve insertion order" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 10, hi: 20, id: 'foo',  name: 'alpha', }
+  ISL.insert isl, { lo: 15, hi: 25, id: 'bar',  name: 'beta', }
+  ISL.insert isl, { lo: 15, hi: 25, id: '22',   name: '0', }
+  ISL.insert isl, { lo: 19, hi: 29, id: 'baz',  name: 'beta', }
+  ISL.insert isl, { lo: 39, hi: 49, id: 'gnu',  name: 'gamma', }
+  # info 'entry-by-ids: ', CND.rainbow isl[ 'entry-by-ids'  ]
+  # info 'idx-by-names: ', CND.rainbow isl[ 'idx-by-names'  ]
+  # info 'ids-by-names: ', CND.rainbow isl[ 'ids-by-names'  ]
+  # info 'name-by-ids:  ', CND.rainbow isl[ 'name-by-ids'   ]
+  # info 'idx-by-ids:   ', CND.rainbow isl[ 'idx-by-ids'    ]
+  # debug JSON.stringify ISL.names_of isl, [ '22', 'foo', 'bar', ]
+  # debug JSON.stringify ISL.names_of isl, [ 'foo', 'bar', '22', ]
+  # debug JSON.stringify ISL.names_of isl, [ 'bar', '22', 'foo', ]
+  # debug JSON.stringify ISL.names_of isl, [ 'bar', 'foo', '22', ]
+  names_by_insertion_order = [ 'alpha', 'beta', '0', 'gamma' ]
+  T.eq ( ISL.names_of isl, [ '22', 'foo', 'bar', 'baz', 'gnu', ] ), names_by_insertion_order
+  T.eq ( ISL.names_of isl, [ 'foo', 'baz', 'gnu', 'bar', '22', ] ), names_by_insertion_order
+  T.eq ( ISL.names_of isl, [ 'baz', 'bar', '22', 'gnu', 'foo', ] ), names_by_insertion_order
+  T.eq ( ISL.names_of isl, [ 'bar', 'foo', 'baz', 'gnu', '22', ] ), names_by_insertion_order
+  return null
 
 ############################################################################################################
 unless module.parent?
@@ -528,10 +555,11 @@ unless module.parent?
     "readme example 1"
     "readme example 2"
     "intervals without ID, name"
+    "preserve insertion order"
   ]
-  @_prune()
+  # @_prune()
   @_main()
 
-  # @[ "new API for points" ]()
+  # @[ "test interval tree 1" ]()
 
 
