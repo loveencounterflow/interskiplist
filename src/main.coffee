@@ -51,10 +51,9 @@ as_numbers = ( list ) -> ( as_number x for x in list )
   { lo, hi, id, name, } = entry
   throw new Error "expected setting for 'lo', found none" unless lo?
   throw new Error "expected setting for 'hi', found none" unless hi?
-  throw new Error "expected at least one setting for 'name' or 'id', found none" unless name? or id?
   lo                          = as_number lo
   hi                          = as_number hi
-  name                       ?= '*'
+  name                       ?= '+'
   group_idx                   = ( me[ 'idx-by-names' ][ name ] = ( me[ 'idx-by-names' ][ name ] ? -1 ) + 1 )
   global_idx                  = ( me[ 'idx' ] += +1 )
   id                         ?= "#{name}[#{group_idx}]"
@@ -217,7 +216,7 @@ unique = ( list ) ->
   averages  = {}
   for entry in entries
     for key, value of entry
-      continue if key in [ 'idx', 'id', 'name', 'lo', 'hi', 'size', ]
+      continue if key in [ 'idx', 'id', 'lo', 'hi', 'size', ]
       switch ( reducer = reducers[ key ] ) ? 'assign'
         when 'skip'     then continue
         when 'list'     then ( R[ key ]      ?= [] ).push value

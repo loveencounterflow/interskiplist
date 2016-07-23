@@ -25,24 +25,24 @@ Install as `npm install --save interskiplist`.
     - [Same Example Using InterSkipList](#same-example-using-interskiplist)
 - [Example 1](#example-1)
 - [API](#api)
-  - [@aggregate = ( me, points, reducers ) ->](#@aggregate---me-points-reducers---)
-  - [@entries_of = ( me, ids = null ) ->](#@entries_of---me-ids--null---)
-  - [@entry_of = ( me, id ) ->](#@entry_of---me-id---)
-  - [@find_entries_with_all_points = ( me, P... ) ->](#@find_entries_with_all_points---me-p---)
-  - [@find_entries_with_any_points = ( me, P... ) ->](#@find_entries_with_any_points---me-p---)
-  - [@find_ids_with_all_points = ( me, points ) ->](#@find_ids_with_all_points---me-points---)
-  - [@find_ids_with_any_points = ( me, points ) ->](#@find_ids_with_any_points---me-points---)
-  - [@find_names_with_all_points = ( me, points ) ->](#@find_names_with_all_points---me-points---)
-  - [@find_names_with_any_points   = ( me, P... ) ->](#@find_names_with_any_points-----me-p---)
-  - [@insert = ( me, entry ) ->](#@insert---me-entry---)
-  - [@interval_of  = ( me, id ) ->](#@interval_of----me-id---)
-  - [@intervals_from_points = ( me, points, mixins... ) ->](#@intervals_from_points---me-points-mixins---)
-  - [@intervals_of = ( me, ids = null ) ->](#@intervals_of---me-ids--null---)
-  - [@name_of = ( me, id ) ->](#@name_of---me-id---)
-  - [@names_of = ( me, ids = null ) ->](#@names_of---me-ids--null---)
-  - [@new = ( settings ) ->](#@new---settings---)
-  - [@remove = ( me, id ) ->](#@remove---me-id---)
-  - [@sort_entries = ( me, entries ) ->](#@sort_entries---me-entries---)
+  - [@aggregate = ( me, points, reducers ) ->](#aggregate---me-points-reducers---)
+  - [@entries_of = ( me, ids = null ) ->](#entries_of---me-ids--null---)
+  - [@entry_of = ( me, id ) ->](#entry_of---me-id---)
+  - [@find_entries_with_all_points = ( me, P... ) ->](#find_entries_with_all_points---me-p---)
+  - [@find_entries_with_any_points = ( me, P... ) ->](#find_entries_with_any_points---me-p---)
+  - [@find_ids_with_all_points = ( me, points ) ->](#find_ids_with_all_points---me-points---)
+  - [@find_ids_with_any_points = ( me, points ) ->](#find_ids_with_any_points---me-points---)
+  - [@find_names_with_all_points = ( me, points ) ->](#find_names_with_all_points---me-points---)
+  - [@find_names_with_any_points   = ( me, P... ) ->](#find_names_with_any_points-----me-p---)
+  - [@insert = ( me, entry ) ->](#insert---me-entry---)
+  - [@interval_of  = ( me, id ) ->](#interval_of----me-id---)
+  - [@intervals_from_points = ( me, points, mixins... ) ->](#intervals_from_points---me-points-mixins---)
+  - [@intervals_of = ( me, ids = null ) ->](#intervals_of---me-ids--null---)
+  - [@name_of = ( me, id ) ->](#name_of---me-id---)
+  - [@names_of = ( me, ids = null ) ->](#names_of---me-ids--null---)
+  - [@new = ( settings ) ->](#new---settings---)
+  - [@remove = ( me, id ) ->](#remove---me-id---)
+  - [@sort_entries = ( me, entries ) ->](#sort_entries---me-entries---)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -77,13 +77,12 @@ foremost to simplify and speed up dealing with contiguous and non-contiguous ran
 
 To clarify this point, it is perhaps easiest to have a quick look at how CSS `unicode-range` works, why it
 is a great tool to organize your HTML styling needs and what you can do with that concept outside of
-HTML/CSS (becaue as such, InterSkipList has nothing to do with HTML or CSS).
+HTML/CSS.
 
 Here's an [example](https://24ways.org/2011/creating-custom-font-stacks-with-unicode-range) for using
 `unicode-range` in CSS; the range is just a single codepoint (`U+26`) in this case; it defines an abstract
-font family named `my-custom-font` that will be applied only to that single codepoint—the `&`
-ampersand—and that rule will come into effect everywhere where the `my-custom-font` font family
-is selected for use:
+font family named `my-custom-font` that will be applied only to that single codepoint, the `&` ampersand,
+Unicode character `0x26`:
 
 
 ```css
@@ -96,11 +95,11 @@ p {
   font-family: 'my-custom-font'; }
 ```
 
-The real utility of this device only starts to shine, though, when we start to exploit the fact that CSS
-allows (1)&nbsp;multiple (2)&nbsp;ranges of Unicode codepoints that can be combined with different fonts; it
-is then possible to build hierarchies of ranges—for example such that lots of characters in a given text
-will be displayed with a base font, more restricted ranges of characters in a more suitable font, and some
-single glyphs with an even more specilaized typeface. In CSS, you could write:
+The real utility of this device only starts to shine, though, when we exploit the fact that CSS allows
+(1)&nbsp;multiple (2)&nbsp; potentially overlapping (2)&nbsp;ranges of codepoints; it is then possible to
+build hierarchies of ranges—for example such that lots of characters in a given text will be displayed with
+a base font, more restricted ranges of characters in a more suitable font, and some single glyphs with an
+even more specialized typeface. In CSS, you could write:
 
 
 ```css
@@ -128,32 +127,41 @@ the `人` glyphs.
 
 ### Same Example Using InterSkipList
 
-When you wanted to implement CSS `unicode-range` by yourself, you could try and code that in a number of
-ways, and you could probably come up with a solution that works in not too long a time. However, one problem
-with your 100% homebrew solution will likely be that it is not going to scale nicely: either you will need a
-lot of memory and pre-compute too much, or your solution will become a drag once you have to scan many
-thousands of codepoints for a real-world text: as such, the problem does not look too complex, but the devil
-is in the scalability of given algorithm's space and time requirements. Which is why binary search trees,
-tries and so on are important topics in computer science. Fortunately, we can build on a lot of prior art in
-this respect (which is why I avoided to re-implementa skip tree myself but used an existing solution).
-
-InterSkipList offers one specific implementation to the problem, one that is hopefully both simple yet
-powerful and performant enough for a broad range of uses. Let's have a look at how to rewrite the gist of
-the above CSS rules in CoffeeScript using InterSkipList:
+Let's have a look at how to rewrite the gist of the above CSS rules in CoffeeScript using InterSkipList:
 
 ```coffee
-# Create a SkipList `css_rules`:
-css_rules = ISL.new()
+# Create a SkipList `sample`:
+sample = ISL.new()
 
 # Insert 3 contiguous intervals; we'll use the `name`s momentarily:
-ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
-ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
-ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+ISL.insert sample, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
+ISL.insert sample, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+ISL.insert sample, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+```
+Having created and populated the `sample` interval skiplist, we can now go and query the data
+with one of the 'find' methods. There are six of these, and they're named after the pattern
 
+```
+ISL.find_[ ids | names | entries ]_with_[ all | any ]_points
+```
+
+
+
+
+
+
+```coffee
+ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+```
+
+
+```coffee
 # Test the rules with our sample characters:
-console.log ISL.aggregate css_rules, 'A'  # --> { font_family: 'Arial' }
-console.log ISL.aggregate css_rules, '&'  # --> { font_family: 'Baskerville' }
-console.log ISL.aggregate css_rules, '人' # --> { font_family: 'Sun-ExtA' }
+ISL.aggregate sample, 'A'  # --> { name: 'latin', font_family: 'Arial' }
+ISL.aggregate sample, '&'  # --> { name: 'ampersand', font_family: 'Baskerville' }
+ISL.aggregate sample, '人' # --> { name: 'cjk', font_family: 'Sun-ExtA' }
 ```
 
 

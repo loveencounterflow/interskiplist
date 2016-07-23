@@ -257,24 +257,28 @@ show = ( me ) ->
     {
       lo:         0x300a
       hi:         0x300a
-      name:       'style:glyph-0x300a'
+      type:       'style'
+      name:       'glyph-0x300a'
       rsg:        'u-cjk-sym'
       style:      { raise: -0.2 } }
     #.......................................................................................................
     {
       lo:         0x0
       hi:         0xffff
-      name:       'plane:Basic Multilingual Plane (BMP)' }
+      type:       'plane'
+      name:       'Basic Multilingual Plane (BMP)' }
     #.......................................................................................................
     {
       lo:         0x2e80
       hi:         0x33ff
-      name:       'area:CJK Miscellaneous Area' }
+      type:       'area'
+      name:       'CJK Miscellaneous Area' }
     #.......................................................................................................
     {
       lo:         0x3000
       hi:         0x303f
-      name:       'block:CJK Symbols and Punctuation'
+      type:       'block'
+      name:       'CJK Symbols and Punctuation'
       rsg:        'u-cjk-sym'
       is_cjk:     true
       tex:        'cnsymOld' }
@@ -282,7 +286,8 @@ show = ( me ) ->
     {
       lo:         0x3000
       hi:         0x303f
-      name:       'block:CJK Symbols and Punctuation'
+      type:       'block'
+      name:       'CJK Symbols and Punctuation'
       rsg:        'u-cjk-sym'
       is_cjk:     true
       tex:        'cnsymNew' }
@@ -290,7 +295,8 @@ show = ( me ) ->
     {
       lo:         0x0
       hi:         0x10ffff
-      name:       'style:fallback'
+      type:       'style'
+      name:       'fallback'
       tex:        'mktsRsgFb' }
     #.......................................................................................................
     ]
@@ -299,6 +305,7 @@ show = ( me ) ->
   ISL.insert isl, entry for entry in entries
   replacers =
     # rsg:    'skip'
+    type:   'list'
     style:  'list'
     tex:    'list'
     rsg:    'assign'
@@ -306,7 +313,13 @@ show = ( me ) ->
   entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
   debug JSON.stringify entry
   help entry
-  T.eq entry, {"tex":["mktsRsgFb","cnsymOld","cnsymNew"],"rsg":"u-cjk-sym","is_cjk":true,"style":[{"raise":-0.2}]}
+  T.eq entry, {
+    type: [ 'style', 'plane', 'area', 'block', 'block', 'style' ],
+    name: 'glyph-0x300a',
+    tex: [ 'mktsRsgFb', 'cnsymOld', 'cnsymNew' ],
+    rsg: 'u-cjk-sym',
+    is_cjk: true,
+    style: [ { raise: -0.2 } ] }
   #.........................................................................................................
   return null
 
@@ -450,13 +463,30 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "readme example 2" ] = ( T ) ->
-  css_rules = ISL.new()
-  ISL.insert css_rules, { lo: 0x0000, hi: 0x10ffff, name: 'css', font_family: 'Arial',        }
-  ISL.insert css_rules, { lo: 0x4e00, hi:   0x9fff, name: 'css', font_family: 'Sun-ExtA',     }
-  ISL.insert css_rules, { lo:   0x26, hi:     0x26, name: 'css', font_family: 'Baskerville',  }
-  debug ISL.aggregate css_rules, 'A' #, { font_family: 'list', }
-  debug ISL.aggregate css_rules, '&' #, { font_family: 'list', }
-  debug ISL.aggregate css_rules, '人' #, { font_family: 'list', }
+  samples = ISL.new()
+  ISL.insert samples, { lo: 0x0000, hi: 0x10ffff, name: 'latin',     font_family: 'Arial',        }
+  ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+  ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+  debug ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+  debug ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  debug ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  debug ISL.aggregate samples, 'A' #, { font_family: 'list', }
+  debug ISL.aggregate samples, '&' #, { font_family: 'list', }
+  debug ISL.aggregate samples, '人' #, { font_family: 'list', }
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "intervals without ID, name" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 'a', 'hi': 'z', }
+  ISL.insert isl, { lo: 'a', 'hi': 'k', id:   'lower-half' }
+  ISL.insert isl, { lo: 'l', 'hi': 'z', name: 'upper-half' }
+  # debug JSON.stringify ISL.find_entries_with_any_points isl, [ 'c', 'm', ]
+  T.eq ( ISL.find_entries_with_any_points isl, [ 'c', 'm', ] ), [
+    {"lo":97,"hi":122,"idx":0,"id":"+[0]","name":"+","size":26},
+    {"lo":97,"hi":107,"id":"lower-half","idx":1,"name":"+","size":11},
+    {"lo":108,"hi":122,"name":"upper-half","idx":2,"id":"upper-half[0]","size":15}
+  ]
+  return null
 
 
 ############################################################################################################
@@ -473,6 +503,7 @@ unless module.parent?
     "new API for points"
     "readme example 1"
     "readme example 2"
+    "intervals without ID, name"
   ]
   @_prune()
   @_main()
