@@ -174,10 +174,8 @@ ISL.find_names_with_all_points samples, '&' # --> [ 'base', 'ampersand', ]
 ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
 ```
 
-Note that the ordering of results of the `find` methods is not defined—searching for applicable interval
-names for `'&'` could just as well have resulted in `[ 'ampersand', 'base', ]`. That is good enough for some
-uses cases, but to apply, say, a set of formatting rules against characters, we certainly must know which
-rules take precedence over which ones. This is where `ISL.sort_entries` and `ISL.aggregate` come in.
+The results returned by the `find` methods will always keep the order in which intervals were added to
+the interval skip list structure; this is important for consistent results and for rule application.
 
 Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
 be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
@@ -210,8 +208,10 @@ cjk_entry =
 ```
 
 The above data structures will be returned by the methods `ISL.entries_of`, `ISL.entry_of`,
-`ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. We can sort a number of given
-entries by considering that for the use case discussed here, certainly
+`ISL.find_entries_with_all_points` and `ISL.find_entries_with_any_points`. Using these methods brings us one
+step closer to the implementation of a CSS-Unicode-Range-like functionality; however, when you query the
+data for a given codepoint and get back five or ten objects with lots of data, that task may become a little
+cumbersome. But do not fear, there's a convenience method that can help a great deal:
 
 
 ```coffee
