@@ -508,6 +508,18 @@ show = ( me ) ->
   debug 'rx2-3', '人', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
   debug 'rx2-3', 'Abcd人', ISL.find_names_with_all_points samples, Array.from 'Abcd人' # --> [ 'latin', 'cjk' ]
   debug 'rx2-3', '人はるのそらのした', ISL.find_names_with_all_points samples, Array.from '人はるのそらのした' # --> [ 'latin', 'cjk' ]
+  T.eq ( ISL.find_names_with_all_points     samples, 'A' ), ( ISL.find_names     samples, 'A' )
+  T.eq ( ISL.find_names_with_all_points     samples, '&' ), ( ISL.find_names     samples, '&' )
+  T.eq ( ISL.find_names_with_all_points     samples, '人' ), ( ISL.find_names     samples, '人' )
+  T.eq ( ISL.find_ids_with_all_points       samples, 'A' ), ( ISL.find_ids       samples, 'A' )
+  T.eq ( ISL.find_ids_with_all_points       samples, '&' ), ( ISL.find_ids       samples, '&' )
+  T.eq ( ISL.find_ids_with_all_points       samples, '人' ), ( ISL.find_ids       samples, '人' )
+  T.eq ( ISL.find_intervals_with_all_points samples, 'A' ), ( ISL.find_intervals samples, 'A' )
+  T.eq ( ISL.find_intervals_with_all_points samples, '&' ), ( ISL.find_intervals samples, '&' )
+  T.eq ( ISL.find_intervals_with_all_points samples, '人' ), ( ISL.find_intervals samples, '人' )
+  T.eq ( ISL.find_entries_with_all_points   samples, 'A' ), ( ISL.find_entries   samples, 'A' )
+  T.eq ( ISL.find_entries_with_all_points   samples, '&' ), ( ISL.find_entries   samples, '&' )
+  T.eq ( ISL.find_entries_with_all_points   samples, '人' ), ( ISL.find_entries   samples, '人' )
   # debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
   # debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
   # debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
@@ -603,4 +615,4 @@ unless module.parent?
 
   # @[ "test interval tree 1" ]()
 
-
+  # debug ( Object.keys ISL ).sort()

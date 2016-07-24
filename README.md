@@ -170,9 +170,9 @@ Here we retrieve the names of the intervals that contain, respectively, one of t
 `'&'` and `'人'`:
 
 ```coffee
-ISL.find_names_with_all_points samples, 'A' # --> [ 'base', ]
-ISL.find_names_with_all_points samples, '&' # --> [ 'base', 'ampersand', ]
-ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
+ISL.find_names samples, 'A' # --> [ 'base', ]
+ISL.find_names samples, '&' # --> [ 'base', 'ampersand', ]
+ISL.find_names samples, '人' # --> [ 'base', 'cjk', ]
 ```
 
 The results returned by the `find` methods will always keep the order in which intervals were added to the

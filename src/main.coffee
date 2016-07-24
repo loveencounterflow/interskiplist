@@ -128,6 +128,16 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 @find_names     = ( me, point ) -> @find_names_with_all_points      me, point
 
 #-----------------------------------------------------------------------------------------------------------
+### TAINT what happens when these methods are called with no points? ###
+@find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_any_points me, P...
+@find_names_with_any_points     = ( me, P... ) -> @names_of     me, @find_ids_with_any_points me, P...
+@find_intervals_with_any_points = ( me, P... ) -> @intervals_of me, @find_ids_with_any_points me, P...
+
+#-----------------------------------------------------------------------------------------------------------
+@find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_all_points me, P...
+@find_intervals_with_all_points = ( me, P... ) -> @intervals_of me, @find_ids_with_all_points me, P...
+
+#-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
   ### TAINT should be possible to call w/o any points to get all IDs ###
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
@@ -151,12 +161,6 @@ as_numbers = ( list ) -> ( as_number x for x in list )
   points = [ points, ] unless CND.isa_list points
   points = as_numbers points
   return me[ '%self' ].findContaining points...
-
-#-----------------------------------------------------------------------------------------------------------
-### TAINT what happens when these methods are called with no points? ###
-@find_entries_with_any_points = ( me, P... ) -> @entries_of me, @find_ids_with_any_points me, P...
-@find_entries_with_all_points = ( me, P... ) -> @entries_of me, @find_ids_with_all_points me, P...
-@find_names_with_any_points   = ( me, P... ) -> @names_of   me, @find_ids_with_any_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_names_with_all_points = ( me, points ) ->
