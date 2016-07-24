@@ -122,6 +122,12 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 @names_of     = ( me, ids = null ) -> @_names_of     me, if ids? then ( @sort_ids me, ids ) else null
 
 #-----------------------------------------------------------------------------------------------------------
+@find_ids       = ( me, point ) -> @find_ids_with_all_points        me, point
+@find_intervals = ( me, point ) -> @find_intervals_with_all_points  me, point
+@find_entries   = ( me, point ) -> @find_entries_with_all_points    me, point
+@find_names     = ( me, point ) -> @find_names_with_all_points      me, point
+
+#-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
   ### TAINT should be possible to call w/o any points to get all IDs ###
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2

@@ -152,11 +152,12 @@ Having created and populated the `sample` interval skiplist, we can now go and q
 the 'find' methods. There are six of these, and they're named after the pattern
 
 ```
-     ┌─────────┐
-     │  names  │      ┌─────┐
-find │   ids   │ with │ all │ points
-     │ entries │      │ any │
-     └─────────┘      └─────┘
+     ┌───────────┐ ⎛                     ⎞
+     │    ids    │ ⎜      ┌─────┐        ⎟
+     │   names   │ ⎜      │ all │        ⎟
+find │ intervals │ ⎜ with │     │ points ⎟
+     │  entries  │ ⎜      │ any │        ⎟
+     └───────────┘ ⎝      └─────┘        ⎠
 ```
 
 When using the `find` methods, you can give any number of points; if you query for more than one point you
@@ -176,19 +177,19 @@ ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
 
 The results returned by the `find` methods will always keep the order in which intervals were added to the
 interval skip list structure (insertion order); this is important for consistent results and for rule
-application. And because insertion order is preserved, we can be confident that for each of the codepoints
+application. Because insertion order is preserved, we can be confident that for each of the codepoints
 queried, the 'most applicable' `name` property will always come *last* in the results—provided you ordered
 interval insertions from the general to the specific.<sup>1</sup>
 
 > 1) For a while I considered to order results primarily by interval size, larger intervals coming first and
 >    single-point intervals coming last (and thereby overriding larger intervals). However logical that
 >    looks, interval-size-as-priority clearly breaks down when we move from (contiguous) intervals to
->    (discontinuous) ranges: image a range `x` that includes codepoint `A` as well as, say, an additional
->    additional 9 codepoints hundreds or thousands of codpoints away, and a range `y` that includes points
->    `A` and `A+1` as well as 7 other codepoints somewhere else in the codespace. Then, when quering for
->    `A`, should `x` win over `y` because it has fewer codepoints (1 as opposed to 2) *locally*? Or should
->    `y` win because it has fewer codepoints (9 as compared to 10) *globally*?
-
+>    (discontinuous) ranges: imagine a range `x` that includes some codepoint `A` as well as, say, an
+>    additional additional 9 codepoints hundreds or thousands of positions away. Compare that to another
+>    range `y` that includes points `A` and `A+1` as well as 7 other codepoints somewhere else in the
+>    codespace. Then, when quering for `A`, should `x` win over `y` because it has fewer codepoints (1 as
+>    opposed to 2) *locally*? Or should `y` win because it has fewer codepoints (9 as compared to 10)
+>    *globally*?
 
 Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
 be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
@@ -345,12 +346,6 @@ ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [ 'basic-latin' ]
 ## @aggregate = ( me, points, reducers ) ->
 ## @entries_of = ( me, ids = null ) ->
 ## @entry_of = ( me, id ) ->
-## @find_entries_with_all_points = ( me, P... ) ->
-## @find_entries_with_any_points = ( me, P... ) ->
-## @find_ids_with_all_points = ( me, points ) ->
-## @find_ids_with_any_points = ( me, points ) ->
-## @find_names_with_all_points = ( me, points ) ->
-## @find_names_with_any_points   = ( me, P... ) ->
 ## @insert = ( me, entry ) ->
 ## @interval_of  = ( me, id ) ->
 ## @intervals_from_points = ( me, points, mixins... ) ->
@@ -362,5 +357,17 @@ ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [ 'basic-latin' ]
 ## @sort_entries = ( me, entries ) ->
 
 
+## @find_ids       = ( me, point ) ->
+## @find_intervals = ( me, point ) ->
+## @find_entries   = ( me, point ) ->
+## @find_names     = ( me, point ) ->
+
+## @find_ids_with_all_points = ( me, points ) ->
+## @find_entries_with_all_points = ( me, P... ) ->
+## @find_names_with_all_points = ( me, points ) ->
+
+## @find_ids_with_any_points = ( me, points ) ->
+## @find_entries_with_any_points = ( me, P... ) ->
+## @find_names_with_any_points   = ( me, P... ) ->
 
 
