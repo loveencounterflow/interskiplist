@@ -590,6 +590,19 @@ show = ( me ) ->
   ISL.insert u, { lo:  0x3200,  hi:  0x32ff,  name: 'cjk', id: 'u-cjk-enclett', }
   Array.from ''
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "unique names with priority conflict" ] = ( T ) ->
+  isl = ISL.new()
+  ISL.insert isl, { lo: 15, hi: 20, id: 'alpha-0',  name: 'alpha',  }
+  ISL.insert isl, { lo: 15, hi: 25, id: 'beta-0',   name: 'beta',   }
+  ISL.insert isl, { lo: 15, hi: 25, id: 'omega-0',  name: 'omega',  }
+  ISL.insert isl, { lo: 15, hi: 49, id: 'gamma-0',  name: 'gamma',  }
+  ISL.insert isl, { lo: 15, hi: 29, id: 'beta-1',   name: 'beta',   }
+  show isl
+  debug '3928', JSON.stringify ISL.find_ids   isl, 15
+  debug '3928', JSON.stringify ISL.find_names isl, 15
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -609,6 +622,7 @@ unless module.parent?
     "intervals without ID, name"
     "preserve insertion order"
     "demo discontiguous ranges"
+    "unique names with priority conflict"
   ]
   # @_prune()
   @_main()

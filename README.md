@@ -160,11 +160,13 @@ find │ intervals │ ⎜ with │     │ points ⎟
      └───────────┘ ⎝      └─────┘        ⎠
 ```
 
-When using the `find` methods, you can give any number of points; if you query for more than one point you
-have to pass a list of values; codepoints may be given as numbers or as single-character texts. When using
-several probes, the `all` methods will only return data for those intervals that contain each single probe,
-and the `any` methods will return data for those intervals that contain at least one probe. When you query
-for a single point, there is no distinction between the two.
+When using the mthods with the shorter names (`find_ids`, `find_names` &c), you can give a single point.
+When using the methods with the longer names (`find_ids_with_any_points`, `find_names_with_all_points` &c)
+you can pass any number of points. If you query for more than one point you have to pass a list of values;
+codepoints may be given as numbers or as single-character texts. When using several probes, the `all`
+methods will only return data for those intervals that contain each single probe, and the `any` methods will
+return data for those intervals that contain at least one of the probes. When you query for a single point,
+there is no distinction between the `any` and the `all` series of methods.
 
 Here we retrieve the names of the intervals that contain, respectively, one of the three codepoints `'A'`,
 `'&'` and `'人'`:
