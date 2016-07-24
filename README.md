@@ -286,22 +286,18 @@ Output:
 { name: [ 'base', 'cjk' ], font_family: [ 'Arial', 'Sun-ExtA' ] }
 ```
 
-## Discontiguous Intervals
+## Discontinuous Ranges
 
-In the preceding discussion, we have only used continuous intervals, that is, ranges that are fully
-described by giving a lower and an upper bound. In real life, however, discontinuous ranges are common. In
-Unicode, for example, CJK characters are split over around 20 blocks (a Unicode 'block' being a continuous
-range of codepoints whose boundaries are normally multiples of 128); accordingly, to add a tag to indicate
-'this is a CJK codepoint', we have to insert 20 contiguous intervals to the skip list.
+Contiguous intervals are great because they are simple: they are fully described by giving a lower and an
+upper bound, period. In real life, however, discontinuous ranges are common. In Unicode, for example, CJK
+characters are split over no less than around 20 blocks (a Unicode 'block' being a contiguous interval of
+codepoints whose boundaries are normally multiples of 128); accordingly, to add the information to indicate
+'this is a CJK codepoint', we have to insert around 20 intervals to the skip list.
 
-InterSkipList enables discontinuous ranges by making clever use of the interval `name` attribute. It is
-quite simple: each interval must have its own unique ID, but a name can be used for any number of intervals.
-Then, when you query the skip list for intervals containing one or more points, you will be given a list of
-names in insertion order, with duplicates removed. For example:
-
-### Example
-
-In this example, we build an Interval SkipList `ascii` from some ASCII characters:
+InterSkipList enables discontinuous ranges by way of the `name` attribute. It is quite simple: each interval
+must have its own unique ID, but a name can be used for any number of intervals. When you then query the
+skip list, you will be given a list of names in insertion order, with earlier duplicates removed (and later
+duplicates kept). For example, let's build a partial description for 7bit US-ASCII (U+00 .. U+7F):
 
 ```coffee
 #...........................................................................................................
@@ -324,28 +320,34 @@ for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', }
   ISL.insert ascii, interval
 ```
 
+The result of our efforts diagrammed:
+
 ```
-                ...        0         0         0         0         0         1         1         1         1
-                ...        5         6         7         8         9         0         1         2         3
-                ...  456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-basic-latin[0]  ...  -----------------------------------------------------------------------------------]
-letter[s]       ...                       [------------------------]      [------------------------]
-lower           ...                                                       [------------------------]
-upper           ...                       [------------------------]
-vowels          ...                       H   H   H     H     H           H   H   H     H     H
-consonants      ...                        [-] [-] [---] [---] [---]       [-] [-] [---] [---] [---]
-digits          ...      [--------]
+                      0         0         0         0         0         1         1         1         1
+                      5         6         7         8         9         0         1         2         3
+                456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+basic-latin[0]  -----------------------------------------------------------------------------------]
+letter[s]                            [------------------------]      [------------------------]
+lower                                                                [------------------------]
+upper                                [------------------------]
+vowels                               H   H   H     H     H           H   H   H     H     H
+consonants                            [-] [-] [---] [---] [---]       [-] [-] [---] [---] [---]
+digits              [--------]
+                    0123456789       abcdefghijklmnopqrstuvwxyz      ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ```
+
+We can now query for names; the last name in each list has been set flush right for ease of comparison:
+
 ```
 ISL.find_names_with_all_points ascii, [ 'c'     , ] ---> [ 'basic-latin', 'letter', 'lower', 'consonant' ]
 ISL.find_names_with_all_points ascii, [ 'C'     , ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
-ISL.find_names_with_all_points ascii, [ 'c', 'C', ] ---> [ 'basic-latin', 'letter', 'consonant' ]
+ISL.find_names_with_all_points ascii, [ 'c', 'C', ] ---> [ 'basic-latin', 'letter',          'consonant' ]
 ISL.find_names_with_all_points ascii, [ 'C', 'C', ] ---> [ 'basic-latin', 'letter', 'upper', 'consonant' ]
-ISL.find_names_with_all_points ascii, [ 'C', 'A', ] ---> [ 'basic-latin', 'letter', 'upper' ]
-ISL.find_names_with_all_points ascii, [ 'c', 'A', ] ---> [ 'basic-latin', 'letter' ]
-ISL.find_names_with_all_points ascii, [ 'A', 'e', ] ---> [ 'basic-latin', 'letter', 'vowel' ]
-ISL.find_names_with_all_points ascii, [ 'i', 'e', ] ---> [ 'basic-latin', 'letter', 'lower', 'vowel' ]
-ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [ 'basic-latin' ]
+ISL.find_names_with_all_points ascii, [ 'C', 'A', ] ---> [ 'basic-latin', 'letter',              'upper' ]
+ISL.find_names_with_all_points ascii, [ 'c', 'A', ] ---> [ 'basic-latin',                       'letter' ]
+ISL.find_names_with_all_points ascii, [ 'A', 'e', ] ---> [ 'basic-latin', 'letter',              'vowel' ]
+ISL.find_names_with_all_points ascii, [ 'i', 'e', ] ---> [ 'basic-latin', 'letter', 'lower',     'vowel' ]
+ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [                                 'basic-latin' ]
 ```
 
 # API
