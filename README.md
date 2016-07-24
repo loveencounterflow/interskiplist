@@ -288,15 +288,15 @@ Output:
 
 ## Discontinuous Ranges
 
-Contiguous intervals are great because they are simple: they are fully described by giving a lower and an
-upper bound, period. In real life, however, discontinuous ranges are common. In Unicode, for example, CJK
-characters are split over no less than around 20 blocks (a Unicode 'block' being a contiguous interval of
-codepoints whose boundaries are normally multiples of 128); accordingly, to add the information to indicate
-'this is a CJK codepoint', we have to insert around 20 intervals to the skip list.
+Contiguous intervals are great because they are simple: Save for the metadata, any given interval is fully
+described by giving its lower and its upper bound, period. In real life, however, discontinuous ranges are
+common. In Unicode, for example, CJK characters are split over no less than around 20 blocks (where a
+Unicode 'block', in turn, *is* a contiguous interval of codepoints); accordingly, to add the information to
+indicate 'this is a CJK codepoint', we have to insert around 20 intervals to the skip list.
 
 InterSkipList enables discontinuous ranges by way of the `name` attribute. It is quite simple: each interval
-must have its own unique ID, but a name can be used for any number of intervals. When you then query the
-skip list, you will be given a list of names in insertion order, with earlier duplicates removed (and later
+must have its own unique ID, but a name can be used for any number of intervals. Quering the skip list for
+names, a list of names will be returned (in insertion order, with earlier duplicates removed, and later
 duplicates kept). For example, let's build a partial description for 7bit US-ASCII (U+00 .. U+7F):
 
 ```coffee
@@ -323,18 +323,21 @@ for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', }
 The result of our efforts diagrammed:
 
 ```
-                      0         0         0         0         0         1         1         1         1
-                      5         6         7         8         9         0         1         2         3
-                456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-basic-latin[0]  -----------------------------------------------------------------------------------]
-letter[s]                            [------------------------]      [------------------------]
-lower                                                                [------------------------]
-upper                                [------------------------]
-vowels                               H   H   H     H     H           H   H   H     H     H
-consonants                            [-] [-] [---] [---] [---]       [-] [-] [---] [---] [---]
-digits              [--------]
-                    0123456789       abcdefghijklmnopqrstuvwxyz      ABCDEFGHIJKLMNOPQRSTUVWXYZ
+               0         0         0         0         0         0         0         1         1         1
+               2         3         4         5         6         7         8         9         0         1
+               012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+basic-latin[0]             -----------------------------------------------------------------------------------]
+letter[s]                                       [------------------------]      [------------------------]
+upper                                           [------------------------]
+lower                                                                           [------------------------]
+vowels                                          H   H   H     H     H           H   H   H     H     H
+consonants                                       [-] [-] [---] [---] [---]       [-] [-] [---] [---] [---]
+digits                         [--------]
+                !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz
 ```
+
+Even in this simple application we need ranges that are composed from several intervals, as not even ASCII
+letters can be described by a single lower and upper boundary.
 
 We can now query for names; the last name in each list has been set flush right for ease of comparison:
 
