@@ -561,7 +561,7 @@ show = ( me ) ->
   # debug JSON.stringify ISL.names_of isl, [ 'foo', 'bar', '22', ]
   # debug JSON.stringify ISL.names_of isl, [ 'bar', '22', 'foo', ]
   # debug JSON.stringify ISL.names_of isl, [ 'bar', 'foo', '22', ]
-  names_by_insertion_order = [ 'alpha', 'beta', '0', 'gamma' ]
+  names_by_insertion_order = [ 'alpha', '0', 'beta', 'gamma' ]
   T.eq ( ISL.names_of isl, [ '22', 'foo', 'bar', 'baz', 'gnu', ] ), names_by_insertion_order
   T.eq ( ISL.names_of isl, [ 'foo', 'baz', 'gnu', 'bar', '22', ] ), names_by_insertion_order
   T.eq ( ISL.names_of isl, [ 'baz', 'bar', '22', 'gnu', 'foo', ] ), names_by_insertion_order

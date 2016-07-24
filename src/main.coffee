@@ -219,10 +219,11 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 unique = ( list ) ->
   seen  = new Set()
   R     = []
-  for element in list
+  for idx in [ list.length - 1 .. 0 ] by -1
+    element = list[ idx ]
     continue if seen.has element
     seen.add element
-    R.push element
+    R.unshift element
   return R
 
 

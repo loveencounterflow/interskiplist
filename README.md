@@ -181,17 +181,22 @@ The results returned by the `find` methods will always keep the order in which i
 interval skip list structure (insertion order); this is important for consistent results and for rule
 application. Because insertion order is preserved, we can be confident that for each of the codepoints
 queried, the 'most applicable' `name` property will always come *last* in the results—provided you ordered
-interval insertions from the general to the specific.<sup>1</sup>
+interval insertions from the general to the specific.
 
-> 1) For a while I considered to order results primarily by interval size, larger intervals coming first and
->    single-point intervals coming last (and thereby overriding larger intervals). However logical that
->    looks, interval-size-as-priority clearly breaks down when we move from (contiguous) intervals to
->    (discontinuous) ranges: imagine a range `x` that includes some codepoint `A` as well as, say, an
->    additional additional 9 codepoints hundreds or thousands of positions away. Compare that to another
->    range `y` that includes points `A` and `A+1` as well as 7 other codepoints somewhere else in the
->    codespace. Then, when quering for `A`, should `x` win over `y` because it has fewer codepoints (1 as
->    opposed to 2) *locally*? Or should `y` win because it has fewer codepoints (9 as compared to 10)
->    *globally*?
+> **Note** For a while I considered to order results primarily by interval size, larger intervals coming
+> first and single-point intervals coming last (and thereby overriding larger intervals). However logical
+> that looks, interval-size-as-priority clearly breaks down when we move from (contiguous) intervals to
+> (discontinuous) ranges: imagine a range `x` that includes some codepoint `A` as well as, say, an
+> additional additional 9 codepoints hundreds or thousands of positions away. Compare that to another range
+> `y` that includes points `A` and `A+1` as well as 7 other codepoints somewhere else in the codespace.
+> Then, when quering for `A`, should `x` win over `y` because it has fewer codepoints (1 as opposed to 2)
+> *locally*? Or should `y` win because it has fewer codepoints (9 as compared to 10) *globally*?
+
+> **Note** that specifically with names, 'keeping insertion order' entails that methods like `find_names`
+> will return lists of unique names each of which appears in the latest (strongest) position. This means
+> that lists of names as returned by the API may be shorter than corresponding lists of IDs, intervals, or
+> entries, and that it suffices to look at the last ID, name or entry to find the piece of data with the
+> highest applicability.
 
 Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
 be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
