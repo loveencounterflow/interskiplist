@@ -295,9 +295,10 @@ Unicode 'block', in turn, *is* a contiguous interval of codepoints); accordingly
 indicate 'this is a CJK codepoint', we have to insert around 20 intervals to the skip list.
 
 InterSkipList enables discontinuous ranges by way of the `name` attribute. It is quite simple: each interval
-must have its own unique ID, but a name can be used for any number of intervals. Quering the skip list for
-names, a list of names will be returned (in insertion order, with earlier duplicates removed, and later
-duplicates kept). For example, let's build a partial description for 7bit US-ASCII (U+00 .. U+7F):
+must have its own unique ID, but a name can be used for any number of intervals.
+
+As an example, let's build a partial representation for 7bit US-ASCII (U+00 .. U+7F); we assign a
+descriptive name to each interval:
 
 ```coffee
 #...........................................................................................................
@@ -323,9 +324,9 @@ for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', }
 The result of our efforts diagrammed:
 
 ```
-               0         0         0         0         0         0         0         1         1         1
-               2         3         4         5         6         7         8         9         0         1
-               012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+               2               3               4               5               6               7
+               0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
 basic-latin[0]             -----------------------------------------------------------------------------------]
 letter[s]                                       [------------------------]      [------------------------]
 upper                                           [------------------------]
@@ -336,8 +337,8 @@ digits                         [--------]
                 !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz
 ```
 
-Even in this simple application we need ranges that are composed from several intervals, as not even ASCII
-letters can be described by a single lower and upper boundary.
+Observe that even this simple application needs ranges that are composed of several intervals, since not
+even ASCII letters can be described by a single lower and upper boundary.
 
 We can now query for names; the last name in each list has been set flush right for ease of comparison:
 
