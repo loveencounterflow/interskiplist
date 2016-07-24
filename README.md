@@ -174,8 +174,21 @@ ISL.find_names_with_all_points samples, '&' # --> [ 'base', 'ampersand', ]
 ISL.find_names_with_all_points samples, '人' # --> [ 'base', 'cjk', ]
 ```
 
-The results returned by the `find` methods will always keep the order in which intervals were added to
-the interval skip list structure; this is important for consistent results and for rule application.
+The results returned by the `find` methods will always keep the order in which intervals were added to the
+interval skip list structure (insertion order); this is important for consistent results and for rule
+application. And because insertion order is preserved, we can be confident that for each of the codepoints
+queried, the 'most applicable' `name` property will always come *last* in the results—provided you ordered
+interval insertions from the general to the specific.<sup>1</sup>
+
+> 1) For a while I considered to order results primarily by interval size, larger intervals coming first and
+>    single-point intervals coming last (and thereby overriding larger intervals). However logical that
+>    looks, interval-size-as-priority clearly breaks down when we move from (contiguous) intervals to
+>    (discontinuous) ranges: image a range `x` that includes codepoint `A` as well as, say, an additional
+>    additional 9 codepoints hundreds or thousands of codpoints away, and a range `y` that includes points
+>    `A` and `A+1` as well as 7 other codepoints somewhere else in the codespace. Then, when quering for
+>    `A`, should `x` win over `y` because it has fewer codepoints (1 as opposed to 2) *locally*? Or should
+>    `y` win because it has fewer codepoints (9 as compared to 10) *globally*?
+
 
 Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
 be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
@@ -240,7 +253,7 @@ The above demonstrates the basic functionality of `aggregate`:
   * `'assign'` (to use 'assign' mode, as described above)
   * `'list'` (to build a list of all occurring values under that key)
   * `'add'` (to add up all numeric values under that key)
-  * `'all'` (to get a value that is common to all entries)
+  <!-- * `'all'` (to get a value that is common to all entries) -->
   * `'average'` (to get the average numeric value under that key)
   * Lastly, you can pass in a function that accepts a list of `[ id, value, ]` pairs (and, optionally,
     the return value of `aggregate` and the list of entries). The values for keys so configured will

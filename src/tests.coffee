@@ -503,27 +503,29 @@ show = ( me ) ->
   ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
   ISL.insert samples, { lo: 0x3040, hi:   0x309f, name: 'cjk',       font_family: 'Sun-ExtA',     }
   ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
-  debug 'rx2-1', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
-  debug 'rx2-2', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  debug 'rx2-3', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  debug 'rx2-1', 'A', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+  debug 'rx2-2', '&', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  debug 'rx2-3', '人', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  debug 'rx2-3', 'Abcd人', ISL.find_names_with_all_points samples, Array.from 'Abcd人' # --> [ 'latin', 'cjk' ]
+  debug 'rx2-3', '人はるのそらのした', ISL.find_names_with_all_points samples, Array.from '人はるのそらのした' # --> [ 'latin', 'cjk' ]
   # debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
   # debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
   # debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
-  debug 'rx2-7', ISL.aggregate samples, 'A' #, { font_family: 'list', }
-  debug 'rx2-8', ISL.aggregate samples, '&' #, { font_family: 'list', }
-  debug 'rx2-9', ISL.aggregate samples, '人' #, { font_family: 'list', }
+  urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
+  urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
+  urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
   replacers = { '*': 'list', name: 'include', }
-  debug 'rx2-10', ISL.aggregate samples, 'A', replacers
-  debug 'rx2-11', ISL.aggregate samples, '&', replacers
-  debug 'rx2-12', ISL.aggregate samples, '人', replacers
-  replacers = { '*': 'list', name: 'all', font_family: 'all', }
+  info 'rx2-10', 'A', ISL.aggregate samples, 'A', replacers
+  info 'rx2-11', '&', ISL.aggregate samples, '&', replacers
+  info 'rx2-12', '人', ISL.aggregate samples, '人', replacers
+  # replacers = { '*': 'list', name: 'all', font_family: 'all', }
   # debug 'rx2-13', ISL.aggregate samples, ( Array.from 'Abcd'           ), replacers
   # debug 'rx2-14', ISL.aggregate samples, ( Array.from 'Abcd人'          ), replacers
   # debug 'rx2-15', ISL.aggregate samples, ( Array.from '人はるのそらのした'      ), replacers
-  f = ( entries ) -> ( entry[ 'font_family' ] for entry in entries )
-  debug 'rx2-16 人',  f ISL.find_entries_with_any_points samples, ( Array.from '人'      )
-  debug 'rx2-17 は',  f ISL.find_entries_with_any_points samples, ( Array.from 'は'      )
-  debug 'rx2-18 人は', f ISL.find_entries_with_any_points samples, ( Array.from '人は'      )
+  # f = ( entries ) -> ( [ entry[ 'idx' ], entry[ 'font_family' ], ] for entry in entries )
+  # debug 'rx2-16 人',  f ISL.find_entries_with_any_points samples, ( Array.from '人'      )
+  # debug 'rx2-17 は',  f ISL.find_entries_with_any_points samples, ( Array.from 'は'      )
+  # debug 'rx2-18 人は', f ISL.find_entries_with_any_points samples, ( Array.from '人は'      )
   # debug 'rx2-19 人は', ISL.find_entries_with_all_points samples, ( Array.from '人は'      )
   # delete samples[ '%self' ]
   # debug samples
