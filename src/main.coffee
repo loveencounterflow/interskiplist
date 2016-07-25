@@ -35,18 +35,6 @@ echo                      = CND.echo.bind CND
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-as_number = ( x ) ->
-  return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
-  unless ( type = CND.type_of x ) is 'text'
-    throw new Error "expected number or single character text, got a #{type}"
-  unless ( length = ( Array.from x ).length ) is 1
-    throw new Error "expected single character text, got one of length #{length}"
-  return x.codePointAt 0
-
-#-----------------------------------------------------------------------------------------------------------
-as_numbers = ( list ) -> ( as_number x for x in list )
-
-#-----------------------------------------------------------------------------------------------------------
 @insert = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
@@ -102,6 +90,14 @@ as_numbers = ( list ) -> ( as_number x for x in list )
   return R
 
 #-----------------------------------------------------------------------------------------------------------
+@tag_of = ( me, id ) ->
+  ### NOTE always returns a (possibly empty) list; always returns a copy, never the original list ###
+  throw new Error "unknown ID #{rpr id}" unless ( entry = me[ 'entry-by-ids' ][ id ] )?
+  R = entry[ 'tag' ]
+  return [] unless R?
+  return meld [], R
+
+#-----------------------------------------------------------------------------------------------------------
 @_intervals_of = ( me, ids = null ) ->
   return me[ '%self' ].intervalsByMarker unless ids?
   return ( @interval_of me, id for id in ids )
@@ -117,21 +113,29 @@ as_numbers = ( list ) -> ( as_number x for x in list )
   return unique ( @name_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
+@_tags_of = ( me, ids = null ) ->
+  throw new Error "retrieving tags without IDs not implemented" unless ids?
+  return fuse ( @tag_of me, id for id in ids )
+
+#-----------------------------------------------------------------------------------------------------------
 @intervals_of = ( me, ids = null ) -> @_intervals_of me, if ids? then ( @sort_ids me, ids ) else null
 @entries_of   = ( me, ids = null ) -> @_entries_of   me, if ids? then ( @sort_ids me, ids ) else null
 @names_of     = ( me, ids = null ) -> @_names_of     me, if ids? then ( @sort_ids me, ids ) else null
+@tags_of      = ( me, ids = null ) -> @_tags_of      me, if ids? then ( @sort_ids me, ids ) else null
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids       = ( me, point ) -> @find_ids_with_all_points        me, point
 @find_intervals = ( me, point ) -> @find_intervals_with_all_points  me, point
 @find_entries   = ( me, point ) -> @find_entries_with_all_points    me, point
 @find_names     = ( me, point ) -> @find_names_with_all_points      me, point
+@find_tags      = ( me, point ) -> @find_tags_with_all_points       me, point
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT what happens when these methods are called with no points? ###
 @find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_any_points me, P...
 @find_names_with_any_points     = ( me, P... ) -> @names_of     me, @find_ids_with_any_points me, P...
 @find_intervals_with_any_points = ( me, P... ) -> @intervals_of me, @find_ids_with_any_points me, P...
+@find_tags_with_any_points      = ( me, P... ) -> @tags_of      me, @find_ids_with_any_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_all_points me, P...
@@ -164,23 +168,32 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 
 #-----------------------------------------------------------------------------------------------------------
 @find_names_with_all_points = ( me, points ) ->
-  ### TAINT should be possible to call w/o any points to get no names ###
+  ### TAINT code duplication ###
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   points = [ points, ] unless CND.isa_list points
   return [] if points.length is 0
   R = @find_names_with_any_points me, points[ 0 ]
-  # debug '1101-1', points[ 0 ], @find_ids_with_any_points me, points[ 0 ]
-  # debug '1101-1', points[ 0 ], @find_names_with_any_points me, points[ 0 ]
-  # debug '1101-1', points[ 0 ], me[ 'name-by-ids' ]
   return R if points.length < 2
   R = new Set R
-  # debug '1101-2', R
   for point_idx in [ 1 ... points.length ]
     point = points[ point_idx ]
     names = @find_names_with_any_points me, point
-    # help '3200', R, names
     R.forEach ( name ) -> R.delete name unless name in names
-    # warn '3200', R, names
+  return Array.from R
+
+#-----------------------------------------------------------------------------------------------------------
+@find_tags_with_all_points = ( me, points ) ->
+  ### TAINT code duplication ###
+  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+  points = [ points, ] unless CND.isa_list points
+  return [] if points.length is 0
+  R = @find_tags_with_any_points me, points[ 0 ]
+  return R if points.length < 2
+  R = new Set R
+  for point_idx in [ 1 ... points.length ]
+    point = points[ point_idx ]
+    tags  = @find_tags_with_any_points me, point
+    R.forEach ( tag ) -> R.delete tag unless tag in tags
   return Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -214,22 +227,6 @@ as_numbers = ( list ) -> ( as_number x for x in list )
     last_point  = point
   R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
   return R
-
-#-----------------------------------------------------------------------------------------------------------
-unique = ( list ) ->
-  seen  = new Set()
-  R     = []
-  for idx in [ list.length - 1 .. 0 ] by -1
-    element = list[ idx ]
-    continue if seen.has element
-    seen.add element
-    R.unshift element
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-append = ( a, b ) ->
-  a.splice a.length, 0, b...
-  return a
 
 
 #===========================================================================================================
@@ -273,9 +270,13 @@ append = ( a, b ) ->
   cache             = {}
   averages          = {}
   common            = {}
-  tags_keys         = ( key for key, value of reducers when value is 'tags' )
+  tag_keys          = ( key for key, value of reducers when value is 'tag' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
+  #.........................................................................................................
+  unless ( 'tag' in exclude ) or ( 'tag' of reducers )
+    tag_keys.push 'tag'
+    reducers[ 'tag' ] = 'tag'
   #.........................................................................................................
   for entry in entries
     for key, value of entry
@@ -288,11 +289,7 @@ append = ( a, b ) ->
         when 'list'     then ( R[ key ]      ?= [] ).push value
         when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
         when 'assign'   then R[ key ]         = value
-        #...................................................................................................
-        when 'tags'
-          target = R[ key ] ?= []
-          if CND.isa_list value then  append target, value
-          else                        target.push value
+        when 'tag'      then meld ( target = R[ key ] ?= [] ), value
         #...................................................................................................
         when 'average'
           target      = averages[ key ] ?= [ 0, 0, ]
@@ -305,8 +302,8 @@ append = ( a, b ) ->
           ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
   #.........................................................................................................
   for key, value of R
-    continue unless key in tags_keys
-    unique value
+    continue unless key in tag_keys
+    R[ key ] = fuse value
   #.........................................................................................................
   for key, [ sum, count, ] of averages
     R[ key ] = sum / count
@@ -319,6 +316,50 @@ append = ( a, b ) ->
   #.........................................................................................................
   return R
 
+
+#===========================================================================================================
+# HELPERS
+#-----------------------------------------------------------------------------------------------------------
+as_number = ( x ) ->
+  return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
+  unless ( type = CND.type_of x ) is 'text'
+    throw new Error "expected number or single character text, got a #{type}"
+  unless ( length = ( Array.from x ).length ) is 1
+    throw new Error "expected single character text, got one of length #{length}"
+  return x.codePointAt 0
+
+#-----------------------------------------------------------------------------------------------------------
+as_numbers = ( list ) -> ( as_number x for x in list )
+
+#-----------------------------------------------------------------------------------------------------------
+unique = ( list ) ->
+  seen  = new Set()
+  R     = []
+  for idx in [ list.length - 1 .. 0 ] by -1
+    element = list[ idx ]
+    continue if seen.has element
+    seen.add element
+    R.unshift element
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+append = ( a, b ) ->
+  a.splice a.length, 0, b...
+  return a
+
+#-----------------------------------------------------------------------------------------------------------
+meld = ( list, value ) ->
+  if CND.isa_list value then  append list, value
+  else                        list.push value
+  return list
+
+#-----------------------------------------------------------------------------------------------------------
+fuse = ( list ) ->
+  R = []
+  meld R, element for element in list
+  R = unique R
+  list.splice 0, list.length, R...
+  return list
 
 
 

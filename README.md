@@ -23,7 +23,7 @@ Install as `npm install --save interskiplist`.
     - [An Example Using CSS Unicode-Range](#an-example-using-css-unicode-range)
     - [Same Example Using InterSkipList](#same-example-using-interskiplist)
   - [Discontinuous Ranges](#discontinuous-ranges)
-  - [Special Names of Interval Entries](#special-names-of-interval-entries)
+  - [Special Keys of Interval Entries](#special-keys-of-interval-entries)
   - [Tagging](#tagging)
 - [API](#api)
   - [@aggregate = ( me, points, reducers ) ->](#aggregate---me-points-reducers---)
@@ -265,7 +265,7 @@ The above demonstrates the basic functionality of `aggregate`:
   * `'skip'` (to omit an key/value pair otherwise included)
   * `'assign'` (to use 'assign' mode, as described above)
   * `'list'` (to build a list of all occurring values under that key)
-  * `'tags'` (to obtain a list of unique values; see section on tagging, below)
+  * `'tag'` (to obtain a list of unique values; see section on tagging, below)
   * `'add'` (to add up all numeric values under that key)
   * `'average'` (to get the average numeric value under that key)
   * Lastly, you can pass in a function that accepts a list of `[ id, value, ]` pairs (and, optionally,
@@ -359,7 +359,7 @@ ISL.find_names_with_all_points ascii, [ 'i', 'e', ] ---> [ 'basic-latin', 'lette
 ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [                                 'basic-latin' ]
 ```
 
-## Special Names of Interval Entries
+## Special Keys of Interval Entries
 
 The following keys of entries are treated specially by InterSkipList:
 
@@ -369,9 +369,21 @@ The following keys of entries are treated specially by InterSkipList:
 * **`idx`**—automatically assigned according to insertion order.
 * **`size`**—automatically assigned to `hi - lo + 1`
 * **`name`**—group name of interval; automatically set to `+` where not given.
-* **`tags`**—by default, aggregated in `tags` mode.
+* **`tag`**—aggregated in `tag` mode unless explicitly specified.
 
 ## Tagging
+
+(to be written; some key points:)
+
+* when inserting an interval, key `tag` is special
+* it can be a single string or a list of strings
+* each defines a 'mon-valued' attribute: 'false' where absent, 'true' where present
+* `ISL.find_tags` returns a list of unique tags that are found in the interval entries that contain this
+  point;
+* `ISL.find_tags_with_all_points` returns a list of unique tags that are applicable to *all* the points
+  given (intersection);
+* `ISL.find_tags_with_any_points` returns a list of unique tags that are applicable to *any* the points
+  given (union);
 
 
 # API
