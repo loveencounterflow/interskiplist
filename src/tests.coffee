@@ -603,6 +603,33 @@ show = ( me ) ->
   debug '3928', JSON.stringify ISL.find_names isl, 15
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "tags 1" ] = ( T ) ->
+  u = ISL.new()
+  #.........................................................................................................
+  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  for n in [ 0 .. 8 ] by +2
+    digit_0 = "#{n}"
+    digit_1 = "#{n + 1}"
+    debug digit_0, digit_1
+    ISL.insert u, { lo: digit_0, hi: digit_0, tags: [ 'ascii', 'digit', 'even', ], }
+    ISL.insert u, { lo: digit_1, hi: digit_1, tags: [ 'ascii', 'digit', 'odd',  ], }
+  ISL.insert u, { lo: '2', hi: '2', tags: [ 'prime', ], }
+  ISL.insert u, { lo: '3', hi: '3', tags: [ 'prime', ], }
+  ISL.insert u, { lo: '5', hi: '5', tags: [ 'prime', ], }
+  ISL.insert u, { lo: '7', hi: '7', tags: [ 'prime', ], }
+  #.........................................................................................................
+  for n in [ 0 .. 9 ]
+    digit = "#{n}"
+    help digit, ISL.aggregate u, digit, {
+      '*':    'skip',
+      tags:   'list',
+      }
+  #.........................................................................................................
+  T.eq ( ISL.aggregate u, '3', { '*': 'skip', tags: 'tags', } ), [ 'ascii', 'digit', 'odd', 'prime', ]
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -623,6 +650,7 @@ unless module.parent?
     "preserve insertion order"
     "demo discontiguous ranges"
     "unique names with priority conflict"
+    "tags 1"
   ]
   # @_prune()
   @_main()
