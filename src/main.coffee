@@ -226,6 +226,11 @@ unique = ( list ) ->
     R.unshift element
   return R
 
+#-----------------------------------------------------------------------------------------------------------
+append = ( a, b ) ->
+  a.splice a.length, 0, b...
+  return a
+
 
 #===========================================================================================================
 # AGGREGATION
@@ -268,6 +273,7 @@ unique = ( list ) ->
   cache             = {}
   averages          = {}
   common            = {}
+  tags_keys         = ( key for key, value of reducers when value is 'tags' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
   #.........................................................................................................
@@ -279,6 +285,10 @@ unique = ( list ) ->
       switch reducer
         when 'skip'     then continue
         when 'list'     then ( R[ key ]      ?= [] ).push value
+        when 'tags'     then
+          target = R[ key ] ?= []
+          if CND.isa_list value then  append target, value
+          else                        target.push value
         when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
         when 'assign'   then R[ key ]         = value
         # when 'all'      then ( common[ key ] ?= [] ).push value
@@ -290,6 +300,10 @@ unique = ( list ) ->
           ### TAINT repeats typecheck on each iteration ###
           throw new Error "unknwon reducer #{rpr reducer}" unless CND.isa_function reducer
           ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
+  #.........................................................................................................
+  for key, value of R
+    continue unless key in tags_keys
+    unique value
   #.........................................................................................................
   for key, [ sum, count, ] of averages
     R[ key ] = sum / count
