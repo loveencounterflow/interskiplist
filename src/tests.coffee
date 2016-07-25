@@ -623,10 +623,10 @@ show = ( me ) ->
     digit = "#{n}"
     help digit, ISL.aggregate u, digit, {
       '*':    'skip',
-      tags:   'list',
+      tags:   'tags',
       }
   #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3', { '*': 'skip', tags: 'tags', } ), [ 'ascii', 'digit', 'odd', 'prime', ]
+  T.eq ( ISL.aggregate u, '3', { '*': 'skip', tags: 'tags', } ), { tags: [ 'ascii', 'digit', 'odd', 'prime', ], }
   #.........................................................................................................
   return null
 

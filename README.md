@@ -260,8 +260,8 @@ The above demonstrates the basic functionality of `aggregate`:
   * `'skip'` (to omit an key/value pair otherwise included)
   * `'assign'` (to use 'assign' mode, as described above)
   * `'list'` (to build a list of all occurring values under that key)
+  * `'tags'` (to obtain a list of unique values; see section on tagging, below)
   * `'add'` (to add up all numeric values under that key)
-  <!-- * `'all'` (to get a value that is common to all entries) -->
   * `'average'` (to get the average numeric value under that key)
   * Lastly, you can pass in a function that accepts a list of `[ id, value, ]` pairs (and, optionally,
     the return value of `aggregate` and the list of entries). The values for keys so configured will
@@ -353,6 +353,21 @@ ISL.find_names_with_all_points ascii, [ 'A', 'e', ] ---> [ 'basic-latin', 'lette
 ISL.find_names_with_all_points ascii, [ 'i', 'e', ] ---> [ 'basic-latin', 'letter', 'lower',     'vowel' ]
 ISL.find_names_with_all_points ascii, [ '2', 'e', ] ---> [                                 'basic-latin' ]
 ```
+
+## Special Names of Interval Entries
+
+The following keys of entries are treated specially by InterSkipList:
+
+* **`lo`**—indicates smallest member of interval.
+* **`hi`**—indicates biggest member of interval.
+* **`id`**—unique identifier of interval; set automatically where not given.
+* **`idx`**—automatically assigned according to insertion order.
+* **`size`**—automatically assigned to `hi - lo + 1`
+* **`name`**—group name of interval; automatically set to `+` where not given.
+* **`tags`**—by default, aggregated in `tags` mode.
+
+## Tagging
+
 
 # API
 

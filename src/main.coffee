@@ -282,20 +282,23 @@ append = ( a, b ) ->
       continue if key in exclude
       reducer = ( reducer = reducers[ key ] ) ? reducer_fallback
       reducer = reducer_fallback if reducer is 'include'
+      #.....................................................................................................
       switch reducer
         when 'skip'     then continue
         when 'list'     then ( R[ key ]      ?= [] ).push value
-        when 'tags'     then
+        when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
+        when 'assign'   then R[ key ]         = value
+        #...................................................................................................
+        when 'tags'
           target = R[ key ] ?= []
           if CND.isa_list value then  append target, value
           else                        target.push value
-        when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
-        when 'assign'   then R[ key ]         = value
-        # when 'all'      then ( common[ key ] ?= [] ).push value
+        #...................................................................................................
         when 'average'
           target      = averages[ key ] ?= [ 0, 0, ]
           target[ 0 ] = target[ 0 ] + value
           target[ 1 ] = target[ 1 ] + 1
+        #...................................................................................................
         else
           ### TAINT repeats typecheck on each iteration ###
           throw new Error "unknwon reducer #{rpr reducer}" unless CND.isa_function reducer
