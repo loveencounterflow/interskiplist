@@ -450,7 +450,7 @@ show = ( me ) ->
   isl = ISL.new()
   ISL.insert isl, { lo: 0, hi: 10, id: 'wide',   count: 10, length: 10, foo: 'D',  }
   ISL.insert isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
-  aggregation_settings =
+  reducers =
     '*':    'list'
     id:     'include'
     lo:     'assign'
@@ -460,8 +460,8 @@ show = ( me ) ->
     length: 'average'
     foo:    ( ids_and_values ) ->
       return ( ( value.toLowerCase() for [ id, value, ] in ids_and_values ). join '' ) + '!'
-  debug JSON.stringify ISL.aggregate isl, 5, aggregation_settings
-  T.eq ( ISL.aggregate isl, 5, aggregation_settings ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
+  debug JSON.stringify ISL.aggregate isl, 5, reducers
+  T.eq ( ISL.aggregate isl, 5, reducers ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -684,26 +684,110 @@ show = ( me ) ->
 @[ "configurable reducers" ] = ( T ) ->
   #.........................................................................................................
   add = ( isl, description ) ->
-    if description.length is 3
-      [ name, lo, hi, ] = description
-      ISL.insert isl, { lo, hi, name, }
-    else
-      [ name, rsg, lo, hi, ] = description
-      ISL.insert isl, { lo, hi, name, rsg, }
+    rsg = null
+    tag = null
+    [ type, tail..., ] = description
+    #.......................................................................................................
+    switch type
+      when 'block'                then [ name, rsg, lo, hi, tag, ] = tail
+      when 'plane', 'area'        then [ name,      lo, hi, tag, ] = tail
+      when 'codepoints'           then [            lo, hi, tag, ] = tail
+      else throw new Error "unknown entry type #{rpr type}"
+    #.......................................................................................................
+    interval            = { lo, hi, }
+    interval[ 'type'  ] = name                if name?
+    interval[ 'rsg'   ] = rsg                 if rsg?
+    interval[ 'tag'   ] = tag.split /[\s,]+/  if tag?
+    ISL.insert isl, interval
+    #.......................................................................................................
     return null
   #.........................................................................................................
-  [ 'Basic Multilingual Plane (BMP)',                                       0x0000,    0xffff,  ]
-  [ 'Supplementary Multilingual Plane (SMP)',                              0x10000,   0x1ffff,  ]
-  [ 'ASCII & Latin-1 Compatibility Area',                                   0x0000,    0x00ff,  ]
-  [ 'General Scripts Area',                                                 0x0100,    0x058f,  ]
-  [ 'Basic Latin',                                     'u-latn',               0x0,      0x7f,  ]
-  [ 'Latin-1 Supplement',                              'u-latn-1',            0x80,      0xff,  ]
-  [ 'Latin Extended-A',                                'u-latn-a',           0x100,     0x17f,  ]
-  [ 'Latin Extended-B',                                'u-latn-b',           0x180,     0x24f,  ]
-  [ 'IPA Extensions',                                  'u-ipa-x',            0x250,     0x2af,  ]
-  [ 'Armenian',                                        null,                 0x530,     0x58f,  ]
+  descriptions = [
+    #.......................................................................................................
+    # Planes
+    [ 'plane', 'Basic Multilingual Plane (BMP)',                               0x0000,    0xffff,  ]
+    [ 'plane', 'Supplementary Multilingual Plane (SMP)',                      0x10000,   0x1ffff,  ]
+    [ 'plane', 'Supplementary Ideographic Plane (SIP)',                       0x20000,   0x2ffff,  ]
+    #.......................................................................................................
+    # Areas
+    [ 'area', 'ASCII & Latin-1 Compatibility Area',                           0x0000,     0x00ff,  ]
+    [ 'area', 'General Scripts Area',                                         0x0100,     0x058f,  ]
+    #.......................................................................................................
+    # Blocks
+    [ 'block', 'Basic Latin',                             'u-latn',               0x0,      0x7f,  ]
+    [ 'block', 'Latin-1 Supplement',                      'u-latn-1',            0x80,      0xff,  ]
+    [ 'block', 'Latin Extended-A',                        'u-latn-a',           0x100,     0x17f,  ]
+    [ 'block', 'Latin Extended-B',                        'u-latn-b',           0x180,     0x24f,  ]
+    [ 'block', 'IPA Extensions',                          'u-ipa-x',            0x250,     0x2af,  ]
+    [ 'block', 'Armenian',                                null,                 0x530,     0x58f,  ]
+    #.......................................................................................................
+    [ 'block', 'CJK Unified Ideographs',                  'u-cjk',             0x4e00,    0x9fff, 'cjk ideograph', ]
+    #.......................................................................................................
+    [ 'block', 'CJK Unified Ideographs Extension A',      'u-cjk-xa',          0x3400,    0x4dbf, 'cjk ideograph', ]
+    [ 'block', 'CJK Unified Ideographs Extension B',      'u-cjk-xb',         0x20000,   0x2a6df, 'cjk ideograph', ]
+    [ 'block', 'CJK Unified Ideographs Extension C',      'u-cjk-xc',         0x2a700,   0x2b73f, 'cjk ideograph', ]
+    [ 'block', 'CJK Unified Ideographs Extension D',      'u-cjk-xd',         0x2b740,   0x2b81f, 'cjk ideograph', ]
+    [ 'block', 'CJK Unified Ideographs Extension E',      'u-cjk-xe',         0x2b820,   0x2ceaf, 'cjk ideograph', ]
+    [ 'block', 'CJK Unified Ideographs Extension F',      'u-cjk-xf',         0x2ceb0,   0x2ebef, 'cjk ideograph', ]
+    #.......................................................................................................
+    [ 'block', 'Ideographic Description Characters',      'u-cjk-idc',         0x2ff0,    0x2fff, 'cjk idl', ]
+    [ 'block', 'CJK Symbols and Punctuation',             'u-cjk-sym',         0x3000,    0x303f, 'cjk punctuation', ]
+    [ 'block', 'CJK Strokes',                             'u-cjk-strk',        0x31c0,    0x31ef, 'cjk stroke', ]
+    [ 'block', 'Enclosed CJK Letters and Months',         'u-cjk-enclett',     0x3200,    0x32ff, 'cjk', ]
+    #.......................................................................................................
+    [ 'block', 'Kangxi Radicals',                         'u-cjk-rad1',        0x2f00,    0x2fdf, 'cjk ideograph kxr', ]
+    [ 'block', 'CJK Radicals Supplement',                 'u-cjk-rad2',        0x2e80,    0x2eff, 'cjk ideograph', ]
+    #.......................................................................................................
+    [ 'block', 'Hiragana',                                'u-cjk-hira',        0x3040,    0x309f, 'cjk japanese kana hiragana', ]
+    [ 'block', 'Katakana',                                'u-cjk-kata',        0x30a0,    0x30ff, 'cjk japanese kana katakana', ]
+    [ 'block', 'Kanbun',                                  'u-cjk-kanbun',      0x3190,    0x319f, 'cjk japanese kanbun', ]
+    [ 'block', 'Katakana Phonetic Extensions',            'u-cjk-kata-x',      0x31f0,    0x31ff, 'cjk japanese kana katakana', ]
+    #.......................................................................................................
+    [ 'block', 'Hangul Jamo',                             'u-hang-jm',         0x1100,    0x11ff, 'cjk korean hangeul jamo', ]
+    [ 'block', 'Hangul Syllables',                        'u-hang-syl',        0xac00,    0xd7af, 'cjk korean hangeul syllable', ]
+    [ 'block', 'Hangul Jamo Extended-A',                  null,                0xa960,    0xa97f, 'cjk korean hangeul jamo', ]
+    [ 'block', 'Hangul Jamo Extended-B',                  null,                0xd7b0,    0xd7ff, 'cjk korean hangeul jamo', ]
+    #.......................................................................................................
+    [ 'block', 'Bopomofo',                                'u-bopo',            0x3100,    0x312f, 'cjk bopomofo', ]
+    [ 'block', 'Bopomofo Extended',                       'u-bopo-x',          0x31a0,    0x31bf, 'cjk bopomofo', ]
+    #.......................................................................................................
+    [ 'block', 'CJK Compatibility Forms',                 'u-cjk-cmpf',        0xfe30,    0xfe4f, 'cjk vertical', ]
+    [ 'block', 'Vertical Forms',                          'u-vertf',           0xfe10,    0xfe1f, 'cjk vertical', ]
+    #.......................................................................................................
+    [ 'block', 'Miscellaneous Symbols',                   'u-sym',             0x2600,    0x26ff, ]
+    [ 'codepoints',                                                            0x262f,    0x2637, 'cjk' ]
+    [ 'codepoints',                                                            0x2630,    0x2637, 'cjk yijing trigram' ]
+    [ 'block', 'Yijing Hexagram Symbols',                 'u-yijng',           0x4dc0,    0x4dff, 'cjk yijing hexagram', ]
+    [ 'block', 'Tai Xuan Jing Symbols',                   'u-txj-sym',        0x1d300,   0x1d35f, 'cjk yijing taixuanjing tetragram', ]
+    #.......................................................................................................
+    [ 'block', 'CJK Compatibility Ideographs',            'u-cjk-cmpi1',       0xf900,    0xfaff, 'cjk', ]
+    [ 'block', 'Hangul Compatibility Jamo',               'u-hang-comp-jm',    0x3130,    0x318f, 'cjk', ]
+    [ 'block', 'CJK Compatibility',                       'u-cjk-cmp',         0x3300,    0x33ff, 'cjk', ]
+    [ 'block', 'CJK Compatibility Ideographs Supplement', 'u-cjk-cmpi2',      0x2f800,   0x2fa1f, 'cjk', ]
+    #.......................................................................................................
+    [ 'block', 'Private Use Area',                        'u-pua',             0xe000,    0xf8ff,  ]
+    ]
   #.........................................................................................................
-  u = ISL.new()
+  probes_and_matchers = [
+    ["a",{"plane":"Basic Multilingual Plane (BMP)","area":"ASCII & Latin-1 Compatibility Area","block":"Basic Latin","rsg":"u-latn"}]
+    ["ä",{"plane":"Basic Multilingual Plane (BMP)","area":"ASCII & Latin-1 Compatibility Area","block":"Latin-1 Supplement","rsg":"u-latn-1"}]
+    ["ɐ",{"plane":"Basic Multilingual Plane (BMP)","area":"General Scripts Area","block":"IPA Extensions","rsg":"u-ipa-x"}]
+    ["ա",{"plane":"Basic Multilingual Plane (BMP)","area":"General Scripts Area","block":"Armenian","rsg":null}]
+    ["三",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Unified Ideographs","rsg":"u-cjk"}]
+    ["ゆ",{"plane":"Basic Multilingual Plane (BMP)","block":"Hiragana","rsg":"u-cjk-hira"}]
+    ["㈪",{"plane":"Basic Multilingual Plane (BMP)","block":"Enclosed CJK Letters and Months","rsg":"u-cjk-enclett"}]
+    ["《",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym"}]
+    ["》",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym"}]
+    ["𫠠",{"plane":"Supplementary Ideographic Plane (SIP)","block":"CJK Unified Ideographs Extension E","rsg":"u-cjk-xe"}]
+    ]
+  #.........................................................................................................
+  u = ISL.new reducers: { name: 'skip', }
+  for description in descriptions
+    add u, description
+  #.........................................................................................................
+  for [ probe, matcher, ] in probes_and_matchers
+    help s [ probe, ISL.aggregate u, probe ]
+    # T.eq ( ISL.aggregate u, probe ), matcher
   #.........................................................................................................
   return null
 

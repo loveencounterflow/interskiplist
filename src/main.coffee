@@ -16,7 +16,6 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
-  throw new Error "settings not yet supported" if settings?
   substrate = new ( require 'interval-skip-list' )()
   R =
     '~isa':           'CND/interskiplist'
@@ -32,7 +31,7 @@ echo                      = CND.echo.bind CND
     'max':            null
     'fmin':           null
     'fmax':           null
-    'reducers':       settings[ 'reducers' ] ? null
+    'reducers':       settings?[ 'reducers' ] ? null
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -258,22 +257,31 @@ echo                      = CND.echo.bind CND
   points_or_entries = [ points_or_entries, ] unless CND.isa_list points_or_entries
   points            = []
   entries           = []
+  #.........................................................................................................
   for points_or_entry in points_or_entries
-    if ( CND.type_of points_or_entry ) in [ 'number', 'text', ]
-      points.push points_or_entry
-    else
-      entries.push points_or_entry
-  if points.length > 0
-    entries.splice 0, 0, ( @find_entries_with_all_points me, points )...
+    if ( CND.type_of points_or_entry ) in [ 'number', 'text', ] then  points.push points_or_entry
+    else                                                             entries.push points_or_entry
+  append entries, ( @find_entries_with_all_points me, points ) if points.length > 0
+  #.........................................................................................................
   @sort_entries me, entries
   #.........................................................................................................
   R                 = {}
   cache             = {}
   averages          = {}
   common            = {}
+  reducers          = Object.assign {}, reducers, me[ 'reducers' ] ? {}
   tag_keys          = ( key for key, value of reducers when value is 'tag' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
+  functions         = {}
+  #.........................................................................................................
+  for key, reducer of reducers
+    if reducer is 'include'
+      reducers[ key ] = reducer_fallback
+      continue
+    if CND.isa_function reducer
+      functions[ key ]  = reducer
+      reducers[ key ]   = 'function'
   #.........................................................................................................
   unless ( 'tag' in exclude ) or ( 'tag' of reducers )
     tag_keys.push 'tag'
@@ -283,7 +291,6 @@ echo                      = CND.echo.bind CND
     for key, value of entry
       continue if key in exclude
       reducer = ( reducer = reducers[ key ] ) ? reducer_fallback
-      reducer = reducer_fallback if reducer is 'include'
       #.....................................................................................................
       switch reducer
         when 'skip'     then continue
@@ -291,16 +298,14 @@ echo                      = CND.echo.bind CND
         when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
         when 'assign'   then R[ key ]         = value
         when 'tag'      then meld ( target = R[ key ] ?= [] ), value
+        when 'function' then ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
         #...................................................................................................
         when 'average'
           target      = averages[ key ] ?= [ 0, 0, ]
           target[ 0 ] = target[ 0 ] + value
           target[ 1 ] = target[ 1 ] + 1
         #...................................................................................................
-        else
-          ### TAINT repeats typecheck on each iteration ###
-          throw new Error "unknwon reducer #{rpr reducer}" unless CND.isa_function reducer
-          ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
+        else throw new Error "unknown reducer #{rpr reducer}"
   #.........................................................................................................
   for key, value of R
     continue unless key in tag_keys
@@ -313,7 +318,7 @@ echo                      = CND.echo.bind CND
     R[ key ] = values[ 0 ] if ( values.length is 1 ) or CND.equals values...
   #.........................................................................................................
   for key, ids_and_values of cache
-    R[ key ] = reducers[ key ] ids_and_values, R, entries
+    R[ key ] = functions[ key ] ids_and_values, R, entries
   #.........................................................................................................
   return R
 
