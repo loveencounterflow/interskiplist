@@ -695,7 +695,7 @@ show = ( me ) ->
       else throw new Error "unknown entry type #{rpr type}"
     #.......................................................................................................
     interval            = { lo, hi, }
-    interval[ 'type'  ] = name                if name?
+    interval[ type    ] = name                if name?
     interval[ 'rsg'   ] = rsg                 if rsg?
     interval[ 'tag'   ] = tag.split /[\s,]+/  if tag?
     ISL.insert isl, interval
