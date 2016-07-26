@@ -681,27 +681,29 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "tag 3" ] = ( T ) ->
+@[ "configurable reducers" ] = ( T ) ->
+  #.........................................................................................................
+  add = ( isl, description ) ->
+    if description.length is 3
+      [ name, lo, hi, ] = description
+      ISL.insert isl, { lo, hi, name, }
+    else
+      [ name, rsg, lo, hi, ] = description
+      ISL.insert isl, { lo, hi, name, rsg, }
+    return null
+  #.........................................................................................................
+  [ 'Basic Multilingual Plane (BMP)',                                       0x0000,    0xffff,  ]
+  [ 'Supplementary Multilingual Plane (SMP)',                              0x10000,   0x1ffff,  ]
+  [ 'ASCII & Latin-1 Compatibility Area',                                   0x0000,    0x00ff,  ]
+  [ 'General Scripts Area',                                                 0x0100,    0x058f,  ]
+  [ 'Basic Latin',                                     'u-latn',               0x0,      0x7f,  ]
+  [ 'Latin-1 Supplement',                              'u-latn-1',            0x80,      0xff,  ]
+  [ 'Latin Extended-A',                                'u-latn-a',           0x100,     0x17f,  ]
+  [ 'Latin Extended-B',                                'u-latn-b',           0x180,     0x24f,  ]
+  [ 'IPA Extensions',                                  'u-ipa-x',            0x250,     0x2af,  ]
+  [ 'Armenian',                                        null,                 0x530,     0x58f,  ]
+  #.........................................................................................................
   u = ISL.new()
-  #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, tag:  'ascii', }
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii-duplicate', }
-  for n in [ 0 .. 8 ] by +2
-    digit_0 = "#{n}"
-    digit_1 = "#{n + 1}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
-    ISL.insert u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
-  ISL.insert u, { lo: '2', hi: '2', tag: 'prime', }
-  ISL.insert u, { lo: '3', hi: '3', tag: 'prime', }
-  ISL.insert u, { lo: '5', hi: '5', tag: 'prime', }
-  ISL.insert u, { lo: '7', hi: '7', tag: 'prime', }
-  #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
-  debug '5531-6', s ISL.find_tags_with_all_points u, [ '3', '7', '2', ]
-  debug '5531-7', s ISL.find_tags_with_any_points u, [ '3', '7', '2', ]
-  T.eq ( ISL.find_tags u, '3' ), ["ascii","digit","odd","prime"]
-  T.eq ( ISL.find_tags_with_all_points u, [ '3', '7', '2', ] ), ["ascii","digit","prime"]
-  T.eq ( ISL.find_tags_with_any_points u, [ '3', '7', '2', ] ), ["even","ascii","digit","odd","prime"]
   #.........................................................................................................
   return null
 
@@ -728,6 +730,7 @@ unless module.parent?
     "tag 1"
     "tag 2"
     "tag 3"
+    "configurable reducers"
   ]
   @_prune()
   @_main()

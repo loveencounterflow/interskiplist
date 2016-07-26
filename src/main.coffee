@@ -32,6 +32,7 @@ echo                      = CND.echo.bind CND
     'max':            null
     'fmin':           null
     'fmax':           null
+    'reducers':       settings[ 'reducers' ] ? null
   return R
 
 #-----------------------------------------------------------------------------------------------------------
