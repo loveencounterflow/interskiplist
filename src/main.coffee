@@ -16,7 +16,8 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
-  substrate = new ( require 'interval-skip-list' )()
+  substrate           = new ( require 'interval-skip-list' )()
+  # substrate.toString  = substrate.inspect = -> "{ interval-skip-list }"
   R =
     '~isa':           'CND/interskiplist'
     '%self':          substrate
@@ -268,7 +269,7 @@ echo                      = CND.echo.bind CND
   R                 = {}
   cache             = {}
   averages          = {}
-  common            = {}
+  # common            = {}
   reducers          = Object.assign {}, reducers, me[ 'reducers' ] ? {}
   tag_keys          = ( key for key, value of reducers when value is 'tag' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
@@ -307,16 +308,30 @@ echo                      = CND.echo.bind CND
         #...................................................................................................
         else throw new Error "unknown reducer #{rpr reducer}"
   #.........................................................................................................
+  ### tags ###
   for key, value of R
     continue unless key in tag_keys
-    R[ key ] = fuse value
+    source  = fuse value
+    target  = []
+    exclude = null
+    for idx in [ source.length - 1 .. 0 ] by -1
+      tag = source[ idx ]
+      continue if exclude? and exclude.has tag
+      if tag.startsWith '-'
+        break if tag is '-*'
+        ( exclude ?= new Set() ).add tag[ 1 .. ]
+        continue
+      target.unshift tag
+    R[ key ] = target
   #.........................................................................................................
+  ### averages ###
   for key, [ sum, count, ] of averages
     R[ key ] = sum / count
   #.........................................................................................................
-  for key, values of common
-    R[ key ] = values[ 0 ] if ( values.length is 1 ) or CND.equals values...
+  # for key, values of common
+  #   R[ key ] = values[ 0 ] if ( values.length is 1 ) or CND.equals values...
   #.........................................................................................................
+  ### functions ###
   for key, ids_and_values of cache
     R[ key ] = functions[ key ] ids_and_values, R, entries
   #.........................................................................................................

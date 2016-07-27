@@ -678,10 +678,11 @@ show = ( me ) ->
   T.eq ( ISL.find_tags_with_all_points u, [ '3', '7', '2', ] ), ["ascii","digit","prime"]
   T.eq ( ISL.find_tags_with_any_points u, [ '3', '7', '2', ] ), ["even","ascii","digit","odd","prime"]
   #.........................................................................................................
+  info u
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "configurable reducers" ] = ( T ) ->
+@[ "configurable reducers, negative tags" ] = ( T ) ->
   #.........................................................................................................
   add = ( isl, description ) ->
     rsg = null
@@ -752,6 +753,8 @@ show = ( me ) ->
     [ 'block', 'Bopomofo Extended',                       'u-bopo-x',          0x31a0,    0x31bf, 'cjk bopomofo', ]
     #.......................................................................................................
     [ 'block', 'CJK Compatibility Forms',                 'u-cjk-cmpf',        0xfe30,    0xfe4f, 'cjk vertical', ]
+    [ 'codepoints',                                                            0xfe45,    0xfe46, '-vertical', ]
+    [ 'codepoints',                                                            0xfe49,    0xfe4f, '-vertical', ]
     [ 'block', 'Vertical Forms',                          'u-vertf',           0xfe10,    0xfe1f, 'cjk vertical', ]
     #.......................................................................................................
     [ 'block', 'Miscellaneous Symbols',                   'u-sym',             0x2600,    0x26ff, ]
@@ -759,6 +762,7 @@ show = ( me ) ->
     [ 'codepoints',                                                            0x2630,    0x2637, 'cjk yijing trigram' ]
     [ 'block', 'Yijing Hexagram Symbols',                 'u-yijng',           0x4dc0,    0x4dff, 'cjk yijing hexagram', ]
     [ 'block', 'Tai Xuan Jing Symbols',                   'u-txj-sym',        0x1d300,   0x1d35f, 'cjk yijing taixuanjing tetragram', ]
+    [ 'codepoints',                                                           0x1d357,   0x1d35f, '-* reserved', ]
     #.......................................................................................................
     [ 'block', 'CJK Compatibility Ideographs',            'u-cjk-cmpi1',       0xf900,    0xfaff, 'cjk', ]
     [ 'block', 'Hangul Compatibility Jamo',               'u-hang-comp-jm',    0x3130,    0x318f, 'cjk', ]
@@ -772,22 +776,27 @@ show = ( me ) ->
     ["a",{"plane":"Basic Multilingual Plane (BMP)","area":"ASCII & Latin-1 Compatibility Area","block":"Basic Latin","rsg":"u-latn"}]
     ["ä",{"plane":"Basic Multilingual Plane (BMP)","area":"ASCII & Latin-1 Compatibility Area","block":"Latin-1 Supplement","rsg":"u-latn-1"}]
     ["ɐ",{"plane":"Basic Multilingual Plane (BMP)","area":"General Scripts Area","block":"IPA Extensions","rsg":"u-ipa-x"}]
-    ["ա",{"plane":"Basic Multilingual Plane (BMP)","area":"General Scripts Area","block":"Armenian","rsg":null}]
-    ["三",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Unified Ideographs","rsg":"u-cjk"}]
-    ["ゆ",{"plane":"Basic Multilingual Plane (BMP)","block":"Hiragana","rsg":"u-cjk-hira"}]
-    ["㈪",{"plane":"Basic Multilingual Plane (BMP)","block":"Enclosed CJK Letters and Months","rsg":"u-cjk-enclett"}]
-    ["《",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym"}]
-    ["》",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym"}]
-    ["𫠠",{"plane":"Supplementary Ideographic Plane (SIP)","block":"CJK Unified Ideographs Extension E","rsg":"u-cjk-xe"}]
+    ["ա",{"plane":"Basic Multilingual Plane (BMP)","area":"General Scripts Area","block":"Armenian"}]
+    ["三",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Unified Ideographs","rsg":"u-cjk","tag":["cjk","ideograph"]}]
+    ["ゆ",{"plane":"Basic Multilingual Plane (BMP)","block":"Hiragana","rsg":"u-cjk-hira","tag":["cjk","japanese","kana","hiragana"]}]
+    ["㈪",{"plane":"Basic Multilingual Plane (BMP)","block":"Enclosed CJK Letters and Months","rsg":"u-cjk-enclett","tag":["cjk"]}]
+    ["《",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym","tag":["cjk","punctuation"]}]
+    ["》",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Symbols and Punctuation","rsg":"u-cjk-sym","tag":["cjk","punctuation"]}]
+    ["𫠠",{"plane":"Supplementary Ideographic Plane (SIP)","block":"CJK Unified Ideographs Extension E","rsg":"u-cjk-xe","tag":["cjk","ideograph"]}]
+    ["﹄",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Compatibility Forms","rsg":"u-cjk-cmpf","tag":["cjk","vertical"]}]
+    ["﹅",{"plane":"Basic Multilingual Plane (BMP)","block":"CJK Compatibility Forms","rsg":"u-cjk-cmpf","tag":["cjk"]}]
+    ["𝍖",{"plane":"Supplementary Multilingual Plane (SMP)","block":"Tai Xuan Jing Symbols","rsg":"u-txj-sym","tag":["cjk","yijing","taixuanjing","tetragram"]}]
+    [ ( String.fromCodePoint 0x1d357 ),{"plane":"Supplementary Multilingual Plane (SMP)","block":"Tai Xuan Jing Symbols","rsg":"u-txj-sym","tag":["reserved"]}]
     ]
   #.........................................................................................................
+  tag_reducer = ( ids_and_tags ) ->
   u = ISL.new reducers: { name: 'skip', }
   for description in descriptions
     add u, description
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
     help s [ probe, ISL.aggregate u, probe ]
-    # T.eq ( ISL.aggregate u, probe ), matcher
+    T.eq ( ISL.aggregate u, probe ), matcher
   #.........................................................................................................
   return null
 
@@ -814,11 +823,41 @@ unless module.parent?
     "tag 1"
     "tag 2"
     "tag 3"
-    "configurable reducers"
+    "configurable reducers, negative tags"
   ]
-  @_prune()
-  @_main()
+  # @_prune()
+  # @_main()
 
   # @[ "test interval tree 1" ]()
 
   # debug ( Object.keys ISL ).sort()
+
+  f = ->
+    @complement_from_intervals = ( me, lo, hi, intervals ) ->
+      points  = []
+      isl     = @new()
+      ISL.insert isl, interval for interval in intervals
+      for point in [ lo .. hi ]
+        points.push point if ( isl[ '%self' ].findContaining point ).length is 0
+        whisper point if point % 1e5 is 0
+      return @intervals_from_points null, points
+
+  f.apply ISL
+
+  console.time 'A'
+  ucps = require '/home/flow/io/SCRATCH/interskiplist/lib/unicode-9.0.0-codepoints.js'
+  intervals = ISL.intervals_from_points null, ucps.codepoints, ucps.ranges...
+  console.timeEnd 'A'
+  console.time 'B'
+  # echo JSON.stringify intervals, null, '  '
+  # ISL.complement_from_intervals null, 0, 0x10ffff, intervals
+  debug ISL.complement_from_intervals null, 885, 915, intervals
+  console.timeEnd 'B'
+
+  isl = ISL.new()
+  ISL.insert isl, { lo: 27, hi: 54, }
+  debug isl
+
+
+
+

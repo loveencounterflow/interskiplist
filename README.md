@@ -384,7 +384,9 @@ The following keys of entries are treated specially by InterSkipList:
   given (intersection);
 * `ISL.find_tags_with_any_points` returns a list of unique tags that are applicable to *any* the points
   given (union);
-
+* tags preceded by a `-` (minus, hyphen) are interpreted as 'negative' or 'cancellation' tags.
+  Negative tags cancel all appearances of namesake tags that appear before them in aggregated tag lists.
+  The special `'-*'` (minus star) tag cancels out *all* tags that come before it.
 
 # API
 
