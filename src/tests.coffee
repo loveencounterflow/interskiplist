@@ -656,6 +656,66 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
+@[ "tag 2a" ] = ( T ) ->
+  probes_and_matchers = [
+    [ '0', { tag: [ 'digit', 'even' ] }, ]
+    [ '1', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '2', { tag: [ 'digit', 'even' ] }, ]
+    [ '3', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '4', { tag: [ 'digit', 'even' ] }, ]
+    [ '5', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '6', { tag: [ 'digit', 'even' ] }, ]
+    [ '7', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '8', { tag: [ 'digit', 'even' ] }, ]
+    [ '9', { tag: [ 'digit', 'odd'  ] }, ]
+    ]
+  #.........................................................................................................
+  u = ISL.new()
+  #.........................................................................................................
+  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.insert u, { lo: '0', hi: '9', tag: [ 'digit', 'even', ], }
+  for n in [ 1 .. 9 ] by +2
+    digit_0 = "#{n}"
+    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ '-even', 'odd', ], }
+  #.........................................................................................................
+  for [ probe, matcher, ] in probes_and_matchers
+    result = ISL.aggregate u, probe, { name: 'skip', }
+    # debug '0141', [ probe, result, ]
+    T.eq result, matcher
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "tag 2b" ] = ( T ) ->
+  probes_and_matchers = [
+    [ '0', { tag: [ 'digit', 'even' ] }, ]
+    [ '1', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '2', { tag: [ 'digit', 'even' ] }, ]
+    [ '3', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '4', { tag: [ 'digit', 'even' ] }, ]
+    [ '5', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '6', { tag: [ 'digit', 'even' ] }, ]
+    [ '7', { tag: [ 'digit', 'odd'  ] }, ]
+    [ '8', { tag: [ 'digit', 'even' ] }, ]
+    [ '9', { tag: [ 'digit', 'odd'  ] }, ]
+    ]
+  #.........................................................................................................
+  u = ISL.new()
+  #.........................................................................................................
+  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.insert u, { lo: '0', hi: '9', tag: 'digit even', }
+  for n in [ 1 .. 9 ] by +2
+    digit_0 = "#{n}"
+    ISL.insert u, { lo: digit_0, hi: digit_0, tag: '-even odd', }
+  #.........................................................................................................
+  for [ probe, matcher, ] in probes_and_matchers
+    result = ISL.aggregate u, probe, { name: 'skip', }
+    # debug '0141', [ probe, result, ]
+    T.eq result, matcher
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
 @[ "tag 3" ] = ( T ) ->
   u = ISL.new()
   #.........................................................................................................
@@ -895,12 +955,14 @@ unless module.parent?
     # "unique names with priority conflict"
     # "tag 1"
     # "tag 2"
+    "tag 2a"
+    "tag 2b"
     # "tag 3"
     # "configurable reducers, negative tags"
     "complements"
   ]
-  # @_prune()
-  # @_main()
+  @_prune()
+  @_main()
 
   # @[ "test interval tree 1" ]()
 
@@ -917,8 +979,8 @@ unless module.parent?
     for cp_interval in cp_intervals
       { lo, hi, } = cp_interval
       # ISL.insert u, { lo, hi, tag: '-unassigned', }
-      # ISL.insert u, { lo, hi, tag: '-unassigned assigned', }
-      ISL.insert u, { lo, hi, tag: [ '-unassigned', 'assigned', ], }
+      ISL.insert u, { lo, hi, tag: '-unassigned assigned', }
+      # ISL.insert u, { lo, hi, tag: [ '-unassigned', 'assigned', ], }
     # echo JSON.stringify intervals, null, '  '
     # ISL.complement_from_intervals null, 0, 0x10ffff, intervals
     console.timeEnd 'B'

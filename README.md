@@ -376,7 +376,8 @@ The following keys of entries are treated specially by InterSkipList:
 (to be written; some key points:)
 
 * when inserting an interval, key `tag` is special
-* it can be a single string or a list of strings
+* it can be a single string or a list of strings. All strings will be split by whitespace, so `'foo bar
+  baz'` is equivalent to `[ 'foo', 'bar baz', ]` and `[ 'foo', 'bar', 'baz', ]`;
 * each defines a 'mon-valued' attribute: 'false' where absent, 'true' where present
 * `ISL.find_tags` returns a list of unique tags that are found in the interval entries that contain this
   point;

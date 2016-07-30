@@ -48,12 +48,13 @@ echo                      = CND.echo.bind CND
   group_idx                   = ( me[ 'idx-by-names' ][ name ] = ( me[ 'idx-by-names' ][ name ] ? -1 ) + 1 )
   global_idx                  = ( me[ 'idx' ] += +1 )
   id                         ?= "#{name}[#{group_idx}]"
-  entry[ 'lo'    ]            = lo
-  entry[ 'hi'    ]            = hi
-  entry[ 'idx'   ]            = global_idx
-  entry[ 'id'    ]            = id
-  entry[ 'name'  ]            = name
-  entry[ 'size'  ]            = hi - lo + 1
+  entry[ 'lo'         ]       = lo
+  entry[ 'hi'         ]       = hi
+  entry[ 'idx'        ]       = global_idx
+  entry[ 'id'         ]       = id
+  entry[ 'name'       ]       = name
+  entry[ 'size'       ]       = hi - lo + 1
+  entry[ 'tag'        ]       = normalize_tag entry[ 'tag' ] if entry[ 'tag' ]?
   me[ 'min'           ]      ?= lo
   me[ 'min'           ]       = Math.min me[ 'min' ], lo
   me[ 'max'           ]      ?= hi
@@ -351,6 +352,15 @@ as_number = ( x ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 as_numbers = ( list ) -> ( as_number x for x in list )
+
+#-----------------------------------------------------------------------------------------------------------
+normalize_tag = ( tag ) ->
+  return normalize_tag [ tag, ] unless CND.isa_list tag
+  R = []
+  for t in tag
+    continue if t.length is 0
+    R.splice R.length, 0, ( t.split /\s+/ )...
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 unique = ( list ) ->
