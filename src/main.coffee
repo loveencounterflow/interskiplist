@@ -17,7 +17,7 @@ echo                      = CND.echo.bind CND
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
   substrate           = new ( require 'interval-skip-list' )()
-  # substrate.toString  = substrate.inspect = -> "{ interval-skip-list }"
+  substrate.toString  = substrate.inspect = -> "{ interval-skip-list }"
   R =
     '~isa':           'CND/interskiplist'
     '%self':          substrate

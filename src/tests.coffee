@@ -801,29 +801,103 @@ show = ( me ) ->
   return null
 
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "complements" ] = ( T ) ->
+  ###
+      0                   1                   2                   3                   4
+  -∞  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 +∞
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                               [13---17]
+  ---------------------10]                   [20---------------30]                   [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+           [3-----7]
+  --------3]       [7--10]                   [20---------------30]                   [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                   [7--------13]
+  ----------------7]                         [20---------------30]                   [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                                       [17-------23]
+  ---------------------10]                         [23---------30]                   [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                                       [17---------------------------33]
+  ---------------------10]                                                           [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                   [7----------------------------23]
+  ----------------7]                               [23---------30]                   [40-------
+
+  =============================================================================================
+  ---------------------10]                   [20---------------30]                   [40-------
+                   [7--------------------------------------------------------------------43]
+  ----------------7]                                                                       [43-
+
+  ###
+  #.........................................................................................................
+  f = ->
+    @complement_from_intervals = ( me, intervals ) ->
+      R     = []
+      base  = { lo: Number.MIN_VALUE, hi: Number.MAX_VALUE, }
+      isl   = @new()
+      ISL.insert isl, base
+      if intervals.length is 0
+        R.push base
+      else
+        for interval in intervals
+          null
+      return R
+  #.........................................................................................................
+  f.apply ISL
+  #.........................................................................................................
+  cleanup = ( intervals ) ->
+    for interval in intervals
+      delete interval[ 'id'     ]
+      delete interval[ 'name'   ]
+      delete interval[ 'idx'    ]
+      delete interval[ 'size'   ]
+    return intervals
+  #.........................................................................................................
+  probe   = []
+  result  = cleanup ISL.complement_from_intervals null, probe
+  T.eq result, [ { lo: Number.MIN_VALUE, hi: Number.MAX_VALUE, }, ]
+  #.........................................................................................................
+  return null
+
+
 ############################################################################################################
 unless module.parent?
   include = [
-    "test interval tree 1"
-    "test interval tree 2"
-    "test interval tree 3"
-    "aggregation 1"
-    "aggregation 2"
-    "characters as points 1"
-    "characters as points 2"
-    "characters as points 3"
-    "intervals_from_points"
-    "new API for points"
-    "readme example 1"
-    "readme example 2"
-    "intervals without ID, name"
-    "preserve insertion order"
-    "demo discontiguous ranges"
-    "unique names with priority conflict"
-    "tag 1"
-    "tag 2"
-    "tag 3"
-    "configurable reducers, negative tags"
+    # "test interval tree 1"
+    # "test interval tree 2"
+    # "test interval tree 3"
+    # "aggregation 1"
+    # "aggregation 2"
+    # "characters as points 1"
+    # "characters as points 2"
+    # "characters as points 3"
+    # "intervals_from_points"
+    # "new API for points"
+    # "readme example 1"
+    # "readme example 2"
+    # "intervals without ID, name"
+    # "preserve insertion order"
+    # "demo discontiguous ranges"
+    # "unique names with priority conflict"
+    # "tag 1"
+    # "tag 2"
+    # "tag 3"
+    # "configurable reducers, negative tags"
+    "complements"
   ]
   # @_prune()
   # @_main()
@@ -832,31 +906,36 @@ unless module.parent?
 
   # debug ( Object.keys ISL ).sort()
 
-  f = ->
-    @complement_from_intervals = ( me, lo, hi, intervals ) ->
-      points  = []
-      isl     = @new()
-      ISL.insert isl, interval for interval in intervals
-      for point in [ lo .. hi ]
-        points.push point if ( isl[ '%self' ].findContaining point ).length is 0
-        whisper point if point % 1e5 is 0
-      return @intervals_from_points null, points
+  demo_unassigned_unicode_codepoints = ->
+    console.time 'A'
+    ucps          = require '../../scratch/interskiplist/lib/unicode-9.0.0-codepoints.js'
+    cp_intervals  = ISL.intervals_from_points null, ucps.codepoints, ucps.ranges...
+    console.timeEnd 'A'
+    console.time 'B'
+    u             = ISL.new()
+    ISL.insert u, { lo: 0x0, hi: 0x10ffff, tag: 'unassigned', }
+    for cp_interval in cp_intervals
+      { lo, hi, } = cp_interval
+      # ISL.insert u, { lo, hi, tag: '-unassigned', }
+      # ISL.insert u, { lo, hi, tag: '-unassigned assigned', }
+      ISL.insert u, { lo, hi, tag: [ '-unassigned', 'assigned', ], }
+    # echo JSON.stringify intervals, null, '  '
+    # ISL.complement_from_intervals null, 0, 0x10ffff, intervals
+    console.timeEnd 'B'
+    for cid in [ 885 .. 915 ]
+      chr   = String.fromCodePoint cid
+      tags  = ( ISL.aggregate u, cid )[ 'tag' ].join ' '
+      debug ( hex cid ), chr, ( CND.truth cid in ucps.codepoints ), tags
+    help ISL.aggregate u, 'a'
+  demo_unassigned_unicode_codepoints()
 
-  f.apply ISL
-
-  console.time 'A'
-  ucps = require '/home/flow/io/SCRATCH/interskiplist/lib/unicode-9.0.0-codepoints.js'
-  intervals = ISL.intervals_from_points null, ucps.codepoints, ucps.ranges...
-  console.timeEnd 'A'
-  console.time 'B'
-  # echo JSON.stringify intervals, null, '  '
-  # ISL.complement_from_intervals null, 0, 0x10ffff, intervals
-  debug ISL.complement_from_intervals null, 885, 915, intervals
-  console.timeEnd 'B'
-
-  isl = ISL.new()
-  ISL.insert isl, { lo: 27, hi: 54, }
-  debug isl
+  # isl = ISL.new()
+  # ISL.insert isl, { lo: 27, hi: 54, }
+  # debug isl
+  # exclude = ( Object.keys isl[ '%self' ] )
+  # exclude.push 'inspect'
+  # exclude.push 'toString'
+  # help key for key in ( key for key of isl[ '%self' ] when key not in exclude ).sort()
 
 
 
