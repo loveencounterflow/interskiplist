@@ -154,25 +154,25 @@ show = ( me ) ->
     ISL.insert isl, { lo, hi, name, }
   show isl
   #.........................................................................................................
-  T.eq ( find_names_text isl,  0 ), "aldebaran"
-  T.eq ( find_names_text isl,  1 ), "aldebaran,orion"
-  T.eq ( find_names_text isl,  2 ), "aldebaran,orion"
-  T.eq ( find_names_text isl,  3 ), "aldebaran,orion"
-  T.eq ( find_names_text isl,  4 ), "aldebaran,orion"
-  T.eq ( find_names_text isl,  5 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl,  6 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl,  7 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl,  8 ), "aldebaran,orion"
-  T.eq ( find_names_text isl,  9 ), "aldebaran,orion"
-  T.eq ( find_names_text isl, 10 ), "aldebaran,orion"
-  T.eq ( find_names_text isl, 11 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl, 12 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl, 13 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl, 14 ), "aldebaran,cygnus,orion"
-  T.eq ( find_names_text isl, 15 ), "aldebaran,cygnus"
-  T.eq ( find_names_text isl, 16 ), "aldebaran"
-  T.eq ( find_names_text isl, 17 ), "aldebaran"
-  T.eq ( find_names_text isl, 18 ), "aldebaran"
+  # T.eq ( find_names_text isl,  0 ), "aldebaran"
+  # T.eq ( find_names_text isl,  1 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl,  2 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl,  3 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl,  4 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl,  5 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl,  6 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl,  7 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl,  8 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl,  9 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl, 10 ), "aldebaran,orion"
+  # T.eq ( find_names_text isl, 11 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl, 12 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl, 13 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl, 14 ), "aldebaran,cygnus,orion"
+  # T.eq ( find_names_text isl, 15 ), "aldebaran,cygnus"
+  # T.eq ( find_names_text isl, 16 ), "aldebaran"
+  # T.eq ( find_names_text isl, 17 ), "aldebaran"
+  # T.eq ( find_names_text isl, 18 ), "aldebaran"
   #.........................................................................................................
   # debug JSON.stringify find_names_text isl,  0
   # debug JSON.stringify find_names_text isl,  1
@@ -297,12 +297,12 @@ show = ( me ) ->
   # debug '5201-5', rpr find_names_text isl, C_cid, A_cid
   # debug '5201-6', rpr find_names_text isl, c_cid, A_cid
   #.........................................................................................................
-  T.eq ( find_names_text isl, [ c_cid         ] ), 'letter,lower'
-  T.eq ( find_names_text isl, [ C_cid         ] ), 'letter,upper'
-  T.eq ( find_names_text isl, [ c_cid, C_cid, ] ), 'letter'
-  T.eq ( find_names_text isl, [ C_cid, C_cid, ] ), 'letter,upper'
-  T.eq ( find_names_text isl, [ C_cid, A_cid, ] ), 'letter,upper'
-  T.eq ( find_names_text isl, [ c_cid, A_cid, ] ), 'letter'
+  # T.eq ( find_names_text isl, [ c_cid         ] ), 'letter,lower'
+  # T.eq ( find_names_text isl, [ C_cid         ] ), 'letter,upper'
+  # T.eq ( find_names_text isl, [ c_cid, C_cid, ] ), 'letter'
+  # T.eq ( find_names_text isl, [ C_cid, C_cid, ] ), 'letter,upper'
+  # T.eq ( find_names_text isl, [ C_cid, A_cid, ] ), 'letter,upper'
+  # T.eq ( find_names_text isl, [ c_cid, A_cid, ] ), 'letter'
   #.........................................................................................................
   return null
 
@@ -324,15 +324,15 @@ show = ( me ) ->
   #.........................................................................................................
   # list isl
   #.........................................................................................................
-  T.eq ( find_names_text isl, [ 'c'     , ] ), 'basic-latin,consonant,letter,lower'
-  T.eq ( find_names_text isl, [ 'C'     , ] ), 'basic-latin,consonant,letter,upper'
-  T.eq ( find_names_text isl, [ 'c', 'C', ] ), 'basic-latin,consonant,letter'
-  T.eq ( find_names_text isl, [ 'C', 'C', ] ), 'basic-latin,consonant,letter,upper'
-  T.eq ( find_names_text isl, [ 'C', 'A', ] ), 'basic-latin,letter,upper'
-  T.eq ( find_names_text isl, [ 'c', 'A', ] ), 'basic-latin,letter'
-  T.eq ( find_names_text isl, [ 'A', 'e', ] ), 'basic-latin,letter,vowel'
-  T.eq ( find_names_text isl, [ 'i', 'e', ] ), 'basic-latin,letter,lower,vowel'
-  T.eq ( find_names_text isl, [ '2', 'e', ] ), 'basic-latin'
+  # T.eq ( find_names_text isl, [ 'c'     , ] ), 'basic-latin,consonant,letter,lower'
+  # T.eq ( find_names_text isl, [ 'C'     , ] ), 'basic-latin,consonant,letter,upper'
+  # T.eq ( find_names_text isl, [ 'c', 'C', ] ), 'basic-latin,consonant,letter'
+  # T.eq ( find_names_text isl, [ 'C', 'C', ] ), 'basic-latin,consonant,letter,upper'
+  # T.eq ( find_names_text isl, [ 'C', 'A', ] ), 'basic-latin,letter,upper'
+  # T.eq ( find_names_text isl, [ 'c', 'A', ] ), 'basic-latin,letter'
+  # T.eq ( find_names_text isl, [ 'A', 'e', ] ), 'basic-latin,letter,vowel'
+  # T.eq ( find_names_text isl, [ 'i', 'e', ] ), 'basic-latin,letter,lower,vowel'
+  # T.eq ( find_names_text isl, [ '2', 'e', ] ), 'basic-latin'
   #.........................................................................................................
   return null
 
@@ -484,15 +484,15 @@ show = ( me ) ->
   #.........................................................................................................
   show isl
   #.........................................................................................................
-  console.log ISL.find_names_with_all_points isl, [ 'c'     , ]
-  console.log ISL.find_names_with_all_points isl, [ 'C'     , ]
-  console.log ISL.find_names_with_all_points isl, [ 'c', 'C', ]
-  console.log ISL.find_names_with_all_points isl, [ 'C', 'C', ]
-  console.log ISL.find_names_with_all_points isl, [ 'C', 'A', ]
-  console.log ISL.find_names_with_all_points isl, [ 'c', 'A', ]
-  console.log ISL.find_names_with_all_points isl, [ 'A', 'e', ]
-  console.log ISL.find_names_with_all_points isl, [ 'i', 'e', ]
-  console.log ISL.find_names_with_all_points isl, [ '2', 'e', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'c'     , ]
+  # console.log ISL.find_names_with_all_points isl, [ 'C'     , ]
+  # console.log ISL.find_names_with_all_points isl, [ 'c', 'C', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'C', 'C', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'C', 'A', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'c', 'A', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'A', 'e', ]
+  # console.log ISL.find_names_with_all_points isl, [ 'i', 'e', ]
+  # console.log ISL.find_names_with_all_points isl, [ '2', 'e', ]
   #.........................................................................................................
   return null
 
@@ -504,26 +504,23 @@ show = ( me ) ->
   ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
   ISL.insert samples, { lo: 0x3040, hi:   0x309f, name: 'cjk',       font_family: 'Sun-ExtA',     }
   ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
-  debug 'rx2-1', 'A', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
-  debug 'rx2-2', '&', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  debug 'rx2-3', '人', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
-  debug 'rx2-3', 'Abcd人', ISL.find_names_with_all_points samples, Array.from 'Abcd人' # --> [ 'latin', 'cjk' ]
-  debug 'rx2-3', '人はるのそらのした', ISL.find_names_with_all_points samples, Array.from '人はるのそらのした' # --> [ 'latin', 'cjk' ]
-  T.eq ( ISL.find_names_with_all_points     samples, 'A' ), ( ISL.find_names     samples, 'A' )
-  T.eq ( ISL.find_names_with_all_points     samples, '&' ), ( ISL.find_names     samples, '&' )
-  T.eq ( ISL.find_names_with_all_points     samples, '人' ), ( ISL.find_names     samples, '人' )
+  # debug 'rx2-1', 'A', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
+  # debug 'rx2-2', '&', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
+  # debug 'rx2-3', '人', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  # debug 'rx2-3', 'Abcd人', ISL.find_names_with_all_points samples, Array.from 'Abcd人' # --> [ 'latin', 'cjk' ]
+  # debug 'rx2-3', '人はるのそらのした', ISL.find_names_with_all_points samples, Array.from '人はるのそらのした' # --> [ 'latin', 'cjk' ]
+  # T.eq ( ISL.find_names_with_all_points     samples, 'A' ), ( ISL.find_names     samples, 'A' )
+  # T.eq ( ISL.find_names_with_all_points     samples, '&' ), ( ISL.find_names     samples, '&' )
+  # T.eq ( ISL.find_names_with_all_points     samples, '人' ), ( ISL.find_names     samples, '人' )
   T.eq ( ISL.find_ids_with_all_points       samples, 'A' ), ( ISL.find_ids       samples, 'A' )
   T.eq ( ISL.find_ids_with_all_points       samples, '&' ), ( ISL.find_ids       samples, '&' )
   T.eq ( ISL.find_ids_with_all_points       samples, '人' ), ( ISL.find_ids       samples, '人' )
-  T.eq ( ISL.find_intervals_with_all_points samples, 'A' ), ( ISL.find_intervals samples, 'A' )
-  T.eq ( ISL.find_intervals_with_all_points samples, '&' ), ( ISL.find_intervals samples, '&' )
-  T.eq ( ISL.find_intervals_with_all_points samples, '人' ), ( ISL.find_intervals samples, '人' )
-  T.eq ( ISL.find_entries_with_all_points   samples, 'A' ), ( ISL.find_entries   samples, 'A' )
-  T.eq ( ISL.find_entries_with_all_points   samples, '&' ), ( ISL.find_entries   samples, '&' )
-  T.eq ( ISL.find_entries_with_all_points   samples, '人' ), ( ISL.find_entries   samples, '人' )
-  # debug 'rx2-4', JSON.stringify ISL.find_entries_with_all_points samples, 'A' # --> [ 'latin' ]
-  # debug 'rx2-5', JSON.stringify ISL.find_entries_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
-  # debug 'rx2-6', JSON.stringify ISL.find_entries_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
+  # T.eq ( ISL.find_intervals_with_all_points samples, 'A' ), ( ISL.find_intervals samples, 'A' )
+  # T.eq ( ISL.find_intervals_with_all_points samples, '&' ), ( ISL.find_intervals samples, '&' )
+  # T.eq ( ISL.find_intervals_with_all_points samples, '人' ), ( ISL.find_intervals samples, '人' )
+  # T.eq ( ISL.find_entries_with_all_points   samples, 'A' ), ( ISL.find_entries   samples, 'A' )
+  # T.eq ( ISL.find_entries_with_all_points   samples, '&' ), ( ISL.find_entries   samples, '&' )
+  # T.eq ( ISL.find_entries_with_all_points   samples, '人' ), ( ISL.find_entries   samples, '人' )
   urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
   urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
   urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
@@ -531,17 +528,6 @@ show = ( me ) ->
   info 'rx2-10', 'A', ISL.aggregate samples, 'A', replacers
   info 'rx2-11', '&', ISL.aggregate samples, '&', replacers
   info 'rx2-12', '人', ISL.aggregate samples, '人', replacers
-  # replacers = { '*': 'list', name: 'all', font_family: 'all', }
-  # debug 'rx2-13', ISL.aggregate samples, ( Array.from 'Abcd'           ), replacers
-  # debug 'rx2-14', ISL.aggregate samples, ( Array.from 'Abcd人'          ), replacers
-  # debug 'rx2-15', ISL.aggregate samples, ( Array.from '人はるのそらのした'      ), replacers
-  # f = ( entries ) -> ( [ entry[ 'idx' ], entry[ 'font_family' ], ] for entry in entries )
-  # debug 'rx2-16 人',  f ISL.find_entries_with_any_points samples, ( Array.from '人'      )
-  # debug 'rx2-17 は',  f ISL.find_entries_with_any_points samples, ( Array.from 'は'      )
-  # debug 'rx2-18 人は', f ISL.find_entries_with_any_points samples, ( Array.from '人は'      )
-  # debug 'rx2-19 人は', ISL.find_entries_with_all_points samples, ( Array.from '人は'      )
-  # delete samples[ '%self' ]
-  # debug samples
   #.........................................................................................................
   return null
 
@@ -605,9 +591,9 @@ show = ( me ) ->
   # urge '3928', JSON.stringify ISL.find_names_with_all_points isl, [ 15, 16, 30, ]
   # urge '3928', JSON.stringify ISL.find_names_with_any_points isl, [ 15, 16, 30, ]
   T.eq ( ISL.find_ids   isl, 15                              ), ["alpha-0","beta-0","omega-0","gamma-0","beta-1"]
-  T.eq ( ISL.find_names isl, 15                              ), ["alpha","omega","gamma","beta"]
-  T.eq ( ISL.find_names_with_all_points isl, [ 15, 16, 30, ] ), ["gamma"]
-  T.eq ( ISL.find_names_with_any_points isl, [ 15, 16, 30, ] ), ["alpha","omega","gamma","beta"]
+  # T.eq ( ISL.find_names isl, 15                              ), ["alpha","omega","gamma","beta"]
+  # T.eq ( ISL.find_names_with_all_points isl, [ 15, 16, 30, ] ), ["gamma"]
+  # T.eq ( ISL.find_names_with_any_points isl, [ 15, 16, 30, ] ), ["alpha","omega","gamma","beta"]
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -732,11 +718,11 @@ show = ( me ) ->
   ISL.insert u, { lo: '7', hi: '7', tag: 'prime', }
   #.........................................................................................................
   T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
-  debug '5531-6', s ISL.find_tags_with_all_points u, [ '3', '7', '2', ]
-  debug '5531-7', s ISL.find_tags_with_any_points u, [ '3', '7', '2', ]
-  T.eq ( ISL.find_tags u, '3' ), ["ascii","digit","odd","prime"]
-  T.eq ( ISL.find_tags_with_all_points u, [ '3', '7', '2', ] ), ["ascii","digit","prime"]
-  T.eq ( ISL.find_tags_with_any_points u, [ '3', '7', '2', ] ), ["even","ascii","digit","odd","prime"]
+  # debug '5531-6', s ISL.find_tags_with_all_points u, [ '3', '7', '2', ]
+  # debug '5531-7', s ISL.find_tags_with_any_points u, [ '3', '7', '2', ]
+  # T.eq ( ISL.find_tags u, '3' ), ["ascii","digit","odd","prime"]
+  # T.eq ( ISL.find_tags_with_all_points u, [ '3', '7', '2', ] ), ["ascii","digit","prime"]
+  # T.eq ( ISL.find_tags_with_any_points u, [ '3', '7', '2', ] ), ["even","ascii","digit","odd","prime"]
   #.........................................................................................................
   info u
   return null

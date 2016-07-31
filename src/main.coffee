@@ -147,13 +147,13 @@ minus_aleph = Symbol.for '-א'
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT what happens when these methods are called with no points? ###
 @find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_any_points me, P...
-@find_names_with_any_points     = ( me, P... ) -> @names_of     me, @find_ids_with_any_points me, P...
-@find_intervals_with_any_points = ( me, P... ) -> @intervals_of me, @find_ids_with_any_points me, P...
-@find_tags_with_any_points      = ( me, P... ) -> @tags_of      me, @find_ids_with_any_points me, P...
+# @find_names_with_any_points     = ( me, P... ) -> @names_of     me, @find_ids_with_any_points me, P...
+# @find_intervals_with_any_points = ( me, P... ) -> @intervals_of me, @find_ids_with_any_points me, P...
+# @find_tags_with_any_points      = ( me, P... ) -> @tags_of      me, @find_ids_with_any_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_all_points me, P...
-@find_intervals_with_all_points = ( me, P... ) -> @intervals_of me, @find_ids_with_all_points me, P...
+# @find_intervals_with_all_points = ( me, P... ) -> @intervals_of me, @find_ids_with_all_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
@@ -180,35 +180,35 @@ minus_aleph = Symbol.for '-א'
   points = as_numbers points
   return me[ '%self' ].findContaining points...
 
-#-----------------------------------------------------------------------------------------------------------
-@find_names_with_all_points = ( me, points ) ->
-  ### TAINT code duplication ###
-  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  points = [ points, ] unless CND.isa_list points
-  return [] if points.length is 0
-  R = @find_names_with_any_points me, points[ 0 ]
-  return R if points.length < 2
-  R = new Set R
-  for point_idx in [ 1 ... points.length ]
-    point = points[ point_idx ]
-    names = @find_names_with_any_points me, point
-    R.forEach ( name ) -> R.delete name unless name in names
-  return Array.from R
+# #-----------------------------------------------------------------------------------------------------------
+# @find_names_with_all_points = ( me, points ) ->
+#   ### TAINT code duplication ###
+#   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+#   points = [ points, ] unless CND.isa_list points
+#   return [] if points.length is 0
+#   R = @find_names_with_any_points me, points[ 0 ]
+#   return R if points.length < 2
+#   R = new Set R
+#   for point_idx in [ 1 ... points.length ]
+#     point = points[ point_idx ]
+#     names = @find_names_with_any_points me, point
+#     R.forEach ( name ) -> R.delete name unless name in names
+#   return Array.from R
 
-#-----------------------------------------------------------------------------------------------------------
-@find_tags_with_all_points = ( me, points ) ->
-  ### TAINT code duplication ###
-  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  points = [ points, ] unless CND.isa_list points
-  return [] if points.length is 0
-  R = @find_tags_with_any_points me, points[ 0 ]
-  return R if points.length < 2
-  R = new Set R
-  for point_idx in [ 1 ... points.length ]
-    point = points[ point_idx ]
-    tags  = @find_tags_with_any_points me, point
-    R.forEach ( tag ) -> R.delete tag unless tag in tags
-  return Array.from R
+# #-----------------------------------------------------------------------------------------------------------
+# @find_tags_with_all_points = ( me, points ) ->
+#   ### TAINT code duplication ###
+#   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
+#   points = [ points, ] unless CND.isa_list points
+#   return [] if points.length is 0
+#   R = @find_tags_with_any_points me, points[ 0 ]
+#   return R if points.length < 2
+#   R = new Set R
+#   for point_idx in [ 1 ... points.length ]
+#     point = points[ point_idx ]
+#     tags  = @find_tags_with_any_points me, point
+#     R.forEach ( tag ) -> R.delete tag unless tag in tags
+#   return Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
 @intervals_from_points = ( me, points, mixins... ) ->
