@@ -37,13 +37,13 @@ s   = ( x ) -> JSON.stringify x
 
 #-----------------------------------------------------------------------------------------------------------
 find_ids_text = ( me, P... ) ->
-  R = ISL.find_ids_with_all_points me, P...
+  R = ISL._find_ids_with_all_points me, P...
   R.sort()
   return R.join ','
 
 #-----------------------------------------------------------------------------------------------------------
 find_names_text = ( me, P... ) ->
-  # debug '8322', ISL.find_ids_with_all_points me, P...
+  # debug '8322', ISL._find_ids_with_all_points me, P...
   R = ISL.find_names_with_all_points me, P...
   R.sort()
   return R.join ','
@@ -240,11 +240,9 @@ show = ( me ) ->
     [  4,  8, 'block', 'D', ]
     ]
   ISL.add isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
-  ( ISL.find_ids_with_any_points isl, 7      )
-  ( ISL.find_ids_with_any_points isl, [ 7, ] )
-  ( ISL.find_ids_with_any_points isl, [ 7, 8, ] )
-  T.throws 'expected 2 arguments, got 3', -> ISL.find_ids_with_any_points isl, 7, 8
-  T.throws 'expected 2 arguments, got 3', -> ISL.find_ids_with_all_points isl, 7, 8
+  ( ISL._find_ids_with_any_points isl, 7      )
+  ( ISL._find_ids_with_any_points isl, [ 7, ] )
+  ( ISL._find_ids_with_any_points isl, [ 7, 8, ] )
   T.throws 'expected a POD for reducer, got a number', -> ISL.aggregate isl, 7, 8
   return null
 
@@ -512,9 +510,9 @@ show = ( me ) ->
   # T.eq ( ISL.find_names_with_all_points     samples, 'A' ), ( ISL.find_names     samples, 'A' )
   # T.eq ( ISL.find_names_with_all_points     samples, '&' ), ( ISL.find_names     samples, '&' )
   # T.eq ( ISL.find_names_with_all_points     samples, '人' ), ( ISL.find_names     samples, '人' )
-  T.eq ( ISL.find_ids_with_all_points       samples, 'A' ), ( ISL.find_ids       samples, 'A' )
-  T.eq ( ISL.find_ids_with_all_points       samples, '&' ), ( ISL.find_ids       samples, '&' )
-  T.eq ( ISL.find_ids_with_all_points       samples, '人' ), ( ISL.find_ids       samples, '人' )
+  T.eq ( ISL._find_ids_with_all_points       samples, 'A' ), ( ISL.find_ids       samples, 'A' )
+  T.eq ( ISL._find_ids_with_all_points       samples, '&' ), ( ISL.find_ids       samples, '&' )
+  T.eq ( ISL._find_ids_with_all_points       samples, '人' ), ( ISL.find_ids       samples, '人' )
   # T.eq ( ISL.find_intervals_with_all_points samples, 'A' ), ( ISL.find_intervals samples, 'A' )
   # T.eq ( ISL.find_intervals_with_all_points samples, '&' ), ( ISL.find_intervals samples, '&' )
   # T.eq ( ISL.find_intervals_with_all_points samples, '人' ), ( ISL.find_intervals samples, '人' )
@@ -996,30 +994,30 @@ show = ( me ) ->
 ############################################################################################################
 unless module.parent?
   include = [
-    # "test interval tree 1"
-    # "test interval tree 2"
-    # "test interval tree 3"
-    # "aggregation 1"
-    # "aggregation 2"
-    # "characters as points 1"
-    # "characters as points 2"
-    # "characters as points 3"
-    # "intervals_from_points"
-    # "new API for points"
-    # "readme example 1"
-    # "readme example 2"
-    # "intervals without ID, name"
-    # "preserve insertion order"
-    # "demo discontiguous ranges"
-    # "unique names with priority conflict"
-    # "tag 1"
-    # "tag 2"
-    # "tag 2a"
-    # "tag 2b"
-    # "tag 3"
-    # "configurable reducers, negative tags"
-    # "complements"
-    # "infinity is a valid number"
+    "test interval tree 1"
+    "test interval tree 2"
+    "test interval tree 3"
+    "aggregation 1"
+    "aggregation 2"
+    "characters as points 1"
+    "characters as points 2"
+    "characters as points 3"
+    "intervals_from_points"
+    "new API for points"
+    "readme example 1"
+    "readme example 2"
+    "intervals without ID, name"
+    "preserve insertion order"
+    "demo discontiguous ranges"
+    "unique names with priority conflict"
+    "tag 1"
+    "tag 2"
+    "tag 2a"
+    "tag 2b"
+    "tag 3"
+    "configurable reducers, negative tags"
+    "complements"
+    "infinity is a valid number"
     "(v3) cover, intersect"
     # "dump_api"
   ]

@@ -103,8 +103,8 @@ minus_aleph = Symbol.for '-א'
     got       = keys.join ', '
     throw new Error "expected settings out of #{expected}, got #{got}"
   { pick, }   = settings
-  if mode is 'cover' then R = @find_ids_with_all_points me, points
-  else                    R = @find_ids_with_any_points me, points
+  if mode is 'cover' then R = @_find_ids_with_all_points me, points
+  else                    R = @_find_ids_with_any_points me, points
   return R if pick is 'id'
   return @entries_of me, R
 
@@ -126,18 +126,18 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   return sort_entries_by_insertion_order me, R
 
 #-----------------------------------------------------------------------------------------------------------
-@find_ids       = ( me, point ) -> @find_ids_with_all_points        me, point
+@find_ids       = ( me, point ) -> @_find_ids_with_all_points        me, point
 @find_entries   = ( me, point ) -> @find_entries_with_all_points    me, point
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT what happens when these methods are called with no points? ###
-@find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_any_points me, P...
+@find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @_find_ids_with_any_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
-@find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_all_points me, P...
+@find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @_find_ids_with_all_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
-@find_ids_with_any_points = ( me, points ) ->
+@_find_ids_with_any_points = ( me, points ) ->
   points = normalize_points points
   return me[ '%self' ].findContaining points... if points.length < 2
   R = new Set()
@@ -147,7 +147,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   return sort_ids_by_insertion_order me, Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
-@find_ids_with_all_points = ( me, points ) ->
+@_find_ids_with_all_points = ( me, points ) ->
   points = normalize_points points
   return me[ '%self' ].findContaining points...
 
