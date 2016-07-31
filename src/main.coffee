@@ -90,17 +90,15 @@ minus_aleph = Symbol.for '-א'
 @delete = ( me, id ) -> me[ '%self' ].remove id
 
 #-----------------------------------------------------------------------------------------------------------
-@entry_of = ( me, id ) ->
-  throw new Error "unknown ID #{rpr id}" unless ( R = me[ 'entry-by-ids' ][ id ] )?
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@_entries_of = ( me, ids = null ) ->
-  return ( entry for _, entry of me[ 'entry-by-ids' ] ) unless ids?
-  return ( @entry_of me, id for id in ids )
-
-#-----------------------------------------------------------------------------------------------------------
-@entries_of   = ( me, ids = null ) -> @_entries_of   me, if ids? then ( sort_ids_by_insertion_order me, ids ) else null
+@entries_of = ( me, ids = null ) ->
+  unless ids?
+    R = ( entry for _, entry of me[ 'entry-by-ids' ] )
+  else
+    R = []
+    for id in ids
+      throw new Error "unknown ID #{rpr id}" unless ( entry = me[ 'entry-by-ids' ][ id ] )?
+      R.push entry
+  return sort_entries_by_insertion_order me, R
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids       = ( me, point ) -> @find_ids_with_all_points        me, point
