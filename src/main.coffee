@@ -89,6 +89,31 @@ minus_aleph = Symbol.for '-א'
 #-----------------------------------------------------------------------------------------------------------
 @delete = ( me, id ) -> me[ '%self' ].remove id
 
+#===========================================================================================================
+# COVER AND INTERSECT
+#-----------------------------------------------------------------------------------------------------------
+@cover      = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'cover',      points, settings
+@intersect  = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'intersect',  points, settings
+
+#-----------------------------------------------------------------------------------------------------------
+@_cover_or_intersect = ( me, mode, points, settings ) ->
+  debug '7712', points, settings
+  unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
+    expected  = setting_keys_of_cover_and_intersect.join ', '
+    got       = keys.join ', '
+    throw new Error "expected settings out of #{expected}, got #{got}"
+  { pick, }   = settings
+  if mode is 'cover' then R = @find_ids_with_all_points me, points
+  else                    R = @find_ids_with_any_points me, points
+  return R if pick is 'id'
+  return @entries_of me, R
+
+#-----------------------------------------------------------------------------------------------------------
+setting_keys_of_cover_and_intersect = [ 'pick', ]
+
+
+#===========================================================================================================
+# OLD API
 #-----------------------------------------------------------------------------------------------------------
 @entries_of = ( me, ids = null ) ->
   unless ids?
@@ -113,15 +138,8 @@ minus_aleph = Symbol.for '-א'
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
-  ### TAINT should be possible to call w/o any points to get all IDs ###
-  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  points = [ points, ] unless CND.isa_list points
-  ### Note: `Intervalskiplist::findIntersecting` needs more than a single probe, so we fall back to
-  `::findContaining` in case a single probe was given. ###
-  return @find_ids_with_all_points me, points if points.length < 2
-  points = as_numbers points
-  ### TAINT findIntersecting appears to be not working as advertised; workaraound: ###
-  # return me[ '%self' ].findIntersecting points...
+  points = normalize_points points
+  return me[ '%self' ].findContaining points... if points.length < 2
   R = new Set()
   for point in points
     ids = me[ '%self' ].findContaining point
@@ -130,10 +148,7 @@ minus_aleph = Symbol.for '-א'
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_all_points = ( me, points ) ->
-  ### TAINT should be possible to call w/o any points to get no IDs ###
-  throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  points = [ points, ] unless CND.isa_list points
-  points = as_numbers points
+  points = normalize_points points
   return me[ '%self' ].findContaining points...
 
 #-----------------------------------------------------------------------------------------------------------
@@ -289,6 +304,11 @@ as_number = ( x ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 as_numbers = ( list ) -> ( as_number x for x in list )
+
+#-----------------------------------------------------------------------------------------------------------
+normalize_points = ( points ) ->
+  points = [ points, ] unless CND.isa_list points
+  return as_numbers points
 
 #-----------------------------------------------------------------------------------------------------------
 normalize_tag = ( tag ) ->

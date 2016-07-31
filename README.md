@@ -391,6 +391,20 @@ The following keys of entries are treated specially by InterSkipList:
 # API
 
 ## @aggregate = ( me, points, reducers ) ->
+## @new = ( settings ) ->
+## @delete = ( me, id ) ->
+
+## @cover = ( me, points, settings = {} ) ->
+
+Return those interval entries of `me` that contain all of the points and intervals.
+
+## @intersect = ( me, points, settings = {} ) ->
+
+Return those interval entries of `me` that contain any of the points and/or intervals.
+
+
+# Old API
+
 ## @entries_of = ( me, ids = null ) ->
 ## @entry_of = ( me, id ) ->
 ## @add = ( me, entry ) ->
@@ -399,8 +413,6 @@ The following keys of entries are treated specially by InterSkipList:
 ## @intervals_of = ( me, ids = null ) ->
 ## @name_of = ( me, id ) ->
 ## @names_of = ( me, ids = null ) ->
-## @new = ( settings ) ->
-## @remove = ( me, id ) ->
 ## @sort_entries = ( me, entries ) ->
 
 

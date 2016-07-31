@@ -951,6 +951,44 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
+@[ "(v3) cover, intersect" ] = ( T ) ->
+  ascii = ISL.new()
+  ISL.add ascii, { lo: 0x00, hi: 0x7f, name: 'basic-latin', tag: 'basic-latin',   }
+  ISL.add ascii, { lo: 'a',  hi: 'z',  name: 'letter',      tag: 'letter',        }
+  ISL.add ascii, { lo: 'A',  hi: 'Z',  name: 'letter',      tag: 'letter',        }
+  ISL.add ascii, { lo: 'a',  hi: 'z',  name: 'lower',       tag: 'lower',         }
+  ISL.add ascii, { lo: 'A',  hi: 'Z',  name: 'upper',       tag: 'upper',         }
+  #.........................................................................................................
+  for chr in 'aeiouAEIOU'
+    ISL.add ascii, { lo: chr, hi: chr, name: 'vowel', tag: 'vowel', }
+  consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
+  for interval in ISL.intervals_from_points ascii, consonants, { name: 'consonant', tag: 'consonant', }
+    ISL.add ascii, interval
+  digits = Array.from '0123456789'
+  for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', tag: 'digit', }
+    ISL.add ascii, interval
+  #.........................................................................................................
+  show ascii
+  #.........................................................................................................
+  info ISL.cover ascii, 'f'
+  info ISL.cover ascii, [ 'f', 'F', ]
+  info ISL.cover ascii, [ 'f', 'F', ], pick: 'id'
+  info ISL.aggregate ascii, [ 'f', 'F', ]
+  info ISL.aggregate ascii, [ 'f', 'F', ], { name: 'list', tag: 'list', id: 'list', }
+  # info ISL.cover ascii, [ 'f', 'F', { lo: '0', hi: '9', }, ], pick: 'id'
+  # console.log ISL.find_names_with_all_points ascii, [ 'c'     , ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'C'     , ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'c', 'C', ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'C', 'C', ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'C', 'A', ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'c', 'A', ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'A', 'e', ]
+  # console.log ISL.find_names_with_all_points ascii, [ 'i', 'e', ]
+  # console.log ISL.find_names_with_all_points ascii, [ '2', 'e', ]
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
 @dump_api = ( T ) ->
   debug ( Object.keys ISL ).sort()
 
@@ -958,35 +996,37 @@ show = ( me ) ->
 ############################################################################################################
 unless module.parent?
   include = [
-    "test interval tree 1"
-    "test interval tree 2"
-    "test interval tree 3"
-    "aggregation 1"
-    "aggregation 2"
-    "characters as points 1"
-    "characters as points 2"
-    "characters as points 3"
-    "intervals_from_points"
-    "new API for points"
-    "readme example 1"
-    "readme example 2"
-    "intervals without ID, name"
-    "preserve insertion order"
-    "demo discontiguous ranges"
-    "unique names with priority conflict"
-    "tag 1"
-    "tag 2"
-    "tag 2a"
-    "tag 2b"
-    "tag 3"
-    "configurable reducers, negative tags"
-    "complements"
-    "infinity is a valid number"
+    # "test interval tree 1"
+    # "test interval tree 2"
+    # "test interval tree 3"
+    # "aggregation 1"
+    # "aggregation 2"
+    # "characters as points 1"
+    # "characters as points 2"
+    # "characters as points 3"
+    # "intervals_from_points"
+    # "new API for points"
+    # "readme example 1"
+    # "readme example 2"
+    # "intervals without ID, name"
+    # "preserve insertion order"
+    # "demo discontiguous ranges"
+    # "unique names with priority conflict"
+    # "tag 1"
+    # "tag 2"
+    # "tag 2a"
+    # "tag 2b"
+    # "tag 3"
+    # "configurable reducers, negative tags"
+    # "complements"
+    # "infinity is a valid number"
+    "(v3) cover, intersect"
+    # "dump_api"
   ]
-  # @_prune()
+  @_prune()
   @_main()
 
-  # @[ "test interval tree 1" ]()
+  # @[ "(v3) cover, intersect" ]()
 
 
   # demo_unassigned_unicode_codepoints = ->
@@ -1015,7 +1055,5 @@ unless module.parent?
   # exclude.push 'inspect'
   # exclude.push 'toString'
   # help key for key in ( key for key of isl[ '%self' ] when key not in exclude ).sort()
-
-
 
 
