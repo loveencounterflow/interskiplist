@@ -1,4 +1,5 @@
 
+
 ############################################################################################################
 CND                       = require 'cnd'
 rpr                       = CND.rpr.bind CND
@@ -89,32 +90,9 @@ minus_aleph = Symbol.for '-א'
 @remove = ( me, id ) -> me[ '%self' ].remove id
 
 #-----------------------------------------------------------------------------------------------------------
-@interval_of = ( me, id ) ->
-  throw new Error "unknown ID #{rpr id}" unless ( R = me[ '%self' ].intervalsByMarker[ id ] )?
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
 @entry_of = ( me, id ) ->
   throw new Error "unknown ID #{rpr id}" unless ( R = me[ 'entry-by-ids' ][ id ] )?
   return R
-
-#-----------------------------------------------------------------------------------------------------------
-@name_of = ( me, id ) ->
-  throw new Error "unknown ID #{rpr id}" unless ( R = me[ 'name-by-ids' ][ id ] )?
-  return R
-
-#-----------------------------------------------------------------------------------------------------------
-@tag_of = ( me, id ) ->
-  ### NOTE always returns a (possibly empty) list; always returns a copy, never the original list ###
-  throw new Error "unknown ID #{rpr id}" unless ( entry = me[ 'entry-by-ids' ][ id ] )?
-  R = entry[ 'tag' ]
-  return [] unless R?
-  return meld [], R
-
-#-----------------------------------------------------------------------------------------------------------
-@_intervals_of = ( me, ids = null ) ->
-  return me[ '%self' ].intervalsByMarker unless ids?
-  return ( @interval_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
 @_entries_of = ( me, ids = null ) ->
@@ -122,38 +100,18 @@ minus_aleph = Symbol.for '-א'
   return ( @entry_of me, id for id in ids )
 
 #-----------------------------------------------------------------------------------------------------------
-@_names_of = ( me, ids = null ) ->
-  return me[ 'name-by-ids' ] unless ids?
-  return unique ( @name_of me, id for id in ids )
-
-#-----------------------------------------------------------------------------------------------------------
-@_tags_of = ( me, ids = null ) ->
-  throw new Error "retrieving tags without IDs not implemented" unless ids?
-  return fuse ( @tag_of me, id for id in ids )
-
-#-----------------------------------------------------------------------------------------------------------
-@intervals_of = ( me, ids = null ) -> @_intervals_of me, if ids? then ( @sort_ids me, ids ) else null
-@entries_of   = ( me, ids = null ) -> @_entries_of   me, if ids? then ( @sort_ids me, ids ) else null
-@names_of     = ( me, ids = null ) -> @_names_of     me, if ids? then ( @sort_ids me, ids ) else null
-@tags_of      = ( me, ids = null ) -> @_tags_of      me, if ids? then ( @sort_ids me, ids ) else null
+@entries_of   = ( me, ids = null ) -> @_entries_of   me, if ids? then ( sort_ids_by_insertion_order me, ids ) else null
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids       = ( me, point ) -> @find_ids_with_all_points        me, point
-@find_intervals = ( me, point ) -> @find_intervals_with_all_points  me, point
 @find_entries   = ( me, point ) -> @find_entries_with_all_points    me, point
-@find_names     = ( me, point ) -> @find_names_with_all_points      me, point
-@find_tags      = ( me, point ) -> @find_tags_with_all_points       me, point
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT what happens when these methods are called with no points? ###
 @find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_any_points me, P...
-# @find_names_with_any_points     = ( me, P... ) -> @names_of     me, @find_ids_with_any_points me, P...
-# @find_intervals_with_any_points = ( me, P... ) -> @intervals_of me, @find_ids_with_any_points me, P...
-# @find_tags_with_any_points      = ( me, P... ) -> @tags_of      me, @find_ids_with_any_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @find_ids_with_all_points me, P...
-# @find_intervals_with_all_points = ( me, P... ) -> @intervals_of me, @find_ids_with_all_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_any_points = ( me, points ) ->
@@ -170,7 +128,7 @@ minus_aleph = Symbol.for '-א'
   for point in points
     ids = me[ '%self' ].findContaining point
     R.add id for id in ids
-  return @sort_ids me, Array.from R
+  return sort_ids_by_insertion_order me, Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids_with_all_points = ( me, points ) ->
@@ -179,36 +137,6 @@ minus_aleph = Symbol.for '-א'
   points = [ points, ] unless CND.isa_list points
   points = as_numbers points
   return me[ '%self' ].findContaining points...
-
-# #-----------------------------------------------------------------------------------------------------------
-# @find_names_with_all_points = ( me, points ) ->
-#   ### TAINT code duplication ###
-#   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-#   points = [ points, ] unless CND.isa_list points
-#   return [] if points.length is 0
-#   R = @find_names_with_any_points me, points[ 0 ]
-#   return R if points.length < 2
-#   R = new Set R
-#   for point_idx in [ 1 ... points.length ]
-#     point = points[ point_idx ]
-#     names = @find_names_with_any_points me, point
-#     R.forEach ( name ) -> R.delete name unless name in names
-#   return Array.from R
-
-# #-----------------------------------------------------------------------------------------------------------
-# @find_tags_with_all_points = ( me, points ) ->
-#   ### TAINT code duplication ###
-#   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-#   points = [ points, ] unless CND.isa_list points
-#   return [] if points.length is 0
-#   R = @find_tags_with_any_points me, points[ 0 ]
-#   return R if points.length < 2
-#   R = new Set R
-#   for point_idx in [ 1 ... points.length ]
-#     point = points[ point_idx ]
-#     tags  = @find_tags_with_any_points me, point
-#     R.forEach ( tag ) -> R.delete tag unless tag in tags
-#   return Array.from R
 
 #-----------------------------------------------------------------------------------------------------------
 @intervals_from_points = ( me, points, mixins... ) ->
@@ -242,26 +170,8 @@ minus_aleph = Symbol.for '-א'
   R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
   return R
 
-
 #===========================================================================================================
 # AGGREGATION
-#-----------------------------------------------------------------------------------------------------------
-@sort_entries = ( me, entries ) ->
-  entries.sort ( a, b ) ->
-    return +1 if a[ 'idx' ] > b[ 'idx' ]
-    return -1 if a[ 'idx' ] < b[ 'idx' ]
-    return  0
-  return entries
-
-#-----------------------------------------------------------------------------------------------------------
-@sort_ids = ( me, ids ) ->
-  idxs = me[ 'idx-by-ids' ]
-  ids.sort ( a, b ) ->
-    return +1 if idxs[ a ] > idxs[ b ]
-    return -1 if idxs[ a ] < idxs[ b ]
-    return  0
-  return ids
-
 #-----------------------------------------------------------------------------------------------------------
 @aggregate = ( me, points_or_entries, reducers = {} ) ->
   if reducers? and not CND.isa_pod reducers
@@ -277,7 +187,7 @@ minus_aleph = Symbol.for '-א'
     else                                                             entries.push points_or_entry
   append entries, ( @find_entries_with_all_points me, points ) if points.length > 0
   #.........................................................................................................
-  @sort_entries me, entries
+  sort_entries_by_insertion_order me, entries
   #.........................................................................................................
   R                 = {}
   cache             = {}
@@ -354,6 +264,23 @@ minus_aleph = Symbol.for '-א'
 #===========================================================================================================
 # HELPERS
 #-----------------------------------------------------------------------------------------------------------
+sort_entries_by_insertion_order = ( me, entries ) ->
+  entries.sort ( a, b ) ->
+    return +1 if a[ 'idx' ] > b[ 'idx' ]
+    return -1 if a[ 'idx' ] < b[ 'idx' ]
+    return  0
+  return entries
+
+#-----------------------------------------------------------------------------------------------------------
+sort_ids_by_insertion_order = ( me, ids ) ->
+  idxs = me[ 'idx-by-ids' ]
+  ids.sort ( a, b ) ->
+    return +1 if idxs[ a ] > idxs[ b ]
+    return -1 if idxs[ a ] < idxs[ b ]
+    return  0
+  return ids
+
+#-----------------------------------------------------------------------------------------------------------
 as_number = ( x ) ->
   return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
   unless ( type = CND.type_of x ) is 'text'
@@ -367,15 +294,20 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 
 #-----------------------------------------------------------------------------------------------------------
 normalize_tag = ( tag ) ->
+  ### Given a single string or a list of strings, return a new list that contains all whitespace-delimited
+  words in the strings ###
   return normalize_tag [ tag, ] unless CND.isa_list tag
   R = []
   for t in tag
     continue if t.length is 0
     R.splice R.length, 0, ( t.split /\s+/ )...
+  ### TAINT consider to return `unique R` instead ###
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 unique = ( list ) ->
+  ### Return a copy of `list´ that only contains the last occurrence of each value ###
+  ### TAINT consider to modify, not copy `list` ###
   seen  = new Set()
   R     = []
   for idx in [ list.length - 1 .. 0 ] by -1
@@ -387,17 +319,20 @@ unique = ( list ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 append = ( a, b ) ->
+  ### Append elements of list `b` to list `a` ###
   a.splice a.length, 0, b...
   return a
 
 #-----------------------------------------------------------------------------------------------------------
 meld = ( list, value ) ->
+  ### When `value` is a list, `append` it to `list`; else, `push` `value` to `list` ###
   if CND.isa_list value then  append list, value
   else                        list.push value
   return list
 
 #-----------------------------------------------------------------------------------------------------------
 fuse = ( list ) ->
+  ### Flatten `list`, then apply `unique` to it. Does not copy `list` but modifies it ###
   R = []
   meld R, element for element in list
   R = unique R
