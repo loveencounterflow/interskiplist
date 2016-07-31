@@ -97,7 +97,6 @@ minus_aleph = Symbol.for '-א'
 
 #-----------------------------------------------------------------------------------------------------------
 @_cover_or_intersect = ( me, mode, points, settings ) ->
-  debug '7712', points, settings
   unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
     expected  = setting_keys_of_cover_and_intersect.join ', '
     got       = keys.join ', '
@@ -124,17 +123,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
       throw new Error "unknown ID #{rpr id}" unless ( entry = me[ 'entry-by-ids' ][ id ] )?
       R.push entry
   return sort_entries_by_insertion_order me, R
-
-#-----------------------------------------------------------------------------------------------------------
-@find_ids       = ( me, point ) -> @_find_ids_with_all_points        me, point
-@find_entries   = ( me, point ) -> @find_entries_with_all_points    me, point
-
-#-----------------------------------------------------------------------------------------------------------
-### TAINT what happens when these methods are called with no points? ###
-@find_entries_with_any_points   = ( me, P... ) -> @entries_of   me, @_find_ids_with_any_points me, P...
-
-#-----------------------------------------------------------------------------------------------------------
-@find_entries_with_all_points   = ( me, P... ) -> @entries_of   me, @_find_ids_with_all_points me, P...
 
 #-----------------------------------------------------------------------------------------------------------
 @_find_ids_with_any_points = ( me, points ) ->
@@ -198,7 +186,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   for points_or_entry in points_or_entries
     if ( CND.type_of points_or_entry ) in [ 'number', 'text', ] then  points.push points_or_entry
     else                                                             entries.push points_or_entry
-  append entries, ( @find_entries_with_all_points me, points ) if points.length > 0
+  append entries, ( @cover me, points ) if points.length > 0
   #.........................................................................................................
   sort_entries_by_insertion_order me, entries
   #.........................................................................................................

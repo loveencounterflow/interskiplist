@@ -220,11 +220,11 @@ show = ( me ) ->
   # debug rpr find_ids_text isl, [  5,  8, ]
   # debug rpr find_ids_text isl, [ 21, 24, ]
   # debug rpr find_ids_text isl, [  4,  8, ]
-  debug ISL.find_entries_with_any_points isl, [ 18, 22, ]
-  debug ( entry for entry in ISL.find_entries_with_any_points isl, [ 18, 22, ] when entry[ 'type' ] is 'block' )
-  # debug ISL.find_entries_with_all_points isl, [ 2, 30, ]
-  # debug ISL.find_entries_with_any_points isl, 18
-  # debug ISL.find_entries_with_all_points isl, 18
+  debug ISL.intersect isl, [ 18, 22, ]
+  debug ( entry for entry in ISL.intersect isl, [ 18, 22, ] when entry[ 'type' ] is 'block' )
+  debug ISL.cover isl, [ 2, 30, ]
+  debug ISL.intersect isl, 18
+  debug ISL.cover isl, 18
   # search()
   # debug '4430', ISL.get_values isl
   #.........................................................................................................
@@ -358,8 +358,8 @@ show = ( me ) ->
   ISL.add isl, { lo: 'a', 'hi': 'z', }
   ISL.add isl, { lo: 'a', 'hi': 'k', id:   'lower-half' }
   ISL.add isl, { lo: 'l', 'hi': 'z', name: 'upper-half' }
-  # debug JSON.stringify ISL.find_entries_with_any_points isl, [ 'c', 'm', ]
-  T.eq ( ISL.find_entries_with_any_points isl, [ 'c', 'm', ] ), [
+  # debug JSON.stringify ISL.intersect isl, [ 'c', 'm', ]
+  T.eq ( ISL.intersect isl, [ 'c', 'm', ] ), [
     {"lo":97,"hi":122,"idx":0,"id":"+[0]","name":"+","size":26},
     {"lo":97,"hi":107,"id":"lower-half","idx":1,"name":"+","size":11},
     {"lo":108,"hi":122,"name":"upper-half","idx":2,"id":"upper-half[0]","size":15}
@@ -510,15 +510,15 @@ show = ( me ) ->
   # T.eq ( ISL.find_names_with_all_points     samples, 'A' ), ( ISL.find_names     samples, 'A' )
   # T.eq ( ISL.find_names_with_all_points     samples, '&' ), ( ISL.find_names     samples, '&' )
   # T.eq ( ISL.find_names_with_all_points     samples, '人' ), ( ISL.find_names     samples, '人' )
-  T.eq ( ISL._find_ids_with_all_points       samples, 'A' ), ( ISL.find_ids       samples, 'A' )
-  T.eq ( ISL._find_ids_with_all_points       samples, '&' ), ( ISL.find_ids       samples, '&' )
-  T.eq ( ISL._find_ids_with_all_points       samples, '人' ), ( ISL.find_ids       samples, '人' )
+  T.eq ( ISL._find_ids_with_all_points       samples, 'A' ), ( ISL.cover       samples, 'A', pick: 'id' )
+  T.eq ( ISL._find_ids_with_all_points       samples, '&' ), ( ISL.cover       samples, '&', pick: 'id' )
+  T.eq ( ISL._find_ids_with_all_points       samples, '人' ), ( ISL.cover       samples, '人', pick: 'id' )
   # T.eq ( ISL.find_intervals_with_all_points samples, 'A' ), ( ISL.find_intervals samples, 'A' )
   # T.eq ( ISL.find_intervals_with_all_points samples, '&' ), ( ISL.find_intervals samples, '&' )
   # T.eq ( ISL.find_intervals_with_all_points samples, '人' ), ( ISL.find_intervals samples, '人' )
-  # T.eq ( ISL.find_entries_with_all_points   samples, 'A' ), ( ISL.find_entries   samples, 'A' )
-  # T.eq ( ISL.find_entries_with_all_points   samples, '&' ), ( ISL.find_entries   samples, '&' )
-  # T.eq ( ISL.find_entries_with_all_points   samples, '人' ), ( ISL.find_entries   samples, '人' )
+  T.eq ( ISL.intersect samples, 'A' ), ( ISL.cover samples, 'A' )
+  T.eq ( ISL.intersect samples, '&' ), ( ISL.cover samples, '&' )
+  T.eq ( ISL.intersect samples, '人' ), ( ISL.cover samples, '人' )
   urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
   urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
   urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
@@ -584,11 +584,11 @@ show = ( me ) ->
   ISL.add isl, { lo: 15, hi: 49, id: 'gamma-0',  name: 'gamma',  }
   ISL.add isl, { lo: 15, hi: 29, id: 'beta-1',   name: 'beta',   }
   show isl
-  # debug '3928', JSON.stringify ISL.find_ids   isl, 15
+  # debug '3928', JSON.stringify ISL.cover   isl, 15, pick: 'id'
   # debug '3928', JSON.stringify ISL.find_names isl, 15
   # urge '3928', JSON.stringify ISL.find_names_with_all_points isl, [ 15, 16, 30, ]
   # urge '3928', JSON.stringify ISL.find_names_with_any_points isl, [ 15, 16, 30, ]
-  T.eq ( ISL.find_ids   isl, 15                              ), ["alpha-0","beta-0","omega-0","gamma-0","beta-1"]
+  T.eq ( ISL.cover   isl, 15, pick: 'id'                              ), ["alpha-0","beta-0","omega-0","gamma-0","beta-1"]
   # T.eq ( ISL.find_names isl, 15                              ), ["alpha","omega","gamma","beta"]
   # T.eq ( ISL.find_names_with_all_points isl, [ 15, 16, 30, ] ), ["gamma"]
   # T.eq ( ISL.find_names_with_any_points isl, [ 15, 16, 30, ] ), ["alpha","omega","gamma","beta"]
@@ -971,8 +971,8 @@ show = ( me ) ->
   info ISL.cover ascii, 'f'
   info ISL.cover ascii, [ 'f', 'F', ]
   info ISL.cover ascii, [ 'f', 'F', ], pick: 'id'
-  info ISL.aggregate ascii, [ 'f', 'F', ]
-  info ISL.aggregate ascii, [ 'f', 'F', ], { name: 'list', tag: 'list', id: 'list', }
+  info ISL.aggregate ascii, 'f'
+  info ISL.aggregate ascii, 'f', { name: 'list', tag: 'list', id: 'list', }
   # info ISL.cover ascii, [ 'f', 'F', { lo: '0', hi: '9', }, ], pick: 'id'
   # console.log ISL.find_names_with_all_points ascii, [ 'c'     , ]
   # console.log ISL.find_names_with_all_points ascii, [ 'C'     , ]
@@ -1019,7 +1019,7 @@ unless module.parent?
     "complements"
     "infinity is a valid number"
     "(v3) cover, intersect"
-    # "dump_api"
+    "dump_api"
   ]
   @_prune()
   @_main()
