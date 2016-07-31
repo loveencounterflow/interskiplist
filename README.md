@@ -394,7 +394,7 @@ The following keys of entries are treated specially by InterSkipList:
 ## @new = ( settings ) ->
 ## @delete = ( me, id ) ->
 
-## @cover = ( me, points, settings = {} ) ->
+## @match = ( me, points, settings = {} ) ->
 
 Return those interval entries of `me` that contain all of the points and intervals.
 

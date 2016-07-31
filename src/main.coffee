@@ -13,8 +13,8 @@ warn                      = CND.get_logger 'warn',      badge
 help                      = CND.get_logger 'help',      badge
 urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
-plus_aleph  = Symbol.for '+א'
-minus_aleph = Symbol.for '-א'
+plus_aleph                = Symbol.for '+א'
+minus_aleph               = Symbol.for '-א'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ minus_aleph = Symbol.for '-א'
 #===========================================================================================================
 # COVER AND INTERSECT
 #-----------------------------------------------------------------------------------------------------------
-@cover      = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'cover',      points, settings
+@match      = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'match',      points, settings
 @intersect  = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'intersect',  points, settings
 
 #-----------------------------------------------------------------------------------------------------------
@@ -102,17 +102,21 @@ minus_aleph = Symbol.for '-א'
     got       = keys.join ', '
     throw new Error "expected settings out of #{expected}, got #{got}"
   { pick, }   = settings
-  if mode is 'cover' then R = @_find_ids_with_all_points me, points
+  if mode is 'match' then R = @_find_ids_with_all_points me, points
   else                    R = @_find_ids_with_any_points me, points
   return R if pick is 'id'
-  return @entries_of me, R
+  R = @entries_of me, R
+  if pick?
+    R = ( entry[ pick ] for entry in R )
+    return reduce_tag R if pick is 'tag'
+  return fuse R
 
 #-----------------------------------------------------------------------------------------------------------
 setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 
 #===========================================================================================================
-# OLD API
+#
 #-----------------------------------------------------------------------------------------------------------
 @entries_of = ( me, ids = null ) ->
   unless ids?
@@ -171,6 +175,21 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
   return R
 
+#-----------------------------------------------------------------------------------------------------------
+@match_common = ( me, points, settings ) ->
+  throw new Error "expected 3 arguments, got #{arity}" unless ( arity = arguments.length ) is 3
+  throw new Error "expected a POD, got a #{CND.type_of settings}" unless CND.isa_pod settings
+  { pick }  = settings
+  throw new Error "expected setting 'pick', got none" unless pick?
+  points = normalize_points points
+  return [] if points.length is 0
+  R = []
+  s = { pick, }
+  for point in points
+    append R, @match me, point, s
+  return reduce_tag R if pick is 'tag'
+  return fuse R
+
 #===========================================================================================================
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
@@ -186,7 +205,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   for points_or_entry in points_or_entries
     if ( CND.type_of points_or_entry ) in [ 'number', 'text', ] then  points.push points_or_entry
     else                                                             entries.push points_or_entry
-  append entries, ( @cover me, points ) if points.length > 0
+  append entries, ( @match me, points ) if points.length > 0
   #.........................................................................................................
   sort_entries_by_insertion_order me, entries
   #.........................................................................................................
@@ -235,18 +254,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   ### tags ###
   for key, value of R
     continue unless key in tag_keys
-    source  = fuse value
-    target  = []
-    exclude = null
-    for idx in [ source.length - 1 .. 0 ] by -1
-      tag = source[ idx ]
-      continue if exclude? and exclude.has tag
-      if tag.startsWith '-'
-        break if tag is '-*'
-        ( exclude ?= new Set() ).add tag[ 1 .. ]
-        continue
-      target.unshift tag
-    R[ key ] = target
+    R[ key ] = reduce_tag R[ key ]
   #.........................................................................................................
   ### averages ###
   for key, [ sum, count, ] of averages
@@ -260,7 +268,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     R[ key ] = functions[ key ] ids_and_values, R, entries
   #.........................................................................................................
   return R
-
 
 #===========================================================================================================
 # HELPERS
@@ -344,6 +351,23 @@ fuse = ( list ) ->
   R = unique R
   list.splice 0, list.length, R...
   return list
+
+#-----------------------------------------------------------------------------------------------------------
+reduce_tag = ( raw ) ->
+  source  = fuse raw
+  R       = []
+  exclude = null
+  #.........................................................................................................
+  for idx in [ source.length - 1 .. 0 ] by -1
+    tag = source[ idx ]
+    continue if exclude? and exclude.has tag
+    if tag.startsWith '-'
+      break if tag is '-*'
+      ( exclude ?= new Set() ).add tag[ 1 .. ]
+      continue
+    R.unshift tag
+  #.........................................................................................................
+  return R
 
 
 
