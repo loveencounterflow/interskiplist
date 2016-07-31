@@ -104,7 +104,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   for [ lo, hi, id, ] in intervals
-    ISL.insert isl, { lo, hi, id, }
+    ISL.add isl, { lo, hi, id, }
   show isl
   #.........................................................................................................
   # search()
@@ -127,7 +127,7 @@ show = ( me ) ->
   T.eq ( find_ids_text isl, 16 ), 'G'
   T.eq ( find_ids_text isl, 17 ), 'G'
   T.eq ( find_ids_text isl, 18 ), 'G'
-  # ISL.insert isl, [ 10, 13, 'FF' ]
+  # ISL.add isl, [ 10, 13, 'FF' ]
   # delete isl[ '%self' ]
   # debug '©29478', isl
   return null
@@ -151,7 +151,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   for [ lo, hi, name, ] in intervals
-    ISL.insert isl, { lo, hi, name, }
+    ISL.add isl, { lo, hi, name, }
   show isl
   #.........................................................................................................
   # T.eq ( find_names_text isl,  0 ), "aldebaran"
@@ -207,7 +207,7 @@ show = ( me ) ->
     [ 21, 24, 'block', 'A', ]
     [  4,  8, 'block', 'D', ]
     ]
-  ISL.insert isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
+  ISL.add isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
   show isl
   # ISL._decorate isl[ '%self' ][ 'root' ]
   # search()
@@ -239,7 +239,7 @@ show = ( me ) ->
     [ 21, 24, 'block', 'A', ]
     [  4,  8, 'block', 'D', ]
     ]
-  ISL.insert isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
+  ISL.add isl, { lo, hi, type, name, } for [ lo, hi, type, name, ] in intervals
   ( ISL.find_ids_with_any_points isl, 7      )
   ( ISL.find_ids_with_any_points isl, [ 7, ] )
   ( ISL.find_ids_with_any_points isl, [ 7, 8, ] )
@@ -254,7 +254,7 @@ show = ( me ) ->
   z_cid = 'z'.codePointAt 0
   #.........................................................................................................
   isl  = ISL.new()
-  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'Basic Latin:Lower Case', }
+  ISL.add isl, { lo: a_cid, hi: z_cid, name: 'Basic Latin:Lower Case', }
   entry = ( ISL.entries_of isl )[ 0 ]
   T.eq entry[ 'lo'   ], a_cid
   T.eq entry[ 'hi'   ], z_cid
@@ -264,7 +264,7 @@ show = ( me ) ->
   T.eq isl[ 'fmax' ],   z_cid
   #.........................................................................................................
   isl  = ISL.new()
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'Basic Latin:Lower Case', }
+  ISL.add isl, { lo: 'a', hi: 'z', name: 'Basic Latin:Lower Case', }
   entry = ( ISL.entries_of isl )[ 0 ]
   T.eq entry[ 'lo'   ], a_cid
   T.eq entry[ 'hi'   ], z_cid
@@ -285,10 +285,10 @@ show = ( me ) ->
   C_cid = 'C'.codePointAt 0
   #.........................................................................................................
   isl  = ISL.new()
-  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'letter', }
-  ISL.insert isl, { lo: A_cid, hi: Z_cid, name: 'letter', }
-  ISL.insert isl, { lo: a_cid, hi: z_cid, name: 'lower', }
-  ISL.insert isl, { lo: A_cid, hi: Z_cid, name: 'upper', }
+  ISL.add isl, { lo: a_cid, hi: z_cid, name: 'letter', }
+  ISL.add isl, { lo: A_cid, hi: Z_cid, name: 'letter', }
+  ISL.add isl, { lo: a_cid, hi: z_cid, name: 'lower', }
+  ISL.add isl, { lo: A_cid, hi: Z_cid, name: 'upper', }
   # #.........................................................................................................
   # debug '5201-1', rpr find_names_text isl, c_cid
   # debug '5201-2', rpr find_names_text isl, C_cid
@@ -309,18 +309,18 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "characters as points 3" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+  ISL.add isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+  ISL.add isl, { lo: 'a', hi: 'z', name: 'letter', }
+  ISL.add isl, { lo: 'A', hi: 'Z', name: 'letter', }
+  ISL.add isl, { lo: 'a', hi: 'z', name: 'lower', }
+  ISL.add isl, { lo: 'A', hi: 'Z', name: 'upper', }
   #.........................................................................................................
   for chr in 'aeiouAEIOU'
-    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+    ISL.add isl, { lo: chr, hi: chr, name: 'vowel', }
   for chr in 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
-    ISL.insert isl, { lo: chr, hi: chr, name: 'consonant', }
+    ISL.add isl, { lo: chr, hi: chr, name: 'consonant', }
   for chr in '0123456789'
-    ISL.insert isl, { lo: chr, hi: chr, name: 'digit', }
+    ISL.add isl, { lo: chr, hi: chr, name: 'digit', }
   #.........................................................................................................
   # list isl
   #.........................................................................................................
@@ -357,9 +357,9 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "intervals without ID, name" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 'a', 'hi': 'z', }
-  ISL.insert isl, { lo: 'a', 'hi': 'k', id:   'lower-half' }
-  ISL.insert isl, { lo: 'l', 'hi': 'z', name: 'upper-half' }
+  ISL.add isl, { lo: 'a', 'hi': 'z', }
+  ISL.add isl, { lo: 'a', 'hi': 'k', id:   'lower-half' }
+  ISL.add isl, { lo: 'l', 'hi': 'z', name: 'upper-half' }
   # debug JSON.stringify ISL.find_entries_with_any_points isl, [ 'c', 'm', ]
   T.eq ( ISL.find_entries_with_any_points isl, [ 'c', 'm', ] ), [
     {"lo":97,"hi":122,"idx":0,"id":"+[0]","name":"+","size":26},
@@ -424,7 +424,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   isl = ISL.new()
-  ISL.insert isl, entry for entry in entries
+  ISL.add isl, entry for entry in entries
   replacers =
     # rsg:    'skip'
     type:   'list'
@@ -448,8 +448,8 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "aggregation 2" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 0, hi: 10, id: 'wide',   count: 10, length: 10, foo: 'D',  }
-  ISL.insert isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
+  ISL.add isl, { lo: 0, hi: 10, id: 'wide',   count: 10, length: 10, foo: 'D',  }
+  ISL.add isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
   reducers =
     '*':    'list'
     id:     'include'
@@ -467,20 +467,20 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "readme example 1" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'letter', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'letter', }
-  ISL.insert isl, { lo: 'a', hi: 'z', name: 'lower', }
-  ISL.insert isl, { lo: 'A', hi: 'Z', name: 'upper', }
+  ISL.add isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+  ISL.add isl, { lo: 'a', hi: 'z', name: 'letter', }
+  ISL.add isl, { lo: 'A', hi: 'Z', name: 'letter', }
+  ISL.add isl, { lo: 'a', hi: 'z', name: 'lower', }
+  ISL.add isl, { lo: 'A', hi: 'Z', name: 'upper', }
   #.........................................................................................................
   for chr in 'aeiouAEIOU'
-    ISL.insert isl, { lo: chr, hi: chr, name: 'vowel', }
+    ISL.add isl, { lo: chr, hi: chr, name: 'vowel', }
   consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
   for interval in ISL.intervals_from_points isl, consonants, { name: 'consonant', }
-    ISL.insert isl, interval
+    ISL.add isl, interval
   digits = Array.from '0123456789'
   for interval in ISL.intervals_from_points isl, digits, { name: 'digit', }
-    ISL.insert isl, interval
+    ISL.add isl, interval
   #.........................................................................................................
   show isl
   #.........................................................................................................
@@ -499,11 +499,11 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "readme example 2" ] = ( T ) ->
   samples = ISL.new()
-  ISL.insert samples, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
-  ISL.insert samples, { lo:   0x00, hi:     0xff, name: 'ascii',     font_family: 'Arial',        }
-  ISL.insert samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
-  ISL.insert samples, { lo: 0x3040, hi:   0x309f, name: 'cjk',       font_family: 'Sun-ExtA',     }
-  ISL.insert samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+  ISL.add samples, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
+  ISL.add samples, { lo:   0x00, hi:     0xff, name: 'ascii',     font_family: 'Arial',        }
+  ISL.add samples, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+  ISL.add samples, { lo: 0x3040, hi:   0x309f, name: 'cjk',       font_family: 'Sun-ExtA',     }
+  ISL.add samples, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
   # debug 'rx2-1', 'A', ISL.find_names_with_all_points samples, 'A' # --> [ 'latin' ]
   # debug 'rx2-2', '&', ISL.find_names_with_all_points samples, '&' # --> [ 'latin', 'ampersand' ]
   # debug 'rx2-3', '人', ISL.find_names_with_all_points samples, '人' # --> [ 'latin', 'cjk' ]
@@ -534,11 +534,11 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "preserve insertion order" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 10, hi: 20, id: 'foo',  name: 'alpha', }
-  ISL.insert isl, { lo: 15, hi: 25, id: 'bar',  name: 'beta', }
-  ISL.insert isl, { lo: 15, hi: 25, id: '22',   name: '0', }
-  ISL.insert isl, { lo: 19, hi: 29, id: 'baz',  name: 'beta', }
-  ISL.insert isl, { lo: 39, hi: 49, id: 'gnu',  name: 'gamma', }
+  ISL.add isl, { lo: 10, hi: 20, id: 'foo',  name: 'alpha', }
+  ISL.add isl, { lo: 15, hi: 25, id: 'bar',  name: 'beta', }
+  ISL.add isl, { lo: 15, hi: 25, id: '22',   name: '0', }
+  ISL.add isl, { lo: 19, hi: 29, id: 'baz',  name: 'beta', }
+  ISL.add isl, { lo: 39, hi: 49, id: 'gnu',  name: 'gamma', }
   # info 'entry-by-ids: ', CND.rainbow isl[ 'entry-by-ids'  ]
   # info 'idx-by-names: ', CND.rainbow isl[ 'idx-by-names'  ]
   # info 'ids-by-names: ', CND.rainbow isl[ 'ids-by-names'  ]
@@ -558,33 +558,33 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "demo discontiguous ranges" ] = ( T ) ->
   u = ISL.new()
-  ISL.insert u, { lo:  0x4e00,  hi:  0x9fff,  name: 'cjk', id: 'u-cjk',         }
-  ISL.insert u, { lo:  0xff00,  hi:  0xffef,  name: 'cjk', id: 'u-halfull',     }
-  ISL.insert u, { lo:  0x3400,  hi:  0x4dbf,  name: 'cjk', id: 'u-cjk-xa',      }
-  ISL.insert u, { lo: 0x20000,  hi: 0x2a6df,  name: 'cjk', id: 'u-cjk-xb',      }
-  ISL.insert u, { lo: 0x2a700,  hi: 0x2b73f,  name: 'cjk', id: 'u-cjk-xc',      }
-  ISL.insert u, { lo: 0x2b740,  hi: 0x2b81f,  name: 'cjk', id: 'u-cjk-xd',      }
-  ISL.insert u, { lo: 0x2b820,  hi: 0x2ceaf,  name: 'cjk', id: 'u-cjk-xe',      }
-  ISL.insert u, { lo:  0xf900,  hi:  0xfaff,  name: 'cjk', id: 'u-cjk-cmpi1',   }
-  ISL.insert u, { lo: 0x2f800,  hi: 0x2fa1f,  name: 'cjk', id: 'u-cjk-cmpi2',   }
-  ISL.insert u, { lo:  0x2f00,  hi:  0x2fdf,  name: 'cjk', id: 'u-cjk-rad1',    }
-  ISL.insert u, { lo:  0x2e80,  hi:  0x2eff,  name: 'cjk', id: 'u-cjk-rad2',    }
-  ISL.insert u, { lo:  0x3000,  hi:  0x303f,  name: 'cjk', id: 'u-cjk-sym',     }
-  ISL.insert u, { lo:  0x31c0,  hi:  0x31ef,  name: 'cjk', id: 'u-cjk-strk',    }
-  ISL.insert u, { lo:  0x30a0,  hi:  0x30ff,  name: 'cjk', id: 'u-cjk-kata',    }
-  ISL.insert u, { lo:  0x3040,  hi:  0x309f,  name: 'cjk', id: 'u-cjk-hira',    }
-  ISL.insert u, { lo:  0xac00,  hi:  0xd7af,  name: 'cjk', id: 'u-hang-syl',    }
-  ISL.insert u, { lo:  0x3200,  hi:  0x32ff,  name: 'cjk', id: 'u-cjk-enclett', }
+  ISL.add u, { lo:  0x4e00,  hi:  0x9fff,  name: 'cjk', id: 'u-cjk',         }
+  ISL.add u, { lo:  0xff00,  hi:  0xffef,  name: 'cjk', id: 'u-halfull',     }
+  ISL.add u, { lo:  0x3400,  hi:  0x4dbf,  name: 'cjk', id: 'u-cjk-xa',      }
+  ISL.add u, { lo: 0x20000,  hi: 0x2a6df,  name: 'cjk', id: 'u-cjk-xb',      }
+  ISL.add u, { lo: 0x2a700,  hi: 0x2b73f,  name: 'cjk', id: 'u-cjk-xc',      }
+  ISL.add u, { lo: 0x2b740,  hi: 0x2b81f,  name: 'cjk', id: 'u-cjk-xd',      }
+  ISL.add u, { lo: 0x2b820,  hi: 0x2ceaf,  name: 'cjk', id: 'u-cjk-xe',      }
+  ISL.add u, { lo:  0xf900,  hi:  0xfaff,  name: 'cjk', id: 'u-cjk-cmpi1',   }
+  ISL.add u, { lo: 0x2f800,  hi: 0x2fa1f,  name: 'cjk', id: 'u-cjk-cmpi2',   }
+  ISL.add u, { lo:  0x2f00,  hi:  0x2fdf,  name: 'cjk', id: 'u-cjk-rad1',    }
+  ISL.add u, { lo:  0x2e80,  hi:  0x2eff,  name: 'cjk', id: 'u-cjk-rad2',    }
+  ISL.add u, { lo:  0x3000,  hi:  0x303f,  name: 'cjk', id: 'u-cjk-sym',     }
+  ISL.add u, { lo:  0x31c0,  hi:  0x31ef,  name: 'cjk', id: 'u-cjk-strk',    }
+  ISL.add u, { lo:  0x30a0,  hi:  0x30ff,  name: 'cjk', id: 'u-cjk-kata',    }
+  ISL.add u, { lo:  0x3040,  hi:  0x309f,  name: 'cjk', id: 'u-cjk-hira',    }
+  ISL.add u, { lo:  0xac00,  hi:  0xd7af,  name: 'cjk', id: 'u-hang-syl',    }
+  ISL.add u, { lo:  0x3200,  hi:  0x32ff,  name: 'cjk', id: 'u-cjk-enclett', }
   Array.from ''
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "unique names with priority conflict" ] = ( T ) ->
   isl = ISL.new()
-  ISL.insert isl, { lo: 15, hi: 20, id: 'alpha-0',  name: 'alpha',  }
-  ISL.insert isl, { lo: 15, hi: 25, id: 'beta-0',   name: 'beta',   }
-  ISL.insert isl, { lo: 15, hi: 25, id: 'omega-0',  name: 'omega',  }
-  ISL.insert isl, { lo: 15, hi: 49, id: 'gamma-0',  name: 'gamma',  }
-  ISL.insert isl, { lo: 15, hi: 29, id: 'beta-1',   name: 'beta',   }
+  ISL.add isl, { lo: 15, hi: 20, id: 'alpha-0',  name: 'alpha',  }
+  ISL.add isl, { lo: 15, hi: 25, id: 'beta-0',   name: 'beta',   }
+  ISL.add isl, { lo: 15, hi: 25, id: 'omega-0',  name: 'omega',  }
+  ISL.add isl, { lo: 15, hi: 49, id: 'gamma-0',  name: 'gamma',  }
+  ISL.add isl, { lo: 15, hi: 29, id: 'beta-1',   name: 'beta',   }
   show isl
   # debug '3928', JSON.stringify ISL.find_ids   isl, 15
   # debug '3928', JSON.stringify ISL.find_names isl, 15
@@ -600,16 +600,16 @@ show = ( me ) ->
 @[ "tag 1" ] = ( T ) ->
   u = ISL.new()
   #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.add u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
   for n in [ 0 .. 8 ] by +2
     digit_0 = "#{n}"
     digit_1 = "#{n + 1}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
-    ISL.insert u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
-  ISL.insert u, { lo: '2', hi: '2', tag: [ 'prime', ], }
-  ISL.insert u, { lo: '3', hi: '3', tag: [ 'prime', ], }
-  ISL.insert u, { lo: '5', hi: '5', tag: [ 'prime', ], }
-  ISL.insert u, { lo: '7', hi: '7', tag: [ 'prime', ], }
+    ISL.add u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
+    ISL.add u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
+  ISL.add u, { lo: '2', hi: '2', tag: [ 'prime', ], }
+  ISL.add u, { lo: '3', hi: '3', tag: [ 'prime', ], }
+  ISL.add u, { lo: '5', hi: '5', tag: [ 'prime', ], }
+  ISL.add u, { lo: '7', hi: '7', tag: [ 'prime', ], }
   #.........................................................................................................
   for n in [ 0 .. 9 ]
     digit = "#{n}"
@@ -626,16 +626,16 @@ show = ( me ) ->
 @[ "tag 2" ] = ( T ) ->
   u = ISL.new()
   #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.add u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
   for n in [ 0 .. 8 ] by +2
     digit_0 = "#{n}"
     digit_1 = "#{n + 1}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
-    ISL.insert u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
-  ISL.insert u, { lo: '2', hi: '2', tag: 'prime', }
-  ISL.insert u, { lo: '3', hi: '3', tag: 'prime', }
-  ISL.insert u, { lo: '5', hi: '5', tag: 'prime', }
-  ISL.insert u, { lo: '7', hi: '7', tag: 'prime', }
+    ISL.add u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
+    ISL.add u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
+  ISL.add u, { lo: '2', hi: '2', tag: 'prime', }
+  ISL.add u, { lo: '3', hi: '3', tag: 'prime', }
+  ISL.add u, { lo: '5', hi: '5', tag: 'prime', }
+  ISL.add u, { lo: '7', hi: '7', tag: 'prime', }
   #.........................................................................................................
   T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   #.........................................................................................................
@@ -658,11 +658,11 @@ show = ( me ) ->
   #.........................................................................................................
   u = ISL.new()
   #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
-  ISL.insert u, { lo: '0', hi: '9', tag: [ 'digit', 'even', ], }
+  ISL.add u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.add u, { lo: '0', hi: '9', tag: [ 'digit', 'even', ], }
   for n in [ 1 .. 9 ] by +2
     digit_0 = "#{n}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ '-even', 'odd', ], }
+    ISL.add u, { lo: digit_0, hi: digit_0, tag: [ '-even', 'odd', ], }
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
     result = ISL.aggregate u, probe, { name: 'skip', }
@@ -688,11 +688,11 @@ show = ( me ) ->
   #.........................................................................................................
   u = ISL.new()
   #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
-  ISL.insert u, { lo: '0', hi: '9', tag: 'digit even', }
+  ISL.add u, { lo: 0x00, hi: 0x7f, name: 'ascii', }
+  ISL.add u, { lo: '0', hi: '9', tag: 'digit even', }
   for n in [ 1 .. 9 ] by +2
     digit_0 = "#{n}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: '-even odd', }
+    ISL.add u, { lo: digit_0, hi: digit_0, tag: '-even odd', }
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
     result = ISL.aggregate u, probe, { name: 'skip', }
@@ -705,17 +705,17 @@ show = ( me ) ->
 @[ "tag 3" ] = ( T ) ->
   u = ISL.new()
   #.........................................................................................................
-  ISL.insert u, { lo: 0x00, hi: 0x7f, tag:  'ascii', }
-  ISL.insert u, { lo: 0x00, hi: 0x7f, name: 'ascii-duplicate', }
+  ISL.add u, { lo: 0x00, hi: 0x7f, tag:  'ascii', }
+  ISL.add u, { lo: 0x00, hi: 0x7f, name: 'ascii-duplicate', }
   for n in [ 0 .. 8 ] by +2
     digit_0 = "#{n}"
     digit_1 = "#{n + 1}"
-    ISL.insert u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
-    ISL.insert u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
-  ISL.insert u, { lo: '2', hi: '2', tag: 'prime', }
-  ISL.insert u, { lo: '3', hi: '3', tag: 'prime', }
-  ISL.insert u, { lo: '5', hi: '5', tag: 'prime', }
-  ISL.insert u, { lo: '7', hi: '7', tag: 'prime', }
+    ISL.add u, { lo: digit_0, hi: digit_0, tag: [ 'ascii', 'digit', 'even', ], }
+    ISL.add u, { lo: digit_1, hi: digit_1, tag: [ 'ascii', 'digit', 'odd',  ], }
+  ISL.add u, { lo: '2', hi: '2', tag: 'prime', }
+  ISL.add u, { lo: '3', hi: '3', tag: 'prime', }
+  ISL.add u, { lo: '5', hi: '5', tag: 'prime', }
+  ISL.add u, { lo: '7', hi: '7', tag: 'prime', }
   #.........................................................................................................
   T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   # debug '5531-6', s ISL.find_tags_with_all_points u, [ '3', '7', '2', ]
@@ -745,7 +745,7 @@ show = ( me ) ->
     interval[ type    ] = name                if name?
     interval[ 'rsg'   ] = rsg                 if rsg?
     interval[ 'tag'   ] = tag.split /[\s,]+/  if tag?
-    ISL.insert isl, interval
+    ISL.add isl, interval
     #.......................................................................................................
     return null
   #.........................................................................................................
@@ -894,7 +894,7 @@ show = ( me ) ->
       R     = []
       base  = { lo: Number.MIN_VALUE, hi: Number.MAX_VALUE, }
       isl   = @new()
-      ISL.insert isl, base
+      ISL.add isl, base
       if intervals.length is 0
         R.push base
       else
@@ -921,14 +921,14 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "infinity is a valid number" ] = ( T ) ->
   r = ISL.new()
-  ISL.insert r, lo: -Infinity, hi: +Infinity, tag: 'all'
-  ISL.insert r, lo:      -1e6, hi:      +1e6, tag: 'finite'
-  ISL.insert r, lo:      -1e5, hi:      +1e5, tag: 'truly-huge'
-  ISL.insert r, lo:      -1e4, hi:      +1e4, tag: 'huge'
-  ISL.insert r, lo:      -1e3, hi:      +1e3, tag: 'big'
-  ISL.insert r, lo:      -1e2, hi:      +1e2, tag: 'sizable'
-  ISL.insert r, lo:      -1e1, hi:      +1e1, tag: 'small'
-  ISL.insert r, lo:      -1e0, hi:      +1e0, tag: 'tiny'
+  ISL.add r, lo: -Infinity, hi: +Infinity, tag: 'all'
+  ISL.add r, lo:      -1e6, hi:      +1e6, tag: 'finite'
+  ISL.add r, lo:      -1e5, hi:      +1e5, tag: 'truly-huge'
+  ISL.add r, lo:      -1e4, hi:      +1e4, tag: 'huge'
+  ISL.add r, lo:      -1e3, hi:      +1e3, tag: 'big'
+  ISL.add r, lo:      -1e2, hi:      +1e2, tag: 'sizable'
+  ISL.add r, lo:      -1e1, hi:      +1e1, tag: 'small'
+  ISL.add r, lo:      -1e0, hi:      +1e0, tag: 'tiny'
   # debug s ( ISL.aggregate r,        1, { name: 'skip', } )
   # debug s ( ISL.aggregate r,       10, { name: 'skip', } )
   # debug s ( ISL.aggregate r,      100, { name: 'skip', } )
@@ -993,10 +993,10 @@ unless module.parent?
   #   console.timeEnd 'A'
   #   console.time 'B'
   #   u             = ISL.new()
-  #   ISL.insert u, { lo: 0x0, hi: 0x10ffff, tag: 'unassigned', }
+  #   ISL.add u, { lo: 0x0, hi: 0x10ffff, tag: 'unassigned', }
   #   for cp_interval in cp_intervals
   #     { lo, hi, } = cp_interval
-  #     ISL.insert u, { lo, hi, tag: '-unassigned assigned', }
+  #     ISL.add u, { lo, hi, tag: '-unassigned assigned', }
   #   console.timeEnd 'B'
   #   for cid in [ 885 .. 915 ]
   #     chr   = String.fromCodePoint cid
@@ -1006,7 +1006,7 @@ unless module.parent?
   # demo_unassigned_unicode_codepoints()
 
   # isl = ISL.new()
-  # ISL.insert isl, { lo: 27, hi: 54, }
+  # ISL.add isl, { lo: 27, hi: 54, }
   # debug isl
   # exclude = ( Object.keys isl[ '%self' ] )
   # exclude.push 'inspect'

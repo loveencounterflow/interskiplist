@@ -48,7 +48,7 @@ minus_aleph = Symbol.for '-א'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@insert = ( me, entry ) ->
+@add = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
   { lo, hi, id, name, } = entry

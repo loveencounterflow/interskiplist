@@ -29,7 +29,7 @@ Install as `npm install --save interskiplist`.
   - [@aggregate = ( me, points, reducers ) ->](#aggregate---me-points-reducers---)
   - [@entries_of = ( me, ids = null ) ->](#entries_of---me-ids--null---)
   - [@entry_of = ( me, id ) ->](#entry_of---me-id---)
-  - [@insert = ( me, entry ) ->](#insert---me-entry---)
+  - [@add = ( me, entry ) ->](#add---me-entry---)
   - [@interval_of  = ( me, id ) ->](#interval_of----me-id---)
   - [@intervals_from_points = ( me, points, mixins... ) ->](#intervals_from_points---me-points-mixins---)
   - [@intervals_of = ( me, ids = null ) ->](#intervals_of---me-ids--null---)
@@ -137,9 +137,9 @@ Let's have a look at how to rewrite the gist of the above CSS rules in CoffeeScr
 sample = ISL.new()
 
 # Insert 3 contiguous intervals; we'll use the `name`s momentarily:
-ISL.insert sample, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
-ISL.insert sample, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
-ISL.insert sample, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
+ISL.add sample, { lo: 0x0000, hi: 0x10ffff, name: 'base',      font_family: 'Arial',        }
+ISL.add sample, { lo: 0x4e00, hi:   0x9fff, name: 'cjk',       font_family: 'Sun-ExtA',     }
+ISL.add sample, { lo:   0x26, hi:     0x26, name: 'ampersand', font_family: 'Baskerville',  }
 ```
 
 We have named the intervals with terms that suggest their scope.
@@ -183,10 +183,10 @@ ISL.find_names samples, '人' # --> [ 'base', 'cjk', ]
 ```
 
 The results returned by the `find` methods will always keep the order in which intervals were added to the
-interval skip list structure (insertion order); this is important for consistent results and for rule
-application. Because insertion order is preserved, we can be confident that for each of the codepoints
+interval skip list structure (addion order); this is important for consistent results and for rule
+application. Because addion order is preserved, we can be confident that for each of the codepoints
 queried, the 'most applicable' `name` property will always come *last* in the results—provided you ordered
-interval insertions from the general to the specific.
+interval addions from the general to the specific.
 
 > **Note** For a while I considered to order results primarily by interval size, larger intervals coming
 > first and single-point intervals coming last (and thereby overriding larger intervals). However logical
@@ -197,14 +197,14 @@ interval insertions from the general to the specific.
 > Then, when quering for `A`, should `x` win over `y` because it has fewer codepoints (1 as opposed to 2)
 > *locally*? Or should `y` win because it has fewer codepoints (9 as compared to 10) *globally*?
 
-> **Note** that specifically with names, 'keeping insertion order' entails that methods like `find_names`
+> **Note** that specifically with names, 'keeping addion order' entails that methods like `find_names`
 > will return lists of unique names each of which appears in the latest (strongest) position. This means
 > that lists of names as returned by the API may be shorter than corresponding lists of IDs, intervals, or
 > entries, and that it suffices to look at the last ID, name or entry to find the piece of data with the
 > highest applicability.
 
-Let's look at 'entries'—those are the JS objects we passed in for each interval; upon insertion, they'll
-be amended with a few essential attributes (an ID, an insertion order index, and the size of the interval):
+Let's look at 'entries'—those are the JS objects we passed in for each interval; upon addion, they'll
+be amended with a few essential attributes (an ID, an addion order index, and the size of the interval):
 
 ```coffee
 base_entry =
@@ -252,9 +252,9 @@ The above demonstrates the basic functionality of `aggregate`:
 * it finds applicable entries by executing `find_entries_with_all_points`—that means you can pass in one or
   any number of points, and the returned structure will give you a lowest-common-denominator description.
 
-* it then iterates over the key/value pairs of all entries found, in insertion order, skipping the keys
+* it then iterates over the key/value pairs of all entries found, in addion order, skipping the keys
   `idx`, `id`, `lo`, `hi` and `size` (unless told otherwise), and assigns the values to the result (again
-  unless told otherwise); since assignment is done in interval insertion order, attributes of later entries
+  unless told otherwise); since assignment is done in interval addion order, attributes of later entries
   will replace attributes of earlier entries. This is essentially how CSS works (otherwise equivalent rules that come later in the stylesheet win over earlier
   ones), and it is also how `Object.assign` works (for which reason it is dubbed 'assign' mode).
 
@@ -297,7 +297,7 @@ Contiguous intervals are great because they are simple: Save for the metadata, a
 described by giving its lower and its upper bound, period. In real life, however, discontinuous ranges are
 common. In Unicode, for example, CJK characters are split over no less than around 20 blocks (where a
 Unicode 'block', in turn, *is* a contiguous interval of codepoints); accordingly, to add the information to
-indicate 'this is a CJK codepoint', we have to insert around 20 intervals to the skip list.
+indicate 'this is a CJK codepoint', we have to add around 20 intervals to the skip list.
 
 InterSkipList enables discontinuous ranges by way of the `name` attribute. It is quite simple: each interval
 must have its own unique ID, but a name can be used for any number of intervals.
@@ -308,22 +308,22 @@ descriptive name to each interval:
 ```coffee
 #...........................................................................................................
 ascii = ISL.new()
-ISL.insert ascii, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
-ISL.insert ascii, { lo: 'a', hi: 'z', name: 'letter', }
-ISL.insert ascii, { lo: 'A', hi: 'Z', name: 'letter', }
-ISL.insert ascii, { lo: 'a', hi: 'z', name: 'lower', }
-ISL.insert ascii, { lo: 'A', hi: 'Z', name: 'upper', }
+ISL.add ascii, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
+ISL.add ascii, { lo: 'a', hi: 'z', name: 'letter', }
+ISL.add ascii, { lo: 'A', hi: 'Z', name: 'letter', }
+ISL.add ascii, { lo: 'a', hi: 'z', name: 'lower', }
+ISL.add ascii, { lo: 'A', hi: 'Z', name: 'upper', }
 #...........................................................................................................
 for chr in 'aeiouAEIOU'
-  ISL.insert ascii, { lo: chr, hi: chr, name: 'vowel', }
+  ISL.add ascii, { lo: chr, hi: chr, name: 'vowel', }
 #...........................................................................................................
 consonants = Array.from 'bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ'
 for interval in ISL.intervals_from_points ascii, consonants, { name: 'consonant', }
-  ISL.insert ascii, interval
+  ISL.add ascii, interval
 #...........................................................................................................
 digits = Array.from '0123456789'
 for interval in ISL.intervals_from_points ascii, digits, { name: 'digit', }
-  ISL.insert ascii, interval
+  ISL.add ascii, interval
 ```
 
 The result of our efforts diagrammed:
@@ -375,7 +375,6 @@ The following keys of entries are treated specially by InterSkipList:
 
 (to be written; some key points:)
 
-* when inserting an interval, key `tag` is special
 * it can be a single string or a list of strings. All strings will be split by whitespace, so `'foo bar
   baz'` is equivalent to `[ 'foo', 'bar baz', ]` and `[ 'foo', 'bar', 'baz', ]`;
 * each defines a 'mon-valued' attribute: 'false' where absent, 'true' where present
@@ -394,7 +393,7 @@ The following keys of entries are treated specially by InterSkipList:
 ## @aggregate = ( me, points, reducers ) ->
 ## @entries_of = ( me, ids = null ) ->
 ## @entry_of = ( me, id ) ->
-## @insert = ( me, entry ) ->
+## @add = ( me, entry ) ->
 ## @interval_of  = ( me, id ) ->
 ## @intervals_from_points = ( me, points, mixins... ) ->
 ## @intervals_of = ( me, ids = null ) ->
