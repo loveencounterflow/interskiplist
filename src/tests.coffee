@@ -860,7 +860,6 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
-
 #-----------------------------------------------------------------------------------------------------------
 @[ "complements" ] = ( T ) ->
   ###
@@ -933,6 +932,38 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "infinity is a valid number" ] = ( T ) ->
+  r = ISL.new()
+  ISL.insert r, lo: -Infinity, hi: +Infinity, tag: 'all'
+  ISL.insert r, lo:      -1e6, hi:      +1e6, tag: 'finite'
+  ISL.insert r, lo:      -1e5, hi:      +1e5, tag: 'truly-huge'
+  ISL.insert r, lo:      -1e4, hi:      +1e4, tag: 'huge'
+  ISL.insert r, lo:      -1e3, hi:      +1e3, tag: 'big'
+  ISL.insert r, lo:      -1e2, hi:      +1e2, tag: 'sizable'
+  ISL.insert r, lo:      -1e1, hi:      +1e1, tag: 'small'
+  ISL.insert r, lo:      -1e0, hi:      +1e0, tag: 'tiny'
+  # debug s ( ISL.aggregate r,        1, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,       10, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,      100, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,     1000, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,    10000, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,   100000, { name: 'skip', } )
+  # debug s ( ISL.aggregate r,  1000000, { name: 'skip', } )
+  # debug s ( ISL.aggregate r, Infinity, { name: 'skip', } )
+  T.eq ( ISL.aggregate r,        1, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small","tiny"]}
+  T.eq ( ISL.aggregate r,       10, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small"]}
+  T.eq ( ISL.aggregate r,      100, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable"]}
+  T.eq ( ISL.aggregate r,     1000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big"]}
+  T.eq ( ISL.aggregate r,    10000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge"]}
+  T.eq ( ISL.aggregate r,   100000, { name: 'skip', } ), {"tag":["all","finite","truly-huge"]}
+  T.eq ( ISL.aggregate r,  1000000, { name: 'skip', } ), {"tag":["all","finite"]}
+  ### This is a glitch: interval boundaries should be inclusive, but apparentl<y `Infinity` is not
+  within the boundaries of the interval with `hi: +Infinity`: ###
+  T.eq ( ISL.aggregate r, Infinity, { name: 'skip', } ), {}
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -960,6 +991,7 @@ unless module.parent?
     "tag 3"
     "configurable reducers, negative tags"
     "complements"
+    "infinity is a valid number"
   ]
   @_prune()
   @_main()

@@ -12,11 +12,23 @@ warn                      = CND.get_logger 'warn',      badge
 help                      = CND.get_logger 'help',      badge
 urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
+plus_aleph  = Symbol.for '+א'
+minus_aleph = Symbol.for '-א'
 
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
-  substrate           = new ( require 'interval-skip-list' )()
+  isl_settings =
+    minIndex: minus_aleph
+    maxIndex: plus_aleph
+    compare:  ( a, b ) ->
+      return  0 if a is b and ( a is plus_aleph or a is minus_aleph )
+      return +1 if ( a is plus_aleph ) or ( b is minus_aleph )
+      return -1 if ( a is minus_aleph ) or ( b is plus_aleph )
+      return +1 if a > b
+      return -1 if a < b
+      return  0
+  substrate           = new ( require 'interval-skip-list' ) isl_settings
   substrate.toString  = substrate.inspect = -> "{ interval-skip-list }"
   R =
     '~isa':           'CND/interskiplist'
