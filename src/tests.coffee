@@ -41,12 +41,12 @@ find_ids_text = ( me, P... ) ->
   R.sort()
   return R.join ','
 
-#-----------------------------------------------------------------------------------------------------------
-find_names_text = ( me, points ) ->
-  # debug '8322', ISL._find_ids_with_all_points me, points
-  R = ISL.match_common me, points, pick: 'name'
-  R.sort()
-  return R.join ','
+# #-----------------------------------------------------------------------------------------------------------
+# find_names_text = ( me, points ) ->
+#   # debug '8322', ISL._find_ids_with_all_points me, points
+#   R = ISL.match_common me, points, pick: 'name'
+#   R.sort()
+#   return R.join ','
 
 #-----------------------------------------------------------------------------------------------------------
 list = ( me ) ->
@@ -264,6 +264,7 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "characters as points 3" ] = ( T ) ->
+  throw new Error "not implemented"
   isl = ISL.new()
   ISL.add isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
   ISL.add isl, { lo: 'a', hi: 'z', name: 'letter', }
@@ -525,7 +526,7 @@ show = ( me ) ->
   T.eq ( ISL.match isl, 15, pick: 'id'   ), ["alpha-0","beta-0","omega-0","gamma-0","beta-1"]
   T.eq ( ISL.match isl, 15, pick: 'name' ), ["alpha","omega","gamma","beta"]
   # T.eq ( ISL.match_common isl, [ 15, 16, 30, ], pick: 'name' ), ["gamma"]
-  T.eq ( ISL.match_common isl, [ 15, 16, 30, ], pick: 'name' ), ["alpha","omega","beta","gamma"]
+  # T.eq ( ISL.match_common isl, [ 15, 16, 30, ], pick: 'name' ), ["alpha","omega","beta","gamma"]
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -924,17 +925,50 @@ show = ( me ) ->
 @dump_api = ( T ) ->
   debug ( Object.keys ISL ).sort()
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v3) copy" ] = ( T ) ->
+  original = ISL.new reducers: name: 'list', tag: ( ids_and_values ) -> return '*'
+  ISL.add original, { lo: 0x00, hi: 0x7f, name: 'basic-latin', tag: 'basic-latin',   }
+  ISL.add original, { lo: 'a',  hi: 'z',  name: 'letter',      tag: 'letter',        }
+  ISL.add original, { lo: 'A',  hi: 'Z',  name: 'letter',      tag: 'letter',        }
+  ISL.add original, { lo: 'a',  hi: 'z',  name: 'lower',       tag: 'lower',         }
+  ISL.add original, { lo: 'A',  hi: 'Z',  name: 'upper',       tag: 'upper',         }
+  #.........................................................................................................
+  copy = ISL.copy original
+  delete original[ '%self' ]
+  delete copy[     '%self' ]
+  # debug '9285', original
+  # urge  '9285', copy
+  #.........................................................................................................
+  for key in [ 'entry-by-ids', 'idx-by-names', 'ids-by-names', 'name-by-ids', 'idx-by-ids', 'ids', ]
+    T.eq original[ key ], copy[ key ]
+    T.ok original[ key ] isnt copy[ key ]
+  #.........................................................................................................
+  for key in [ 'idx', 'min', 'max', 'fmin', 'fmax', ]
+    T.ok original[ key ] is copy[ key ]
+  #.........................................................................................................
+  if original[ 'reducers' ]?
+    for key, original_value of original[ 'reducers' ]
+      if CND.isa_function original_value
+        T.ok original_value is copy[ 'reducers' ][ key ]
+      else
+        T.eq original_value, copy[ 'reducers' ][ key ]
+  else
+    T.eq original[ 'reducers' ], copy[ 'reducers' ]
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
   include = [
+    # "characters as points 3"
     "test interval tree 1"
     "test interval tree 2"
     "test interval tree 3"
     "aggregation 1"
     "aggregation 2"
     "characters as points 1"
-    "characters as points 3"
     "intervals_from_points"
     "readme example 1"
     "readme example 2"
@@ -951,38 +985,11 @@ unless module.parent?
     "infinity is a valid number"
     "(v3) match, intersect"
     # "dump_api"
+    "(v3) copy"
   ]
   @_prune()
   @_main()
 
   # @[ "(v3) match, intersect" ]()
-
-
-  # demo_unassigned_unicode_codepoints = ->
-  #   console.time 'A'
-  #   ucps          = require '../../scratch/interskiplist/lib/unicode-9.0.0-codepoints.js'
-  #   cp_intervals  = ISL.intervals_from_points null, ucps.codepoints, ucps.ranges...
-  #   console.timeEnd 'A'
-  #   console.time 'B'
-  #   u             = ISL.new()
-  #   ISL.add u, { lo: 0x0, hi: 0x10ffff, tag: 'unassigned', }
-  #   for cp_interval in cp_intervals
-  #     { lo, hi, } = cp_interval
-  #     ISL.add u, { lo, hi, tag: '-unassigned assigned', }
-  #   console.timeEnd 'B'
-  #   for cid in [ 885 .. 915 ]
-  #     chr   = String.fromCodePoint cid
-  #     tags  = ( ISL.aggregate u, cid )[ 'tag' ].join ' '
-  #     debug ( hex cid ), chr, ( CND.truth cid in ucps.codepoints ), tags
-  #   help ISL.aggregate u, 'a'
-  # demo_unassigned_unicode_codepoints()
-
-  # isl = ISL.new()
-  # ISL.add isl, { lo: 27, hi: 54, }
-  # debug isl
-  # exclude = ( Object.keys isl[ '%self' ] )
-  # exclude.push 'inspect'
-  # exclude.push 'toString'
-  # help key for key in ( key for key of isl[ '%self' ] when key not in exclude ).sort()
 
 

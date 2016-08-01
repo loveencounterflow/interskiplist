@@ -29,8 +29,10 @@ minus_aleph               = Symbol.for '-א'
       return +1 if a > b
       return -1 if a < b
       return  0
+  #.........................................................................................................
   substrate           = new ( require 'interval-skip-list' ) isl_settings
   substrate.toString  = substrate.inspect = -> "{ interval-skip-list }"
+  #.........................................................................................................
   R =
     '~isa':           'CND/interskiplist'
     '%self':          substrate
@@ -46,6 +48,15 @@ minus_aleph               = Symbol.for '-א'
     'fmin':           null
     'fmax':           null
     'reducers':       settings?[ 'reducers' ] ? null
+  #.........................................................................................................
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@copy = ( me ) ->
+  settings  = { reducers: deepcopy_reducers me }
+  R         = @new settings
+  for entry in @entries_of me
+    @add R, deepcopy_entry null, entry
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -175,20 +186,20 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
   return R
 
-#-----------------------------------------------------------------------------------------------------------
-@match_common = ( me, points, settings ) ->
-  throw new Error "expected 3 arguments, got #{arity}" unless ( arity = arguments.length ) is 3
-  throw new Error "expected a POD, got a #{CND.type_of settings}" unless CND.isa_pod settings
-  { pick }  = settings
-  throw new Error "expected setting 'pick', got none" unless pick?
-  points = normalize_points points
-  return [] if points.length is 0
-  R = []
-  s = { pick, }
-  for point in points
-    append R, @match me, point, s
-  return reduce_tag R if pick is 'tag'
-  return fuse R
+# #-----------------------------------------------------------------------------------------------------------
+# @match_common = ( me, points, settings ) ->
+#   throw new Error "expected 3 arguments, got #{arity}" unless ( arity = arguments.length ) is 3
+#   throw new Error "expected a POD, got a #{CND.type_of settings}" unless CND.isa_pod settings
+#   { pick }  = settings
+#   throw new Error "expected setting 'pick', got none" unless pick?
+#   points = normalize_points points
+#   return [] if points.length is 0
+#   R = []
+#   s = { pick, }
+#   for point in points
+#     append R, @match me, point, s
+#   return reduce_tag R if pick is 'tag'
+#   return fuse R
 
 #===========================================================================================================
 # AGGREGATION
@@ -271,6 +282,17 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #===========================================================================================================
 # HELPERS
+#-----------------------------------------------------------------------------------------------------------
+deepcopy_entry = ( me, entry ) -> JSON.parse JSON.stringify entry
+
+#-----------------------------------------------------------------------------------------------------------
+deepcopy_reducers = ( me ) ->
+  return null unless ( reducers = me[ 'reducers' ] )?
+  R = JSON.parse JSON.stringify reducers
+  for key, value of reducers
+    R[ key ] = value if CND.isa_function value
+  return R
+
 #-----------------------------------------------------------------------------------------------------------
 sort_entries_by_insertion_order = ( me, entries ) ->
   entries.sort ( a, b ) ->
