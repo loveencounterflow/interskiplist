@@ -245,7 +245,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   for entry in entries
     for key, value of entry
       continue if key in exclude
-      reducer = ( reducer = reducers[ key ] ) ? reducer_fallback
+      reducer = reducers[ key ] ? reducer_fallback
       #.....................................................................................................
       switch reducer
         when 'skip'     then continue
@@ -355,6 +355,7 @@ unique = ( list ) ->
 #-----------------------------------------------------------------------------------------------------------
 append = ( a, b ) ->
   ### Append elements of list `b` to list `a` ###
+  ### TAINT JS has `[]::concat` ###
   a.splice a.length, 0, b...
   return a
 
