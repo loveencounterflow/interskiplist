@@ -205,6 +205,9 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
 @aggregate = ( me, points_or_entries, reducers = {} ) ->
+  ### TAINT The functionality of this method has since been re-implemented in a more generic fashion
+  by the MULTIMIX `mix` method; accordingly, `aggregate` should use that facility (and maybe be renamed
+  to `mix` itself). ###
   if reducers? and not CND.isa_pod reducers
     throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
   ### Separate points from entries, splice them together with those points found for the points, and sort
@@ -223,7 +226,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   R                 = {}
   cache             = {}
   averages          = {}
-  # common            = {}
   reducers          = Object.assign {}, reducers, me[ 'reducers' ] ? {}
   tag_keys          = ( key for key, value of reducers when value is 'tag' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
@@ -270,9 +272,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   ### averages ###
   for key, [ sum, count, ] of averages
     R[ key ] = sum / count
-  #.........................................................................................................
-  # for key, values of common
-  #   R[ key ] = values[ 0 ] if ( values.length is 1 ) or CND.equals values...
   #.........................................................................................................
   ### functions ###
   for key, ids_and_values of cache
