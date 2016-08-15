@@ -230,11 +230,14 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   tag_keys          = ( key for key, value of reducers when value is 'tag' )
   exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
   reducer_fallback  = reducers[ '*' ] ? 'assign'
+  reducer_include   = reducer_fallback
+  reducer_include   = 'assign' if reducer_include is 'skip'
   functions         = {}
+  # info '©56182', 'reducers ', reducers
   #.........................................................................................................
   for key, reducer of reducers
     if reducer is 'include'
-      reducers[ key ] = reducer_fallback
+      reducers[ key ] = reducer_include
       continue
     if CND.isa_function reducer
       functions[ key ]  = reducer
@@ -243,6 +246,9 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   unless ( 'tag' in exclude ) or ( 'tag' of reducers )
     tag_keys.push 'tag'
     reducers[ 'tag' ] = 'tag'
+  # debug '©56182', 'exclude  ', exclude
+  # debug '©56182', 'tag_keys ', tag_keys
+  # debug '©56182', 'reducers ', reducers
   #.........................................................................................................
   for entry in entries
     for key, value of entry

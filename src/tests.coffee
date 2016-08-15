@@ -730,8 +730,8 @@ show = ( me ) ->
     #.......................................................................................................
     [ 'block', 'Bopomofo',                                'u-bopo',            0x3100,    0x312f, 'cjk bopomofo', ]
     [ 'block', 'Bopomofo Extended',                       'u-bopo-x',          0x31a0,    0x31bf, 'cjk bopomofo', ]
-    #.......................................................................................................
     [ 'block', 'CJK Compatibility Forms',                 'u-cjk-cmpf',        0xfe30,    0xfe4f, 'cjk vertical', ]
+    #.......................................................................................................
     [ 'codepoints',                                                            0xfe45,    0xfe46, '-vertical', ]
     [ 'codepoints',                                                            0xfe49,    0xfe4f, '-vertical', ]
     [ 'block', 'Vertical Forms',                          'u-vertf',           0xfe10,    0xfe1f, 'cjk vertical', ]
@@ -959,6 +959,32 @@ show = ( me ) ->
   return null
 
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v2) 53846537846" ] = ( T ) ->
+  u = ISL.new()
+  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  probes_and_matchers = [
+    [ 'q', { rsg: 'u-latn', tag: [ 'assigned' ],                       }, ]
+    [ '里', { rsg: 'u-cjk', tag: [ 'assigned', 'cjk', 'ideograph' ],    }, ]
+    [ '䊷', { rsg: 'u-cjk-xa', tag: [ 'assigned', 'cjk', 'ideograph' ], }, ]
+    ]
+  reducers  = { '*': 'skip', 'tag': 'tag', 'rsg': 'assign', }
+  for [ probe, matcher, ] in probes_and_matchers
+    result_A = ISL.aggregate u, probe
+    result_B = ISL.aggregate u, probe, reducers
+    # help '©48966', probe, JSON.stringify result_A
+    # urge '©48966', probe, JSON.stringify result_B
+    T.eq result_A[ 'rsg' ], result_B[ 'rsg' ]
+    T.eq result_A[ 'tag' ], result_B[ 'tag' ]
+    T.eq result_B, matcher
+  #.........................................................................................................
+  return null
+
+
 ############################################################################################################
 unless module.parent?
   include = [
@@ -986,6 +1012,7 @@ unless module.parent?
     "(v3) match, intersect"
     # "dump_api"
     "(v3) copy"
+    "(v2) 53846537846"
   ]
   @_prune()
   @_main()
