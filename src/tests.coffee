@@ -935,8 +935,6 @@ show = ( me ) ->
   ISL.add original, { lo: 'A',  hi: 'Z',  name: 'upper',       tag: 'upper',         }
   #.........................................................................................................
   copy = ISL.copy original
-  delete original[ '%self' ]
-  delete copy[     '%self' ]
   # debug '9285', original
   # urge  '9285', copy
   #.........................................................................................................
@@ -986,15 +984,6 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) query for fact" ] = ( T ) ->
-  ISL.find_ids = ( me, name, value ) ->
-    throw new Error "XXXXXXXXXXXXXXXXX" unless ( index = me[ 'indexes' ]?[ name ] )?
-    return [] unless ( R = index[ value ] )?
-    return Object.assign [], R
-  #.........................................................................................................
-  ISL.find_entries = ( me, name, value ) ->
-    R         = @find_ids me, name, value
-    R[ idx ]  = me[ 'entry-by-ids' ][ id ] for id, idx in R
-    return R
   #.........................................................................................................
   u = ISL.new()
   ISL.add_index u, 'rsg'
