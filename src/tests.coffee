@@ -1014,6 +1014,40 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v2) query for fact works with copied ISL" ] = ( T ) ->
+  #.........................................................................................................
+  u_1 = ISL.new()
+  ISL.add_index u_1, 'rsg'
+  ISL.add_index u_1, 'tag'
+  ISL.add u_1, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }    # 0
+  ISL.add u_1, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }     # 1
+  ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }              # 2
+  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }  # 3
+  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }              # 4
+  #.........................................................................................................
+  u_2 = ISL.copy u_1
+  #.........................................................................................................
+  # urge ISL.find_ids u_2, 'tag', 'cjk'
+  # urge ISL.find_ids u_2, 'tag', 'assigned'
+  # urge ISL.find_ids u_2, 'tag', 'foobar'
+  # urge ISL.find_ids u_2, 'rsg', 'u-latn'
+  # urge JSON.stringify ISL.find_entries u_2, 'tag', 'cjk'
+  # urge JSON.stringify ISL.find_entries u_2, 'tag', 'assigned'
+  # urge JSON.stringify ISL.find_entries u_2, 'tag', 'foobar'
+  # urge JSON.stringify ISL.find_entries u_2, 'rsg', 'u-latn'
+  #.........................................................................................................
+  T.eq ( ISL.find_ids u_2, 'tag', 'cjk'           ), [ '+[2]', '+[4]' ]
+  T.eq ( ISL.find_ids u_2, 'tag', 'assigned'      ), [ '+[0]', '+[1]', '+[3]' ]
+  T.eq ( ISL.find_ids u_2, 'tag', 'foobar'        ), []
+  T.eq ( ISL.find_ids u_2, 'rsg', 'u-latn'        ), [ '+[0]' ]
+  T.eq ( ISL.find_entries u_2, 'tag', 'cjk'       ), [{"lo":37324,"hi":37324,"tag":["cjk","ideograph"],"idx":2,"id":"+[2]","name":"+","size":1},{"lo":17079,"hi":17079,"tag":["cjk","ideograph"],"idx":4,"id":"+[4]","name":"+","size":1}]
+  T.eq ( ISL.find_entries u_2, 'tag', 'assigned'  ), [{"lo":113,"hi":113,"tag":["assigned"],"rsg":"u-latn","idx":0,"id":"+[0]","name":"+","size":1},{"lo":37324,"hi":37324,"tag":["assigned"],"rsg":"u-cjk","idx":1,"id":"+[1]","name":"+","size":1},{"lo":17079,"hi":17079,"tag":["assigned"],"rsg":"u-cjk-xa","idx":3,"id":"+[3]","name":"+","size":1}]
+  T.eq ( ISL.find_entries u_2, 'tag', 'foobar'    ), []
+  T.eq ( ISL.find_entries u_2, 'rsg', 'u-latn'    ), [{"lo":113,"hi":113,"tag":["assigned"],"rsg":"u-latn","idx":0,"id":"+[0]","name":"+","size":1}]
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -1044,6 +1078,7 @@ unless module.parent?
     "(v3) copy"
     "(v2) 53846537846"
     "(v2) query for fact"
+    "(v2) query for fact works with copied ISL"
   ]
   @_prune()
   @_main()

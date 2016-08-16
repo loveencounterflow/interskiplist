@@ -13,19 +13,19 @@ warn                      = CND.get_logger 'warn',      badge
 help                      = CND.get_logger 'help',      badge
 urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
-plus_aleph                = Symbol.for '+א'
-minus_aleph               = Symbol.for '-א'
+σ_plus_aleph              = Symbol.for '+א'
+σ_minus_aleph             = Symbol.for '-א'
 
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
   isl_settings =
-    minIndex: minus_aleph
-    maxIndex: plus_aleph
+    minIndex: σ_minus_aleph
+    maxIndex: σ_plus_aleph
     compare:  ( a, b ) ->
-      return  0 if a is b and ( a is plus_aleph or a is minus_aleph )
-      return +1 if ( a is plus_aleph ) or ( b is minus_aleph )
-      return -1 if ( a is minus_aleph ) or ( b is plus_aleph )
+      return  0 if a is b and ( a is σ_plus_aleph or a is σ_minus_aleph )
+      return +1 if ( a is σ_plus_aleph  ) or ( b is σ_minus_aleph )
+      return -1 if ( a is σ_minus_aleph ) or ( b is σ_plus_aleph  )
       return +1 if a > b
       return -1 if a < b
       return  0
@@ -48,19 +48,23 @@ minus_aleph               = Symbol.for '-א'
     'fmin':           null
     'fmax':           null
     'reducers':       settings?[ 'reducers' ] ? null
+    'indexes':        settings?[ 'indexes'  ] ? {}
   #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @copy = ( me ) ->
-  settings  = { reducers: deepcopy_reducers me }
-  R         = @new settings
-  for entry in @entries_of me
-    @add R, deepcopy_entry null, entry
+  settings =
+    reducers: CND.deep_copy me[ 'reducers'  ]
+  R = @new settings
+  @add_index  R, name                 for name  of me[ 'indexes' ]
+  @add        R, CND.deep_copy entry  for entry in @entries_of me
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @add = ( me, entry ) ->
+  ### TAINT currently we keep the identity of `entry` and amend it; wouldn't it be better to copy? or deep
+  copy? it and then amend it? ###
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
   { lo, hi, id, name, } = entry
@@ -107,14 +111,11 @@ minus_aleph               = Symbol.for '-א'
 #===========================================================================================================
 # INDEXING
 #-----------------------------------------------------------------------------------------------------------
-@add_index = ( me, name ) ->
-  indexes         = me[ 'indexes' ] ?= {}
-  indexes[ name ] = {}
-  return null
+@add_index = ( me, name ) -> me[ 'indexes' ][ name ] = {}
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids = ( me, name, value ) ->
-  throw new Error "no index for #{rpr name}" unless ( index = me[ 'indexes' ]?[ name ] )?
+  throw new Error "no index for field #{rpr name}" unless ( index = me[ 'indexes' ][ name ] )?
   return [] unless ( R = index[ value ] )?
   return Object.assign [], R
 
@@ -327,17 +328,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #===========================================================================================================
 # HELPERS
-#-----------------------------------------------------------------------------------------------------------
-deepcopy_entry = ( me, entry ) -> JSON.parse JSON.stringify entry
-
-#-----------------------------------------------------------------------------------------------------------
-deepcopy_reducers = ( me ) ->
-  return null unless ( reducers = me[ 'reducers' ] )?
-  R = JSON.parse JSON.stringify reducers
-  for key, value of reducers
-    R[ key ] = value if CND.isa_function value
-  return R
-
 #-----------------------------------------------------------------------------------------------------------
 sort_entries_by_insertion_order = ( me, entries ) ->
   entries.sort ( a, b ) ->
