@@ -60,12 +60,6 @@ minus_aleph               = Symbol.for '-א'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@add_index = ( me, name ) ->
-  indexes         = me[ 'indexes' ] ?= {}
-  indexes[ name ] = {}
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
 @add = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
@@ -107,8 +101,32 @@ minus_aleph               = Symbol.for '-א'
   return id
 
 #-----------------------------------------------------------------------------------------------------------
+@delete = ( me, id ) -> me[ '%self' ].remove id
+
+
+#===========================================================================================================
+# INDEXING
+#-----------------------------------------------------------------------------------------------------------
+@add_index = ( me, name ) ->
+  indexes         = me[ 'indexes' ] ?= {}
+  indexes[ name ] = {}
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
+@find_ids = ( me, name, value ) ->
+  throw new Error "no index for #{rpr name}" unless ( index = me[ 'indexes' ]?[ name ] )?
+  return [] unless ( R = index[ value ] )?
+  return Object.assign [], R
+
+#-----------------------------------------------------------------------------------------------------------
+@find_entries = ( me, name, value ) ->
+  R         = @find_ids me, name, value
+  R[ idx ]  = me[ 'entry-by-ids' ][ id ] for id, idx in R
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
 @_index_entry = ( me, entry ) ->
-  { idx, } = entry
+  { id, } = entry
   #.........................................................................................................
   if ( indexes = me[ 'indexes' ] )?
     for name, value of entry
@@ -116,14 +134,11 @@ minus_aleph               = Symbol.for '-א'
       ### TAINT this is a minimally viable product; indexing behavior should be configurable ###
       if name is 'tag'
         for tag in normalize_tag value
-          ( index[ tag ] ?= [] ).push idx
+          ( index[ tag ] ?= [] ).push id
       else
-        ( index[ value ] ?= [] ).push idx
+        ( index[ value ] ?= [] ).push id
   #.........................................................................................................
   return null
-
-#-----------------------------------------------------------------------------------------------------------
-@delete = ( me, id ) -> me[ '%self' ].remove id
 
 #===========================================================================================================
 # COVER AND INTERSECT

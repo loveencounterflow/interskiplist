@@ -991,20 +991,37 @@ show = ( me ) ->
     return [] unless ( R = index[ value ] )?
     return Object.assign [], R
   #.........................................................................................................
+  ISL.find_entries = ( me, name, value ) ->
+    R         = @find_ids me, name, value
+    R[ idx ]  = me[ 'entry-by-ids' ][ id ] for id, idx in R
+    return R
+  #.........................................................................................................
   u = ISL.new()
   ISL.add_index u, 'rsg'
   ISL.add_index u, 'tag'
-  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
-  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
-  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }
-  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
-  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }    # 0
+  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }     # 1
+  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }              # 2
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }  # 3
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }              # 4
   #.........................................................................................................
-  debug '4866', u
-  urge ISL.find_ids u, 'tag', 'cjk'
-  urge ISL.find_ids u, 'tag', 'assigned'
-  urge ISL.find_ids u, 'tag', 'foobar'
-  urge ISL.find_ids u, 'rsg', 'u-latn'
+  # urge ISL.find_ids u, 'tag', 'cjk'
+  # urge ISL.find_ids u, 'tag', 'assigned'
+  # urge ISL.find_ids u, 'tag', 'foobar'
+  # urge ISL.find_ids u, 'rsg', 'u-latn'
+  # urge JSON.stringify ISL.find_entries u, 'tag', 'cjk'
+  # urge JSON.stringify ISL.find_entries u, 'tag', 'assigned'
+  # urge JSON.stringify ISL.find_entries u, 'tag', 'foobar'
+  # urge JSON.stringify ISL.find_entries u, 'rsg', 'u-latn'
+  #.........................................................................................................
+  T.eq ( ISL.find_ids u, 'tag', 'cjk'           ), [ '+[2]', '+[4]' ]
+  T.eq ( ISL.find_ids u, 'tag', 'assigned'      ), [ '+[0]', '+[1]', '+[3]' ]
+  T.eq ( ISL.find_ids u, 'tag', 'foobar'        ), []
+  T.eq ( ISL.find_ids u, 'rsg', 'u-latn'        ), [ '+[0]' ]
+  T.eq ( ISL.find_entries u, 'tag', 'cjk'       ), [{"lo":37324,"hi":37324,"tag":["cjk","ideograph"],"idx":2,"id":"+[2]","name":"+","size":1},{"lo":17079,"hi":17079,"tag":["cjk","ideograph"],"idx":4,"id":"+[4]","name":"+","size":1}]
+  T.eq ( ISL.find_entries u, 'tag', 'assigned'  ), [{"lo":113,"hi":113,"tag":["assigned"],"rsg":"u-latn","idx":0,"id":"+[0]","name":"+","size":1},{"lo":37324,"hi":37324,"tag":["assigned"],"rsg":"u-cjk","idx":1,"id":"+[1]","name":"+","size":1},{"lo":17079,"hi":17079,"tag":["assigned"],"rsg":"u-cjk-xa","idx":3,"id":"+[3]","name":"+","size":1}]
+  T.eq ( ISL.find_entries u, 'tag', 'foobar'    ), []
+  T.eq ( ISL.find_entries u, 'rsg', 'u-latn'    ), [{"lo":113,"hi":113,"tag":["assigned"],"rsg":"u-latn","idx":0,"id":"+[0]","name":"+","size":1}]
   #.........................................................................................................
   return null
 
