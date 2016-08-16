@@ -60,6 +60,12 @@ minus_aleph               = Symbol.for '-א'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
+@add_index = ( me, name ) ->
+  indexes         = me[ 'indexes' ] ?= {}
+  indexes[ name ] = {}
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
 @add = ( me, entry ) ->
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
   throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
@@ -95,7 +101,26 @@ minus_aleph               = Symbol.for '-א'
   ( me[ 'ids-by-names' ][ name ] ?= [] ).push id
   me[ '%self' ].insert id, lo, hi
   me[ 'ids' ].push id
+  #.........................................................................................................
+  @_index_entry me, entry
+  #.........................................................................................................
   return id
+
+#-----------------------------------------------------------------------------------------------------------
+@_index_entry = ( me, entry ) ->
+  { idx, } = entry
+  #.........................................................................................................
+  if ( indexes = me[ 'indexes' ] )?
+    for name, value of entry
+      continue unless ( index = indexes[ name ] )
+      ### TAINT this is a minimally viable product; indexing behavior should be configurable ###
+      if name is 'tag'
+        for tag in normalize_tag value
+          ( index[ tag ] ?= [] ).push idx
+      else
+        ( index[ value ] ?= [] ).push idx
+  #.........................................................................................................
+  return null
 
 #-----------------------------------------------------------------------------------------------------------
 @delete = ( me, id ) -> me[ '%self' ].remove id

@@ -984,6 +984,30 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v2) query for fact" ] = ( T ) ->
+  ISL.find_ids = ( me, name, value ) ->
+    throw new Error "XXXXXXXXXXXXXXXXX" unless ( index = me[ 'indexes' ]?[ name ] )?
+    return [] unless ( R = index[ value ] )?
+    return Object.assign [], R
+  #.........................................................................................................
+  u = ISL.new()
+  ISL.add_index u, 'rsg'
+  ISL.add_index u, 'tag'
+  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  #.........................................................................................................
+  debug '4866', u
+  urge ISL.find_ids u, 'tag', 'cjk'
+  urge ISL.find_ids u, 'tag', 'assigned'
+  urge ISL.find_ids u, 'tag', 'foobar'
+  urge ISL.find_ids u, 'rsg', 'u-latn'
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -1013,6 +1037,7 @@ unless module.parent?
     # "dump_api"
     "(v3) copy"
     "(v2) 53846537846"
+    "(v2) query for fact"
   ]
   @_prune()
   @_main()
