@@ -322,7 +322,9 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   #.........................................................................................................
   ### functions ###
   for key, ids_and_values of cache
-    R[ key ] = functions[ key ] ids_and_values, R, entries
+    ids       = ( id    for [ id, value, ] in ids_and_values )
+    values    = ( value for [ id, value, ] in ids_and_values )
+    R[ key ]  = functions[ key ] values, { ids, target: R, entries, }
   #.........................................................................................................
   return R
 

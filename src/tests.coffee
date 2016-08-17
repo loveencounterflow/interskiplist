@@ -414,8 +414,8 @@ show = ( me ) ->
     name:   'assign'
     count:  'add'
     length: 'average'
-    foo:    ( ids_and_values ) ->
-      return ( ( value.toLowerCase() for [ id, value, ] in ids_and_values ). join '' ) + '!'
+    foo:    ( values ) ->
+      return ( ( value.toLowerCase() for value in values ). join '' ) + '!'
   debug JSON.stringify ISL.aggregate isl, 5, reducers
   T.eq ( ISL.aggregate isl, 5, reducers ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
   return null
