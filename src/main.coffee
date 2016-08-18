@@ -13,19 +13,19 @@ warn                      = CND.get_logger 'warn',      badge
 help                      = CND.get_logger 'help',      badge
 urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
-σ_plus_aleph              = Symbol.for '+א'
-σ_minus_aleph             = Symbol.for '-א'
+σ_plus_א                  = Symbol.for '+א'
+σ_minus_א                 = Symbol.for '-א'
 
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
   isl_settings =
-    minIndex: σ_minus_aleph
-    maxIndex: σ_plus_aleph
+    minIndex: σ_minus_א
+    maxIndex: σ_plus_א
     compare:  ( a, b ) ->
-      return  0 if a is b and ( a is σ_plus_aleph or a is σ_minus_aleph )
-      return +1 if ( a is σ_plus_aleph  ) or ( b is σ_minus_aleph )
-      return -1 if ( a is σ_minus_aleph ) or ( b is σ_plus_aleph  )
+      return  0 if a is b and ( a is σ_plus_א or a is σ_minus_א )
+      return +1 if ( a is σ_plus_א  ) or ( b is σ_minus_א )
+      return -1 if ( a is σ_minus_א ) or ( b is σ_plus_א  )
       return +1 if a > b
       return -1 if a < b
       return  0
