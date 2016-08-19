@@ -884,7 +884,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v3) match, intersect" ] = ( T ) ->
+@[ "(v2) match, intersect" ] = ( T ) ->
   ascii = ISL.new()
   ISL.add ascii, { lo: 0x00, hi: 0x7f, name: 'basic-latin', tag: 'basic-latin',   }
   ISL.add ascii, { lo: 'a',  hi: 'z',  name: 'letter',      tag: 'letter',        }
@@ -926,7 +926,7 @@ show = ( me ) ->
   debug ( Object.keys ISL ).sort()
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v3) copy" ] = ( T ) ->
+@[ "(v2) copy" ] = ( T ) ->
   original = ISL.new reducers: name: 'list', tag: ( ids_and_values ) -> return '*'
   ISL.add original, { lo: 0x00, hi: 0x7f, name: 'basic-latin', tag: 'basic-latin',   }
   ISL.add original, { lo: 'a',  hi: 'z',  name: 'letter',      tag: 'letter',        }
@@ -1048,6 +1048,18 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v2) cannot add index twice" ] = ( T ) ->
+  #.........................................................................................................
+  u = ISL.new()
+  rsg_index = ISL.add_index u, 'rsg'
+  T.throws "index for 'rsg' already exists", => ISL.add_index u, 'rsg'
+  T.throws "no index for field 'NOSUCHINDEX'", => ISL.delete_index u, 'NOSUCHINDEX'
+  T.ok rsg_index is ISL.delete_index u, 'rsg'
+  T.eq null, ISL.delete_index u, 'rsg', null
+  #.........................................................................................................
+  return null
+
 
 ############################################################################################################
 unless module.parent?
@@ -1073,16 +1085,17 @@ unless module.parent?
     "configurable reducers, negative tags"
     "complements"
     "infinity is a valid number"
-    "(v3) match, intersect"
+    "(v2) match, intersect"
     # "dump_api"
-    "(v3) copy"
+    "(v2) copy"
     "(v2) 53846537846"
     "(v2) query for fact"
     "(v2) query for fact works with copied ISL"
+    "(v2) cannot add index twice"
   ]
   @_prune()
   @_main()
 
-  # @[ "(v3) match, intersect" ]()
+  # @[ "(v2) match, intersect" ]()
 
 

@@ -15,6 +15,7 @@ urge                      = CND.get_logger 'urge',      badge
 echo                      = CND.echo.bind CND
 σ_plus_א                  = Symbol.for '+א'
 σ_minus_א                 = Symbol.for '-א'
+σ_misfit                  = Symbol.for 'misfit'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -111,7 +112,17 @@ echo                      = CND.echo.bind CND
 #===========================================================================================================
 # INDEXING
 #-----------------------------------------------------------------------------------------------------------
-@add_index = ( me, name ) -> me[ 'indexes' ][ name ] = {}
+@add_index = ( me, name ) ->
+  throw new Error "index for #{rpr name} already exists" if me[ 'indexes' ][ name ]?
+  return me[ 'indexes' ][ name ] = {}
+
+#-----------------------------------------------------------------------------------------------------------
+@delete_index = ( me, name, fallback ) ->
+  fallback  = σ_misfit if fallback is undefined
+  R         = me[ 'indexes' ][ name ] ? fallback
+  throw new Error "no index for field #{rpr name}" if R is σ_misfit
+  delete me[ 'indexes' ][ name ]
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 @find_ids = ( me, name, value ) ->
