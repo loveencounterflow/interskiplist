@@ -1061,7 +1061,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v2) to_json, from_json" ] = ( T ) ->
+@[ "(v2) to_json, new_from_json" ] = ( T ) ->
   u_1 = ISL.new()
   ISL.add_index u_1, 'tag'
   ISL.add_index u_1, 'rsg'
@@ -1070,9 +1070,9 @@ show = ( me ) ->
   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
-  u_json_1  = ISL.to_json   u_1
-  u_2       = ISL.from_json u_json_1
-  u_json_2  = ISL.to_json   u_2
+  u_json_1  = ISL.to_json       u_1
+  u_2       = ISL.new_from_json u_json_1
+  u_json_2  = ISL.to_json       u_2
   T.eq u_json_1, u_json_2
   #.........................................................................................................
   return null
@@ -1109,7 +1109,7 @@ unless module.parent?
     "(v2) query for fact"
     "(v2) query for fact works with copied ISL"
     "(v2) cannot add index twice"
-    "(v2) to_json, from_json"
+    "(v2) to_json, new_from_json"
   ]
   @_prune()
   @_main()

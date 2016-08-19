@@ -110,6 +110,24 @@ echo                      = CND.echo.bind CND
 
 
 #===========================================================================================================
+# SERIALIZATION
+#-----------------------------------------------------------------------------------------------------------
+@to_json = ( me ) ->
+  ### TAINT must serialize reducers ###
+  R =
+    'index-keys': ( key   for key       of me[ 'indexes'      ] )
+    'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
+  return JSON.stringify R
+
+#-----------------------------------------------------------------------------------------------------------
+@new_from_json = ( json ) ->
+  description = JSON.parse json
+  R           = @new()
+  @add_index  R, key    for key   in description[ 'index-keys'  ]
+  @add        R, entry  for entry in description[ 'entries'     ]
+  return R
+
+#===========================================================================================================
 # INDEXING
 #-----------------------------------------------------------------------------------------------------------
 @add_index = ( me, name ) ->
