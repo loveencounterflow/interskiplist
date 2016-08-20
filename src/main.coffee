@@ -266,92 +266,37 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
 @aggregate = ( me, point, reducers = null ) ->
-  mix = @aggregate._get_mix reducers
+  point_count = if ( CND.isa_list point ) then point.length else 1
+  throw new Error "need single point, got #{point_count}" unless point_count is 1
+  entries     = @entries_of me, @_find_ids_with_any_points me, point
+  #.........................................................................................................
+  if ( not reducers? ) or ( Object.keys reducers ).length is 0
+    mix = @aggregate._mix
+  else
+    reducer_mixins    = [ {}, ]
+    reducer_mixins.push @aggregate._reducers
+    reducer_mixins.push me[ 'reducers' ]
+    reducer_mixins.push reducers if reducers?
+    reducers          = Object.assign reducer_mixins...
+    mix               = mix.use reducers
+  #.........................................................................................................
+  return mix entries...
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate._get_mix = ( reducers ) =>
-  return @aggregate.mix if ( not reducers? ) or ( Object.keys reducers ).length is 0
-  id  = CND.id_from_text ( CND.XJSON.stringify reducers ), 12
-  return @aggregate._cached_mixes[ id ] = mix.use reducers
+@aggregate.use = ( me, reducers ) -> throw new Error "not implemented"
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate._cached_mixes = {}
-
-#-----------------------------------------------------------------------------------------------------------
-@aggregate.reducers =
+@aggregate._reducers =
     idx:    'skip'
     id:     'skip'
+    name:   'skip'
     lo:     'skip'
     hi:     'skip'
     size:   'skip'
     tag:    'tag'
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate.mix = mix.use @aggregate.reducers
-
-
-#-----------------------------------------------------------------------------------------------------------
-@_OLD_aggregate = ( me, point, reducers = {} ) ->
-  point_count = if ( CND.isa_list point ) then point.length else 1
-  throw new Error "need single point, got #{point_count}" unless point_count is 1
-  #.........................................................................................................
-  entries           = @entries_of me, @_find_ids_with_any_points me, point
-  R                 = {}
-  cache             = {}
-  averages          = {}
-  reducers          = Object.assign {}, reducers, me[ 'reducers' ] ? {}
-  tag_keys          = ( key for key, value of reducers when value is 'tag' )
-  exclude           = ( key for key in [ 'idx', 'id', 'lo', 'hi', 'size', ] when not ( key of reducers ) )
-  reducer_fallback  = reducers[ '*' ] ? 'assign'
-  reducer_include   = reducer_fallback
-  reducer_include   = 'assign' if reducer_include is 'skip'
-  functions         = {}
-  #.........................................................................................................
-  for key, reducer of reducers
-    if CND.isa_function reducer
-      functions[ key ]  = reducer
-      reducers[ key ]   = 'function'
-  #.........................................................................................................
-  unless ( 'tag' in exclude ) or ( 'tag' of reducers )
-    tag_keys.push 'tag'
-    reducers[ 'tag' ] = 'tag'
-  #.........................................................................................................
-  for entry in entries
-    for key, value of entry
-      continue if key in exclude
-      reducer = reducers[ key ] ? reducer_fallback
-      #.....................................................................................................
-      switch reducer
-        when 'skip'     then continue
-        when 'list'     then ( R[ key ]      ?= [] ).push value
-        when 'add'      then R[ key ]         = ( R[ key ] ? 0 ) + value
-        when 'assign'   then R[ key ]         = value
-        when 'tag'      then meld ( target = R[ key ] ?= [] ), value
-        when 'function' then ( cache[ key ] ?= [] ).push [ entry[ 'id' ], value, ]
-        #...................................................................................................
-        when 'average'
-          target      = averages[ key ] ?= [ 0, 0, ]
-          target[ 0 ] = target[ 0 ] + value
-          target[ 1 ] = target[ 1 ] + 1
-        #...................................................................................................
-        else throw new Error "unknown reducer #{rpr reducer}"
-  #.........................................................................................................
-  ### tags ###
-  for key, value of R
-    continue unless key in tag_keys
-    R[ key ] = reduce_tag R[ key ]
-  #.........................................................................................................
-  ### averages ###
-  for key, [ sum, count, ] of averages
-    R[ key ] = sum / count
-  #.........................................................................................................
-  ### functions ###
-  for key, ids_and_values of cache
-    ids       = ( id    for [ id, value, ] in ids_and_values )
-    values    = ( value for [ id, value, ] in ids_and_values )
-    R[ key ]  = functions[ key ] values, { ids, target: R, entries, }
-  #.........................................................................................................
-  return R
+@aggregate._mix = @aggregate._get_mix @aggregate._reducers
 
 
 #===========================================================================================================
