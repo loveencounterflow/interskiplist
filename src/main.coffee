@@ -178,6 +178,7 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @_cover_or_intersect = ( me, mode, points, settings ) ->
+  ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
   unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
     expected  = setting_keys_of_cover_and_intersect.join ', '
     got       = keys.join ', '
@@ -260,25 +261,27 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 #===========================================================================================================
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
-@aggregate = ( me, points_or_entries, reducers = {} ) ->
+@aggregate = ( me, point, reducers = {} ) ->
   ### TAINT The functionality of this method has since been re-implemented in a more generic fashion
   by the MULTIMIX `mix` method; accordingly, `aggregate` should use that facility (and maybe be renamed
   to `mix` itself). ###
   if reducers? and not CND.isa_pod reducers
     throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
-  ### Separate points from entries, splice them together with those points found for the points, and sort
-  the result: ###
-  points_or_entries = [ points_or_entries, ] unless CND.isa_list points_or_entries
-  points            = []
-  entries           = []
+  point_count = if ( CND.isa_list point ) then point.length else 1
+  throw new Error "need single point, got #{point_count}" unless point_count is 1
   #.........................................................................................................
-  for points_or_entry in points_or_entries
-    if ( CND.type_of points_or_entry ) in [ 'number', 'text', ] then  points.push points_or_entry
-    else                                                             entries.push points_or_entry
-  append entries, ( @match me, points ) if points.length > 0
-  #.........................................................................................................
-  sort_entries_by_insertion_order me, entries
-  #.........................................................................................................
+  entries           = @entries_of me, @_find_ids_with_any_points me, point
+  debug '9702', entries
+  { mix, }          = require 'multimix'
+  standard_reducers =
+    idx:    'skip'
+    id:     'skip'
+    lo:     'skip'
+    hi:     'skip'
+    size:   'skip'
+    tag:    'tag'
+  standard_mix      = mix.use standard_reducers
+  help '7309', standard_mix entries...
   R                 = {}
   cache             = {}
   averages          = {}

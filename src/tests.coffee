@@ -877,9 +877,7 @@ show = ( me ) ->
   T.eq ( ISL.aggregate r,    10000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge"]}
   T.eq ( ISL.aggregate r,   100000, { name: 'skip', } ), {"tag":["all","finite","truly-huge"]}
   T.eq ( ISL.aggregate r,  1000000, { name: 'skip', } ), {"tag":["all","finite"]}
-  ### This is a glitch: interval boundaries should be inclusive, but apparentl<y `Infinity` is not
-  within the boundaries of the interval with `hi: +Infinity`: ###
-  T.eq ( ISL.aggregate r, Infinity, { name: 'skip', } ), {}
+  T.eq ( ISL.aggregate r, Infinity, { name: 'skip', } ), { tag: [ 'all', ], }
   #.........................................................................................................
   return null
 
@@ -1061,6 +1059,17 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
+@[ "(v2) aggregate rejects multiple points" ] = ( T ) ->
+  u = ISL.new()
+  ISL.add_index u, 'tag'
+  ISL.add_index u, 'rsg'
+  ISL.add u, { lo: 'q',  hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
+  T.throws "need single point, got 2", => ISL.aggregate u, [ 'q', '里', ]
+  #.........................................................................................................
+  return null
+
+#-----------------------------------------------------------------------------------------------------------
 @[ "(v2) to_json, new_from_json" ] = ( T ) ->
   reducers =
     '*':      'skip'
@@ -1079,9 +1088,25 @@ show = ( me ) ->
   u_2       = ISL.new_from_json u_json_1
   u_json_2  = ISL.to_json       u_2
   T.eq u_json_1, u_json_2
+  T.fail "doesn't serialize reducers"
+  T.fail "unable to serialize reducer functions"
   # debug '5206', u_json_1
   #.........................................................................................................
   return null
+
+#-----------------------------------------------------------------------------------------------------------
+@[ "(v2) [intermittent]" ] = ( T ) ->
+  u = ISL.new()
+  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
+  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
+  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  #.........................................................................................................
+  ISL.aggregate u, '䊷'
+  #.........................................................................................................
+  return null
+
 
 
 ############################################################################################################
@@ -1115,7 +1140,9 @@ unless module.parent?
     "(v2) query for fact"
     "(v2) query for fact works with copied ISL"
     "(v2) cannot add index twice"
-    "(v2) to_json, new_from_json"
+    # "(v2) to_json, new_from_json"
+    "(v2) aggregate rejects multiple points"
+    "(v2) [intermittent]"
   ]
   @_prune()
   @_main()
