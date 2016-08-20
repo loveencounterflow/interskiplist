@@ -408,7 +408,7 @@ show = ( me ) ->
   ISL.add isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
   reducers =
     '*':    'list'
-    id:     'include'
+    id:     'list'
     lo:     'assign'
     hi:     'assign'
     name:   'assign'
@@ -480,7 +480,7 @@ show = ( me ) ->
   urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
   urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
   urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
-  replacers = { '*': 'list', name: 'include', }
+  replacers = { '*': 'list', name: 'list', }
   info 'rx2-10', 'A', ISL.aggregate samples, 'A', replacers
   info 'rx2-11', '&', ISL.aggregate samples, '&', replacers
   info 'rx2-12', '人', ISL.aggregate samples, '人', replacers
@@ -1062,18 +1062,24 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) to_json, new_from_json" ] = ( T ) ->
+  reducers =
+    '*':      'skip'
+    'tag':    'tag'
+    'rsg':    'assign'
   u_1 = ISL.new()
   ISL.add_index u_1, 'tag'
   ISL.add_index u_1, 'rsg'
   ISL.add u_1, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
   ISL.add u_1, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
-  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
+  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  debug '6227', ISL.aggregate u_1, '䊷', reducers
   u_json_1  = ISL.to_json       u_1
   u_2       = ISL.new_from_json u_json_1
   u_json_2  = ISL.to_json       u_2
   T.eq u_json_1, u_json_2
+  # debug '5206', u_json_1
   #.........................................................................................................
   return null
 

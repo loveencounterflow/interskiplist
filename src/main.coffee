@@ -117,7 +117,7 @@ echo                      = CND.echo.bind CND
   R =
     'index-keys': ( key   for key       of me[ 'indexes'      ] )
     'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
-  return JSON.stringify R
+  return JSON.stringify R, null, '  '
 
 #-----------------------------------------------------------------------------------------------------------
 @new_from_json = ( json ) ->
@@ -306,9 +306,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   # info '©56182', 'reducers ', reducers
   #.........................................................................................................
   for key, reducer of reducers
-    if reducer is 'include'
-      reducers[ key ] = reducer_include
-      continue
     if CND.isa_function reducer
       functions[ key ]  = reducer
       reducers[ key ]   = 'function'
