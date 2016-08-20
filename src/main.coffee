@@ -265,10 +265,10 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 #===========================================================================================================
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
-@aggregate = ( me, point, reducers = null ) ->
-  point_count = if ( CND.isa_list point ) then point.length else 1
-  throw new Error "need single point, got #{point_count}" unless point_count is 1
-  entries     = @entries_of me, @_find_ids_with_any_points me, point
+@aggregate = ( me, point, reducers = null ) -> ( @aggregate.use me, reducers ) point
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate.use = ( me, reducers ) =>
   #.........................................................................................................
   if ( not reducers? ) or ( Object.keys reducers ).length is 0
     mix = @aggregate._mix
@@ -280,10 +280,11 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     reducers          = Object.assign reducer_mixins...
     mix               = mix.use reducers
   #.........................................................................................................
-  return mix entries...
-
-#-----------------------------------------------------------------------------------------------------------
-@aggregate.use = ( me, reducers ) -> throw new Error "not implemented"
+  return ( point ) =>
+    point_count = if ( CND.isa_list point ) then point.length else 1
+    throw new Error "need single point, got #{point_count}" unless point_count is 1
+    entries     = @entries_of me, @_find_ids_with_any_points me, point
+    return mix entries...
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate._reducers =
@@ -296,7 +297,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     tag:    'tag'
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate._mix = @aggregate._get_mix @aggregate._reducers
+@aggregate._mix = mix.use @aggregate._reducers
 
 
 #===========================================================================================================
