@@ -22,6 +22,7 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @new = ( settings ) ->
+  throw new Error "settings not supported" if settings?
   isl_settings =
     minIndex: σ_minus_א
     maxIndex: σ_plus_א
@@ -50,16 +51,13 @@ echo                      = CND.echo.bind CND
     'max':            null
     'fmin':           null
     'fmax':           null
-    'reducers':       settings?[ 'reducers' ] ? null
-    'indexes':        settings?[ 'indexes'  ] ? {}
+    'indexes':        {}
   #.........................................................................................................
   return R
 
 #-----------------------------------------------------------------------------------------------------------
 @copy = ( me ) ->
-  settings =
-    reducers: CND.deep_copy me[ 'reducers'  ]
-  R = @new settings
+  R = @new()
   @add_index  R, name                 for name  of me[ 'indexes' ]
   @add        R, CND.deep_copy entry  for entry in @entries_of me
   return R
@@ -118,14 +116,12 @@ echo                      = CND.echo.bind CND
   R =
     'index-keys': ( key   for key       of me[ 'indexes'      ] )
     'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
-    'reducers':   me[ 'reducers' ]
   return CND.XJSON.stringify R, null, '  '
 
 #-----------------------------------------------------------------------------------------------------------
 @new_from_xjson = ( xjson ) ->
   description = CND.XJSON.parse xjson
-  ### TAINT unify API for adding reducers, indexes ###
-  R           = @new { reducers: description[ 'reducers' ], }
+  R           = @new()
   @add_index  R, key    for key   in description[ 'index-keys'  ]
   @add        R, entry  for entry in description[ 'entries'     ]
   return R
@@ -269,13 +265,14 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate.use = ( me, reducers ) =>
+  ### TAINT `aggregate.use` will produce a new method each time it is called, even if it is called by
+  `aggregate` with no reducers. ###
   #.........................................................................................................
   if ( not reducers? ) or ( Object.keys reducers ).length is 0
     mix = @aggregate._mix
   else
     reducer_mixins    = [ {}, ]
     reducer_mixins.push @aggregate._reducers
-    reducer_mixins.push me[ 'reducers' ]
     reducer_mixins.push reducers if reducers?
     reducers          = Object.assign reducer_mixins...
     mix               = mix.use reducers

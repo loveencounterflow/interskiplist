@@ -662,7 +662,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "configurable reducers, negative tags" ] = ( T ) ->
+@[ "negative tags" ] = ( T ) ->
   #.........................................................................................................
   add = ( isl, description ) ->
     rsg = null
@@ -770,7 +770,7 @@ show = ( me ) ->
     ]
   #.........................................................................................................
   tag_reducer = ( ids_and_tags ) ->
-  u = ISL.new reducers: { name: 'skip', }
+  u = ISL.new()
   for description in descriptions
     add u, description
   #.........................................................................................................
@@ -926,7 +926,7 @@ show = ( me ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) copy" ] = ( T ) ->
-  original = ISL.new reducers: name: 'list', tag: ( ids_and_values ) -> return '*'
+  original = ISL.new()
   ISL.add original, { lo: 0x00, hi: 0x7f, name: 'basic-latin', tag: 'basic-latin',   }
   ISL.add original, { lo: 'a',  hi: 'z',  name: 'letter',      tag: 'letter',        }
   ISL.add original, { lo: 'A',  hi: 'Z',  name: 'letter',      tag: 'letter',        }
@@ -944,17 +944,7 @@ show = ( me ) ->
   for key in [ 'idx', 'min', 'max', 'fmin', 'fmax', ]
     T.ok original[ key ] is copy[ key ]
   #.........................................................................................................
-  if original[ 'reducers' ]?
-    for key, original_value of original[ 'reducers' ]
-      if CND.isa_function original_value
-        T.ok original_value is copy[ 'reducers' ][ key ]
-      else
-        T.eq original_value, copy[ 'reducers' ][ key ]
-  else
-    T.eq original[ 'reducers' ], copy[ 'reducers' ]
-  #.........................................................................................................
   return null
-
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) 53846537846" ] = ( T ) ->
@@ -1132,7 +1122,7 @@ unless module.parent?
     "tag 2a"
     "tag 2b"
     "tag 3"
-    "configurable reducers, negative tags"
+    "negative tags"
     "complements"
     "infinity is a valid number"
     "(v2) match, intersect"
