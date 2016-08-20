@@ -16,6 +16,8 @@ echo                      = CND.echo.bind CND
 σ_plus_א                  = Symbol.for '+א'
 σ_minus_א                 = Symbol.for '-א'
 σ_misfit                  = Symbol.for 'misfit'
+#...........................................................................................................
+{ mix, }                  = require 'multimix'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -113,19 +115,21 @@ echo                      = CND.echo.bind CND
 # SERIALIZATION
 #-----------------------------------------------------------------------------------------------------------
 @to_xjson = ( me ) ->
-  ### TAINT must serialize reducers ###
   R =
     'index-keys': ( key   for key       of me[ 'indexes'      ] )
     'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
+    'reducers':   me[ 'reducers' ]
   return CND.XJSON.stringify R, null, '  '
 
 #-----------------------------------------------------------------------------------------------------------
 @new_from_xjson = ( xjson ) ->
   description = CND.XJSON.parse xjson
-  R           = @new()
+  ### TAINT unify API for adding reducers, indexes ###
+  R           = @new { reducers: description[ 'reducers' ], }
   @add_index  R, key    for key   in description[ 'index-keys'  ]
   @add        R, entry  for entry in description[ 'entries'     ]
   return R
+
 
 #===========================================================================================================
 # INDEXING
@@ -261,27 +265,37 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 #===========================================================================================================
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
-@aggregate = ( me, point, reducers = {} ) ->
-  ### TAINT The functionality of this method has since been re-implemented in a more generic fashion
-  by the MULTIMIX `mix` method; accordingly, `aggregate` should use that facility (and maybe be renamed
-  to `mix` itself). ###
-  if reducers? and not CND.isa_pod reducers
-    throw new Error "expected a POD for reducer, got a #{CND.type_of reducers}"
-  point_count = if ( CND.isa_list point ) then point.length else 1
-  throw new Error "need single point, got #{point_count}" unless point_count is 1
-  #.........................................................................................................
-  entries           = @entries_of me, @_find_ids_with_any_points me, point
-  debug '9702', entries
-  { mix, }          = require 'multimix'
-  standard_reducers =
+@aggregate = ( me, point, reducers = null ) ->
+  mix = @aggregate._get_mix reducers
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate._get_mix = ( reducers ) =>
+  return @aggregate.mix if ( not reducers? ) or ( Object.keys reducers ).length is 0
+  id  = CND.id_from_text ( CND.XJSON.stringify reducers ), 12
+  return @aggregate._cached_mixes[ id ] = mix.use reducers
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate._cached_mixes = {}
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate.reducers =
     idx:    'skip'
     id:     'skip'
     lo:     'skip'
     hi:     'skip'
     size:   'skip'
     tag:    'tag'
-  standard_mix      = mix.use standard_reducers
-  help '7309', standard_mix entries...
+
+#-----------------------------------------------------------------------------------------------------------
+@aggregate.mix = mix.use @aggregate.reducers
+
+
+#-----------------------------------------------------------------------------------------------------------
+@_OLD_aggregate = ( me, point, reducers = {} ) ->
+  point_count = if ( CND.isa_list point ) then point.length else 1
+  throw new Error "need single point, got #{point_count}" unless point_count is 1
+  #.........................................................................................................
+  entries           = @entries_of me, @_find_ids_with_any_points me, point
   R                 = {}
   cache             = {}
   averages          = {}
@@ -338,6 +352,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     R[ key ]  = functions[ key ] values, { ids, target: R, entries, }
   #.........................................................................................................
   return R
+
 
 #===========================================================================================================
 # HELPERS

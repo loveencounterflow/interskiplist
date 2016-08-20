@@ -388,7 +388,7 @@ show = ( me ) ->
     tex:    'list'
     rsg:    'assign'
     # style: ( facets ) ->
-  entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
+  entry = ISL._OLD_aggregate isl, ( '《'.codePointAt 0 ), replacers
   debug JSON.stringify entry
   help entry
   T.eq entry, {
@@ -416,8 +416,8 @@ show = ( me ) ->
     length: 'average'
     foo:    ( values ) ->
       return ( ( value.toLowerCase() for value in values ). join '' ) + '!'
-  debug JSON.stringify ISL.aggregate isl, 5, reducers
-  T.eq ( ISL.aggregate isl, 5, reducers ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
+  debug JSON.stringify ISL._OLD_aggregate isl, 5, reducers
+  T.eq ( ISL._OLD_aggregate isl, 5, reducers ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -477,13 +477,13 @@ show = ( me ) ->
   T.eq ( ISL.intersect samples, 'A' ), ( ISL.match samples, 'A' )
   T.eq ( ISL.intersect samples, '&' ), ( ISL.match samples, '&' )
   T.eq ( ISL.intersect samples, '人' ), ( ISL.match samples, '人' )
-  urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
-  urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
-  urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
+  urge 'rx2-7', 'A', ISL._OLD_aggregate samples, 'A' #, { font_family: 'list', }
+  urge 'rx2-8', '&', ISL._OLD_aggregate samples, '&' #, { font_family: 'list', }
+  urge 'rx2-9', '人', ISL._OLD_aggregate samples, '人' #, { font_family: 'list', }
   replacers = { '*': 'list', name: 'list', }
-  info 'rx2-10', 'A', ISL.aggregate samples, 'A', replacers
-  info 'rx2-11', '&', ISL.aggregate samples, '&', replacers
-  info 'rx2-12', '人', ISL.aggregate samples, '人', replacers
+  info 'rx2-10', 'A', ISL._OLD_aggregate samples, 'A', replacers
+  info 'rx2-11', '&', ISL._OLD_aggregate samples, '&', replacers
+  info 'rx2-12', '人', ISL._OLD_aggregate samples, '人', replacers
   #.........................................................................................................
   return null
 
@@ -546,12 +546,12 @@ show = ( me ) ->
   #.........................................................................................................
   for n in [ 0 .. 9 ]
     digit = "#{n}"
-    help digit, ISL.aggregate u, digit, {
+    help digit, ISL._OLD_aggregate u, digit, {
       '*':    'skip',
       tag:   'tag',
       }
   #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3', { '*': 'skip', tag: 'tag', } ), { tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
+  T.eq ( ISL._OLD_aggregate u, '3', { '*': 'skip', tag: 'tag', } ), { tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   #.........................................................................................................
   return null
 
@@ -570,7 +570,7 @@ show = ( me ) ->
   ISL.add u, { lo: '5', hi: '5', tag: 'prime', }
   ISL.add u, { lo: '7', hi: '7', tag: 'prime', }
   #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
+  T.eq ( ISL._OLD_aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   #.........................................................................................................
   return null
 
@@ -598,7 +598,7 @@ show = ( me ) ->
     ISL.add u, { lo: digit_0, hi: digit_0, tag: [ '-even', 'odd', ], }
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
-    result = ISL.aggregate u, probe, { name: 'skip', }
+    result = ISL._OLD_aggregate u, probe, { name: 'skip', }
     # debug '0141', [ probe, result, ]
     T.eq result, matcher
   #.........................................................................................................
@@ -628,7 +628,7 @@ show = ( me ) ->
     ISL.add u, { lo: digit_0, hi: digit_0, tag: '-even odd', }
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
-    result = ISL.aggregate u, probe, { name: 'skip', }
+    result = ISL._OLD_aggregate u, probe, { name: 'skip', }
     # debug '0141', [ probe, result, ]
     T.eq result, matcher
   #.........................................................................................................
@@ -650,7 +650,7 @@ show = ( me ) ->
   ISL.add u, { lo: '5', hi: '5', tag: 'prime', }
   ISL.add u, { lo: '7', hi: '7', tag: 'prime', }
   #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
+  T.eq ( ISL._OLD_aggregate u, '3' ), { name: '+', tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   # debug '5531-6', s ISL.find_tags_with_all_points u, [ '3', '7', '2', ]
   # debug '5531-7', s ISL.find_tags_with_any_points u, [ '3', '7', '2', ]
   # T.eq ( ISL.find_tags u, '3' ), ["ascii","digit","odd","prime"]
@@ -774,8 +774,8 @@ show = ( me ) ->
     add u, description
   #.........................................................................................................
   for [ probe, matcher, ] in probes_and_matchers
-    help s [ probe, ISL.aggregate u, probe ]
-    T.eq ( ISL.aggregate u, probe ), matcher
+    help s [ probe, ISL._OLD_aggregate u, probe ]
+    T.eq ( ISL._OLD_aggregate u, probe ), matcher
   #.........................................................................................................
   return null
 
@@ -862,22 +862,22 @@ show = ( me ) ->
   ISL.add r, lo:      -1e2, hi:      +1e2, tag: 'sizable'
   ISL.add r, lo:      -1e1, hi:      +1e1, tag: 'small'
   ISL.add r, lo:      -1e0, hi:      +1e0, tag: 'tiny'
-  # debug s ( ISL.aggregate r,        1, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,       10, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,      100, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,     1000, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,    10000, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,   100000, { name: 'skip', } )
-  # debug s ( ISL.aggregate r,  1000000, { name: 'skip', } )
-  # debug s ( ISL.aggregate r, Infinity, { name: 'skip', } )
-  T.eq ( ISL.aggregate r,        1, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small","tiny"]}
-  T.eq ( ISL.aggregate r,       10, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small"]}
-  T.eq ( ISL.aggregate r,      100, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable"]}
-  T.eq ( ISL.aggregate r,     1000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big"]}
-  T.eq ( ISL.aggregate r,    10000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge"]}
-  T.eq ( ISL.aggregate r,   100000, { name: 'skip', } ), {"tag":["all","finite","truly-huge"]}
-  T.eq ( ISL.aggregate r,  1000000, { name: 'skip', } ), {"tag":["all","finite"]}
-  T.eq ( ISL.aggregate r, Infinity, { name: 'skip', } ), { tag: [ 'all', ], }
+  # debug s ( ISL._OLD_aggregate r,        1, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,       10, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,      100, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,     1000, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,    10000, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,   100000, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r,  1000000, { name: 'skip', } )
+  # debug s ( ISL._OLD_aggregate r, Infinity, { name: 'skip', } )
+  T.eq ( ISL._OLD_aggregate r,        1, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small","tiny"]}
+  T.eq ( ISL._OLD_aggregate r,       10, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable","small"]}
+  T.eq ( ISL._OLD_aggregate r,      100, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big","sizable"]}
+  T.eq ( ISL._OLD_aggregate r,     1000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge","big"]}
+  T.eq ( ISL._OLD_aggregate r,    10000, { name: 'skip', } ), {"tag":["all","finite","truly-huge","huge"]}
+  T.eq ( ISL._OLD_aggregate r,   100000, { name: 'skip', } ), {"tag":["all","finite","truly-huge"]}
+  T.eq ( ISL._OLD_aggregate r,  1000000, { name: 'skip', } ), {"tag":["all","finite"]}
+  T.eq ( ISL._OLD_aggregate r, Infinity, { name: 'skip', } ), { tag: [ 'all', ], }
   #.........................................................................................................
   return null
 
@@ -904,8 +904,8 @@ show = ( me ) ->
   info ISL.match ascii, 'f'
   info ISL.match ascii, [ 'f', 'F', ]
   info ISL.match ascii, [ 'f', 'F', ], pick: 'id'
-  info ISL.aggregate ascii, 'f'
-  info ISL.aggregate ascii, 'f', { name: 'list', tag: 'list', id: 'list', }
+  info ISL._OLD_aggregate ascii, 'f'
+  info ISL._OLD_aggregate ascii, 'f', { name: 'list', tag: 'list', id: 'list', }
   # info ISL.match ascii, [ 'f', 'F', { lo: '0', hi: '9', }, ], pick: 'id'
   # console.log ISL.find_names_with_all_points ascii, [ 'c'     , ]
   # console.log ISL.find_names_with_all_points ascii, [ 'C'     , ]
@@ -970,8 +970,8 @@ show = ( me ) ->
     ]
   reducers  = { '*': 'skip', 'tag': 'tag', 'rsg': 'assign', }
   for [ probe, matcher, ] in probes_and_matchers
-    result_A = ISL.aggregate u, probe
-    result_B = ISL.aggregate u, probe, reducers
+    result_A = ISL._OLD_aggregate u, probe
+    result_B = ISL._OLD_aggregate u, probe, reducers
     # help '©48966', probe, JSON.stringify result_A
     # urge '©48966', probe, JSON.stringify result_B
     T.eq result_A[ 'rsg' ], result_B[ 'rsg' ]
@@ -1059,13 +1059,13 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v2) aggregate rejects multiple points" ] = ( T ) ->
+@[ "(v2) _OLD_aggregate rejects multiple points" ] = ( T ) ->
   u = ISL.new()
   ISL.add_index u, 'tag'
   ISL.add_index u, 'rsg'
   ISL.add u, { lo: 'q',  hi: 'q', tag: 'assigned', rsg: 'u-latn', }
   ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
-  T.throws "need single point, got 2", => ISL.aggregate u, [ 'q', '里', ]
+  T.throws "need single point, got 2", => ISL._OLD_aggregate u, [ 'q', '里', ]
   #.........................................................................................................
   return null
 
@@ -1083,7 +1083,7 @@ show = ( me ) ->
   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
-  debug '6227', ISL.aggregate u_1, '䊷', reducers
+  debug '6227', ISL._OLD_aggregate u_1, '䊷', reducers
   u_json_1  = ISL.to_json       u_1
   u_2       = ISL.new_from_json u_json_1
   u_json_2  = ISL.to_json       u_2
@@ -1103,7 +1103,9 @@ show = ( me ) ->
   ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
   ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
   #.........................................................................................................
-  ISL.aggregate u, '䊷'
+  debug '4501', ISL.aggregate u, '䊷'
+  debug '4501', ISL.aggregate u, '䊷', { lo: 'list', }
+  debug '4501', ISL.aggregate
   #.........................................................................................................
   return null
 
@@ -1141,7 +1143,7 @@ unless module.parent?
     "(v2) query for fact works with copied ISL"
     "(v2) cannot add index twice"
     # "(v2) to_json, new_from_json"
-    "(v2) aggregate rejects multiple points"
+    "(v2) _OLD_aggregate rejects multiple points"
     "(v2) [intermittent]"
   ]
   @_prune()
