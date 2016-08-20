@@ -265,17 +265,15 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate.use = ( me, reducers ) =>
-  ### TAINT `aggregate.use` will produce a new method each time it is called, even if it is called by
-  `aggregate` with no reducers. ###
   #.........................................................................................................
   if ( not reducers? ) or ( Object.keys reducers ).length is 0
     mix = @aggregate._mix
   else
-    reducer_mixins    = [ {}, ]
-    reducer_mixins.push @aggregate._reducers
-    reducer_mixins.push reducers if reducers?
-    reducers          = Object.assign reducer_mixins...
-    mix               = mix.use reducers
+    mixins    = [ {}, ]
+    mixins.push @aggregate._reducers
+    mixins.push reducers if reducers?
+    reducers  = Object.assign mixins...
+    mix       = mix.use reducers
   #.........................................................................................................
   return ( point ) =>
     point_count = if ( CND.isa_list point ) then point.length else 1

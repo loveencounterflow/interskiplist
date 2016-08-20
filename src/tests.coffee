@@ -1061,7 +1061,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v2) to_json, new_from_json" ] = ( T ) ->
+@[ "(v2) to_xjson, new_from_xjson" ] = ( T ) ->
   reducers =
     '*':      'skip'
     'tag':    'tag'
@@ -1074,28 +1074,33 @@ show = ( me ) ->
   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
-  debug '6227', ISL.aggregate u_1, '䊷', reducers
-  u_json_1  = ISL.to_json       u_1
-  u_2       = ISL.new_from_json u_json_1
-  u_json_2  = ISL.to_json       u_2
+  u_json_1  = ISL.to_xjson        u_1
+  u_2       = ISL.new_from_xjson  u_json_1
+  u_json_2  = ISL.to_xjson        u_2
   T.eq u_json_1, u_json_2
-  T.fail "doesn't serialize reducers"
-  T.fail "unable to serialize reducer functions"
-  # debug '5206', u_json_1
+  T.eq ( ISL.aggregate u_1, '䊷', reducers ), ( ISL.aggregate u_2, '䊷', reducers )
   #.........................................................................................................
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "(v2) [intermittent]" ] = ( T ) ->
+@[ "(v2) create custom aggregate" ] = ( T ) ->
   u = ISL.new()
-  ISL.add u, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
-  ISL.add u, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
-  ISL.add u, { lo: '里', hi: '里', tag: 'cjk ideograph', }
-  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', }
-  ISL.add u, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+  ISL.add u, { lo: 'q', hi: 'q', count: 0, tagfoo: 'assigned', rsg: 'u-latn', }
+  ISL.add u, { lo: '里', hi: '里', count: 1, tagfoo: 'assigned', rsg: 'u-cjk', }
+  ISL.add u, { lo: '里', hi: '里', count: 2, tagfoo: [ 'cjk', 'ideograph', ], }
+  ISL.add u, { lo: '䊷', hi: '䊷', count: 3, tagfoo: 'assigned', rsg: 'u-cjk-xa', }
+  ISL.add u, { lo: '䊷', hi: '䊷', count: 4, tagfoo: [ 'cjk', 'ideograph', ], }
   #.........................................................................................................
-  debug '4501', ISL.aggregate u, '䊷'
-  debug '4501', ISL.aggregate u, '䊷', { lo: 'list', }
+  reducers =
+    '*':        'skip'
+    tagfoo:     'tag'
+    count:      'add'
+  #.........................................................................................................
+  my_aggregate = ISL.aggregate.use u, reducers
+  #.........................................................................................................
+  for probe in Array.from 'q里䊷'
+    # debug '4501', probe, my_aggregate probe
+    T.eq ( ISL.aggregate u, probe, reducers ), ( my_aggregate probe )
   #.........................................................................................................
   return null
 
@@ -1132,9 +1137,9 @@ unless module.parent?
     "(v2) query for fact"
     "(v2) query for fact works with copied ISL"
     "(v2) cannot add index twice"
-    # "(v2) to_json, new_from_json"
+    "(v2) to_xjson, new_from_xjson"
     "(v2) aggregate rejects multiple points"
-    "(v2) [intermittent]"
+    "(v2) create custom aggregate"
   ]
   @_prune()
   @_main()
