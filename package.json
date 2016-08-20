@@ -1,6 +1,6 @@
 {
   "name": "interskiplist",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "Binary Search for Numeric & Character Intervals; great for CSS-Unicode-Range-like tasks",
   "main": "lib/main.js",
   "scripts": {
