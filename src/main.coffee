@@ -256,21 +256,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   R.push ( mixin { lo: last_lo, hi: last_hi, } ) if last_lo? and last_hi?
   return R
 
-# #-----------------------------------------------------------------------------------------------------------
-# @match_common = ( me, points, settings ) ->
-#   throw new Error "expected 3 arguments, got #{arity}" unless ( arity = arguments.length ) is 3
-#   throw new Error "expected a POD, got a #{CND.type_of settings}" unless CND.isa_pod settings
-#   { pick }  = settings
-#   throw new Error "expected setting 'pick', got none" unless pick?
-#   points = normalize_points points
-#   return [] if points.length is 0
-#   R = []
-#   s = { pick, }
-#   for point in points
-#     append R, @match me, point, s
-#   return reduce_tag R if pick is 'tag'
-#   return fuse R
-
 #===========================================================================================================
 # AGGREGATION
 #-----------------------------------------------------------------------------------------------------------
@@ -303,7 +288,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   reducer_include   = reducer_fallback
   reducer_include   = 'assign' if reducer_include is 'skip'
   functions         = {}
-  # info '©56182', 'reducers ', reducers
   #.........................................................................................................
   for key, reducer of reducers
     if CND.isa_function reducer
@@ -313,9 +297,6 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   unless ( 'tag' in exclude ) or ( 'tag' of reducers )
     tag_keys.push 'tag'
     reducers[ 'tag' ] = 'tag'
-  # debug '©56182', 'exclude  ', exclude
-  # debug '©56182', 'tag_keys ', tag_keys
-  # debug '©56182', 'reducers ', reducers
   #.........................................................................................................
   for entry in entries
     for key, value of entry

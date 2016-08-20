@@ -1069,7 +1069,7 @@ show = ( me ) ->
   u_1 = ISL.new()
   ISL.add_index u_1, 'tag'
   ISL.add_index u_1, 'rsg'
-  ISL.add u_1, { lo: 'q', hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+  ISL.add u_1, { lo: 'q',  hi: 'q', tag: 'assigned', rsg: 'u-latn', }
   ISL.add u_1, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
