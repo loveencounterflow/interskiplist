@@ -112,16 +112,16 @@ echo                      = CND.echo.bind CND
 #===========================================================================================================
 # SERIALIZATION
 #-----------------------------------------------------------------------------------------------------------
-@to_json = ( me ) ->
+@to_xjson = ( me ) ->
   ### TAINT must serialize reducers ###
   R =
     'index-keys': ( key   for key       of me[ 'indexes'      ] )
     'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
-  return JSON.stringify R, null, '  '
+  return CND.XJSON.stringify R, null, '  '
 
 #-----------------------------------------------------------------------------------------------------------
-@new_from_json = ( json ) ->
-  description = JSON.parse json
+@new_from_xjson = ( xjson ) ->
+  description = CND.XJSON.parse xjson
   R           = @new()
   @add_index  R, key    for key   in description[ 'index-keys'  ]
   @add        R, entry  for entry in description[ 'entries'     ]
