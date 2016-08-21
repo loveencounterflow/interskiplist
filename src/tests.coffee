@@ -1097,10 +1097,18 @@ show = ( me ) ->
     count:      'add'
   #.........................................................................................................
   my_aggregate = ISL.aggregate.use u, reducers
-  #.........................................................................................................
   for probe in Array.from 'q里䊷'
     # debug '4501', probe, my_aggregate probe
-    T.eq ( ISL.aggregate u, probe, reducers ), ( my_aggregate probe )
+    T.eq ( result_A = ISL.aggregate u, probe, reducers ), ( result_B = my_aggregate probe )
+    T.ok result_A isnt result_B
+    T.ok result_B is my_aggregate probe
+  #.........................................................................................................
+  my_aggregate = ISL.aggregate.use u, reducers, memoize: no
+  for probe in Array.from 'q里䊷'
+    # debug '4501', probe, my_aggregate probe
+    T.eq ( result_A = ISL.aggregate u, probe, reducers ), ( result_B = my_aggregate probe )
+    T.ok result_A isnt result_B
+    T.ok result_B isnt my_aggregate probe
   #.........................................................................................................
   return null
 
@@ -1110,18 +1118,21 @@ show = ( me ) ->
 unless module.parent?
   include = [
     # "characters as points 3"
+    #.......................................................................................................
+    # "test interval tree 2"
+    # "test interval tree 3"
+    # "intervals without ID, name"
+    # "unique names with priority conflict"
+    # "readme example 2"
+    # "(v2) match, intersect"
+    #.......................................................................................................
     "test interval tree 1"
-    "test interval tree 2"
-    "test interval tree 3"
     "aggregation 1"
     "aggregation 2"
     "characters as points 1"
     "intervals_from_points"
     "readme example 1"
-    "readme example 2"
-    "intervals without ID, name"
     "demo discontiguous ranges"
-    "unique names with priority conflict"
     "tag 1"
     "tag 2"
     "tag 2a"
@@ -1130,7 +1141,6 @@ unless module.parent?
     "negative tags"
     "complements"
     "infinity is a valid number"
-    "(v2) match, intersect"
     # "dump_api"
     "(v2) copy"
     "(v2) 53846537846"

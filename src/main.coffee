@@ -173,25 +173,26 @@ echo                      = CND.echo.bind CND
 #===========================================================================================================
 # COVER AND INTERSECT
 #-----------------------------------------------------------------------------------------------------------
-@match      = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'match',      points, settings
-@intersect  = ( me, points, settings = {} ) -> @_cover_or_intersect me, 'intersect',  points, settings
+@match      = ( me, points, settings = {} ) -> @_match_or_intersect me, 'match',      points, settings
+@intersect  = ( me, points, settings = {} ) -> @_match_or_intersect me, 'intersect',  points, settings
 
 #-----------------------------------------------------------------------------------------------------------
-@_cover_or_intersect = ( me, mode, points, settings ) ->
-  ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
-  unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
-    expected  = setting_keys_of_cover_and_intersect.join ', '
-    got       = keys.join ', '
-    throw new Error "expected settings out of #{expected}, got #{got}"
-  { pick, }   = settings
-  if mode is 'match' then R = @_find_ids_with_all_points me, points
-  else                    R = @_find_ids_with_any_points me, points
-  return R if pick is 'id'
-  R = @entries_of me, R
-  if pick?
-    R = ( entry[ pick ] for entry in R )
-    return reduce_tag R if pick is 'tag'
-  return fuse R
+@_match_or_intersect = ( me, mode, points, settings ) ->
+  throw new Error "ISL.match, ISL.intersect on hold for revision"
+  # ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
+  # unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
+  #   expected  = setting_keys_of_cover_and_intersect.join ', '
+  #   got       = keys.join ', '
+  #   throw new Error "expected settings out of #{expected}, got #{got}"
+  # { pick, }   = settings
+  # if mode is 'match' then R = @_find_ids_with_all_points me, points
+  # else                    R = @_find_ids_with_any_points me, points
+  # return R if pick is 'id'
+  # R = @entries_of me, R
+  # if pick?
+  #   R = ( entry[ pick ] for entry in R )
+  #   return reduce_tag R if pick is 'tag'
+  # return fuse R
 
 #-----------------------------------------------------------------------------------------------------------
 setting_keys_of_cover_and_intersect = [ 'pick', ]
@@ -264,7 +265,12 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 @aggregate = ( me, point, reducers = null ) -> ( @aggregate.use me, reducers ) point
 
 #-----------------------------------------------------------------------------------------------------------
-@aggregate.use = ( me, reducers ) =>
+@aggregate.use = ( me, reducers, settings = {} ) =>
+  unless CND.is_subset ( keys = Object.keys settings ), [ 'memoize', ]
+    throw new Error "unknown keys in #{rpr keys}"
+  #.........................................................................................................
+  if ( memoize = settings[ 'memoize' ] ? yes ) then cache = {}
+  else                                              cache = null
   #.........................................................................................................
   if ( not reducers? ) or ( Object.keys reducers ).length is 0
     mix = @aggregate._mix
@@ -275,11 +281,17 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     reducers  = Object.assign mixins...
     mix       = mix.use reducers
   #.........................................................................................................
-  return ( point ) =>
+  mix_entries_of_point = ( point ) =>
     point_count = if ( CND.isa_list point ) then point.length else 1
     throw new Error "need single point, got #{point_count}" unless point_count is 1
-    entries     = @entries_of me, @_find_ids_with_any_points me, point
+    entries = @entries_of me, @_find_ids_with_any_points me, point
     return mix entries...
+  #.........................................................................................................
+  return mix_entries_of_point unless memoize
+  #.........................................................................................................
+  return ( point ) =>
+    return R if ( R = cache[ point ] )?
+    return cache[ point ] = mix_entries_of_point point
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate._reducers =
