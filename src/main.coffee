@@ -273,19 +273,22 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   else                                              cache = null
   #.........................................................................................................
   if ( not reducers? ) or ( Object.keys reducers ).length is 0
-    mix = @aggregate._mix
+    my_mix = @aggregate._mix
   else
-    mixins    = [ {}, ]
+    ### TAINT this part must be rewritten ###
+    mixins          = [ {}, ]
     mixins.push @aggregate._reducers
     mixins.push reducers if reducers?
-    reducers  = Object.assign mixins...
-    mix       = mix.use reducers
+    fields                = Object.assign {}, ( mixin.fields for mixin in mixins when mixin.fields? )...
+    reducers              = Object.assign mixins...
+    reducers[ 'fields' ]  = fields
+    my_mix                = mix.use reducers
   #.........................................................................................................
   mix_entries_of_point = ( point ) =>
     point_count = if ( CND.isa_list point ) then point.length else 1
     throw new Error "need single point, got #{point_count}" unless point_count is 1
     entries = @entries_of me, @_find_ids_with_any_points me, point
-    return mix entries...
+    return my_mix entries...
   #.........................................................................................................
   return mix_entries_of_point unless memoize
   #.........................................................................................................
@@ -295,6 +298,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate._reducers =
+  fields:
     idx:    'skip'
     id:     'skip'
     name:   'skip'

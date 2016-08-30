@@ -381,18 +381,19 @@ show = ( me ) ->
   #.........................................................................................................
   isl = ISL.new()
   ISL.add isl, entry for entry in entries
+  #.........................................................................................................
   replacers =
-    # rsg:    'skip'
-    type:   'list'
-    style:  'list'
-    tex:    'list'
-    rsg:    'assign'
-    name:   'assign'
-    # style: ( facets ) ->
-  entry = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
-  debug JSON.stringify entry
-  help entry
-  T.eq entry, {
+    fields:
+      type:   'list'
+      style:  'list'
+      tex:    'list'
+      rsg:    'assign'
+      name:   'assign'
+  #.........................................................................................................
+  description = ISL.aggregate isl, ( '《'.codePointAt 0 ), replacers
+  # debug JSON.stringify description
+  help description
+  T.eq description, {
     type: [ 'style', 'plane', 'area', 'block', 'block', 'style' ],
     name: 'glyph-0x300a',
     tex: [ 'mktsRsgFb', 'cnsymOld', 'cnsymNew' ],
@@ -408,15 +409,16 @@ show = ( me ) ->
   ISL.add isl, { lo: 0, hi: 10, id: 'wide',   count: 10, length: 10, foo: 'D',  }
   ISL.add isl, { lo: 3, hi:  7, id: 'narrow', count:  4, length:  4, foo: 'UH', }
   reducers =
-    '*':    'list'
-    id:     'list'
-    lo:     'assign'
-    hi:     'assign'
-    name:   'assign'
-    count:  'add'
-    length: 'average'
-    foo:    ( values ) ->
-      return ( ( value.toLowerCase() for value in values ). join '' ) + '!'
+    fallback: 'list'
+    fields:
+      id:     'list'
+      lo:     'assign'
+      hi:     'assign'
+      name:   'assign'
+      count:  'add'
+      length: 'average'
+      foo:    ( values ) ->
+        return ( ( value.toLowerCase() for value in values ). join '' ) + '!'
   debug JSON.stringify ISL.aggregate isl, 5, reducers
   T.eq ( ISL.aggregate isl, 5, reducers ), {"lo":3,"hi":7,"id":["wide","narrow"],"count":14,"name":"+","length":7,"foo":"duh!"}
   return null
@@ -481,7 +483,7 @@ show = ( me ) ->
   urge 'rx2-7', 'A', ISL.aggregate samples, 'A' #, { font_family: 'list', }
   urge 'rx2-8', '&', ISL.aggregate samples, '&' #, { font_family: 'list', }
   urge 'rx2-9', '人', ISL.aggregate samples, '人' #, { font_family: 'list', }
-  replacers = { '*': 'list', name: 'list', }
+  replacers = { fallback: 'list', name: 'list', }
   info 'rx2-10', 'A', ISL.aggregate samples, 'A', replacers
   info 'rx2-11', '&', ISL.aggregate samples, '&', replacers
   info 'rx2-12', '人', ISL.aggregate samples, '人', replacers
@@ -548,11 +550,11 @@ show = ( me ) ->
   for n in [ 0 .. 9 ]
     digit = "#{n}"
     help digit, ISL.aggregate u, digit, {
-      '*':    'skip',
+      fallback:    'skip',
       tag:   'tag',
       }
   #.........................................................................................................
-  T.eq ( ISL.aggregate u, '3', { '*': 'skip', tag: 'tag', } ), { tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
+  T.eq ( ISL.aggregate u, '3', { fallback: 'skip', tag: 'tag', } ), { tag: [ 'ascii', 'digit', 'odd', 'prime', ], }
   #.........................................................................................................
   return null
 
@@ -959,7 +961,7 @@ show = ( me ) ->
     [ '里', { rsg: 'u-cjk', tag: [ 'assigned', 'cjk', 'ideograph' ],    }, ]
     [ '䊷', { rsg: 'u-cjk-xa', tag: [ 'assigned', 'cjk', 'ideograph' ], }, ]
     ]
-  reducers  = { '*': 'skip', 'tag': 'tag', 'rsg': 'assign', }
+  reducers  = { fallback: 'skip', fields: { 'tag': 'tag', 'rsg': 'assign', }, }
   for [ probe, matcher, ] in probes_and_matchers
     result_A = ISL.aggregate u, probe
     result_B = ISL.aggregate u, probe, reducers
@@ -1063,9 +1065,10 @@ show = ( me ) ->
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) to_xjson, new_from_xjson" ] = ( T ) ->
   reducers =
-    '*':      'skip'
-    'tag':    'tag'
-    'rsg':    'assign'
+    fallback: 'skip'
+    fields:
+      'tag':    'tag'
+      'rsg':    'assign'
   u_1 = ISL.new()
   ISL.add_index u_1, 'tag'
   ISL.add_index u_1, 'rsg'
@@ -1092,9 +1095,10 @@ show = ( me ) ->
   ISL.add u, { lo: '䊷', hi: '䊷', count: 4, tagfoo: [ 'cjk', 'ideograph', ], }
   #.........................................................................................................
   reducers =
-    '*':        'skip'
-    tagfoo:     'tag'
-    count:      'add'
+    fallback: 'skip'
+    fields:
+      tagfoo:     'tag'
+      count:      'add'
   #.........................................................................................................
   my_aggregate = ISL.aggregate.use u, reducers
   for probe in Array.from 'q里䊷'
@@ -1127,8 +1131,6 @@ unless module.parent?
     # "(v2) match, intersect"
     #.......................................................................................................
     "test interval tree 1"
-    "aggregation 1"
-    "aggregation 2"
     "characters as points 1"
     "intervals_from_points"
     "readme example 1"
@@ -1150,6 +1152,8 @@ unless module.parent?
     "(v2) to_xjson, new_from_xjson"
     "(v2) aggregate rejects multiple points"
     "(v2) create custom aggregate"
+    "aggregation 1"
+    "aggregation 2"
   ]
   @_prune()
   @_main()
