@@ -21,17 +21,6 @@ ISL                       = require './main'
 #===========================================================================================================
 # HELPERS
 #-----------------------------------------------------------------------------------------------------------
-@_prune = ->
-  for name, value of @
-    continue if name.startsWith '_'
-    delete @[ name ] unless name in include
-  return null
-
-#-----------------------------------------------------------------------------------------------------------
-@_main = ( handler = null ) ->
-  test @, 'timeout': 3000
-
-#-----------------------------------------------------------------------------------------------------------
 hex = ( n ) -> '0x' + n.toString 16
 s   = ( x ) -> JSON.stringify x
 
@@ -1120,44 +1109,8 @@ show = ( me ) ->
 
 ############################################################################################################
 unless module.parent?
-  include = [
-    # "characters as points 3"
-    #.......................................................................................................
-    # "test interval tree 2"
-    # "test interval tree 3"
-    # "intervals without ID, name"
-    # "unique names with priority conflict"
-    # "readme example 2"
-    # "(v2) match, intersect"
-    #.......................................................................................................
-    "test interval tree 1"
-    "characters as points 1"
-    "intervals_from_points"
-    "readme example 1"
-    "demo discontiguous ranges"
-    "tag 1"
-    "tag 2"
-    "tag 2a"
-    "tag 2b"
-    "tag 3"
-    "negative tags"
-    "complements"
-    "infinity is a valid number"
-    # "dump_api"
-    "(v2) copy"
-    "(v2) 53846537846"
-    "(v2) query for fact"
-    "(v2) query for fact works with copied ISL"
-    "(v2) cannot add index twice"
-    "(v2) to_xjson, new_from_xjson"
-    "(v2) aggregate rejects multiple points"
-    "(v2) create custom aggregate"
-    "aggregation 1"
-    "aggregation 2"
-  ]
-  @_prune()
-  @_main()
+  test @
+  # test @[ "readme example 2" ]
 
-  # @[ "(v2) match, intersect" ]()
 
 

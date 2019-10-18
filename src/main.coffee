@@ -178,21 +178,21 @@ echo                      = CND.echo.bind CND
 
 #-----------------------------------------------------------------------------------------------------------
 @_match_or_intersect = ( me, mode, points, settings ) ->
-  throw new Error "ISL.match, ISL.intersect on hold for revision"
-  # ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
-  # unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
-  #   expected  = setting_keys_of_cover_and_intersect.join ', '
-  #   got       = keys.join ', '
-  #   throw new Error "expected settings out of #{expected}, got #{got}"
-  # { pick, }   = settings
-  # if mode is 'match' then R = @_find_ids_with_all_points me, points
-  # else                    R = @_find_ids_with_any_points me, points
-  # return R if pick is 'id'
-  # R = @entries_of me, R
-  # if pick?
-  #   R = ( entry[ pick ] for entry in R )
-  #   return reduce_tag R if pick is 'tag'
-  # return fuse R
+  # throw new Error "ISL.match, ISL.intersect on hold for revision"
+  ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
+  unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
+    expected  = setting_keys_of_cover_and_intersect.join ', '
+    got       = keys.join ', '
+    throw new Error "expected settings out of #{expected}, got #{got}"
+  { pick, }   = settings
+  if mode is 'match' then R = @_find_ids_with_all_points me, points
+  else                    R = @_find_ids_with_any_points me, points
+  return R if pick is 'id'
+  R = @entries_of me, R
+  if pick?
+    R = ( entry[ pick ] for entry in R )
+    return reduce_tag R if pick is 'tag'
+  return fuse R
 
 #-----------------------------------------------------------------------------------------------------------
 setting_keys_of_cover_and_intersect = [ 'pick', ]
