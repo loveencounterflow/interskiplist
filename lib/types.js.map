@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "",
+  "sourceRoot": "",
+  "sources": [
+    "../src/types.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;EAAA;AAAA,MAAA;;EACA,KAAA,GAAkB,IAAI,CAAE,OAAA,CAAQ,WAAR,CAAF,CAAuB,CAAC,SAA5B,CAAA;;EAClB,KAAK,CAAC,QAAN,GAAkB,CAAA;;EAClB,MAAM,CAAC,OAAP,GAAkB;AAHlB",
+  "sourcesContent": [
+    "'use strict'\ntypes           = new ( require 'intertype' ).Intertype()\ntypes.defaults  = {}\nmodule.exports  = types\n"
+  ]
+}
