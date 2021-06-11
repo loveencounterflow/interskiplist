@@ -34,11 +34,12 @@
   },
   "homepage": "https://github.com/loveencounterflow/interskiplist",
   "dependencies": {
-    "cnd": "^4.1.4",
+    "cnd": "9.2.1",
+    "intertype": "^7.6.7",
     "interval-skip-list": "^2.0.1",
     "multimix": "0.0.6"
   },
   "devDependencies": {
-    "guy-test": "^1.2.3"
+    "guy-test": "4.1.0"
   }
 }
