@@ -17,7 +17,8 @@ echo                      = CND.echo.bind CND
 σ_minus_א                 = Symbol.for '-א'
 σ_misfit                  = Symbol.for 'misfit'
 #...........................................................................................................
-{ mix, }                  = require 'multimix'
+{ mix, }                  = require 'multimix006modern'
+# { mix, }                  = require 'multimix'
 types                     = require './types'
 { isa
   validate
