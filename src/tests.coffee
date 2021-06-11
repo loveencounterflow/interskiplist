@@ -252,7 +252,7 @@ show = ( me ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-@[ "characters as points 3" ] = ( T ) ->
+@[ "_characters as points 3" ] = ( T ) ->
   throw new Error "not implemented"
   isl = ISL.new()
   ISL.add isl, { lo: 0x00, hi: 0x7f, name: 'basic-latin', }
@@ -1051,28 +1051,28 @@ show = ( me ) ->
   #.........................................................................................................
   return null
 
-#-----------------------------------------------------------------------------------------------------------
-@[ "(v2) to_xjson, new_from_xjson" ] = ( T ) ->
-  reducers =
-    fallback: 'skip'
-    fields:
-      'tag':    'tag'
-      'rsg':    'assign'
-  u_1 = ISL.new()
-  ISL.add_index u_1, 'tag'
-  ISL.add_index u_1, 'rsg'
-  ISL.add u_1, { lo: 'q',  hi: 'q', tag: 'assigned', rsg: 'u-latn', }
-  ISL.add u_1, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
-  ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
-  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
-  ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
-  u_json_1  = ISL.to_xjson        u_1
-  u_2       = ISL.new_from_xjson  u_json_1
-  u_json_2  = ISL.to_xjson        u_2
-  T.eq u_json_1, u_json_2
-  T.eq ( ISL.aggregate u_1, '䊷', reducers ), ( ISL.aggregate u_2, '䊷', reducers )
-  #.........................................................................................................
-  return null
+# #-----------------------------------------------------------------------------------------------------------
+# @[ "(v2) to_xjson, new_from_xjson" ] = ( T ) ->
+#   reducers =
+#     fallback: 'skip'
+#     fields:
+#       'tag':    'tag'
+#       'rsg':    'assign'
+#   u_1 = ISL.new()
+#   ISL.add_index u_1, 'tag'
+#   ISL.add_index u_1, 'rsg'
+#   ISL.add u_1, { lo: 'q',  hi: 'q', tag: 'assigned', rsg: 'u-latn', }
+#   ISL.add u_1, { lo: '里', hi: '里', tag: 'assigned', rsg: 'u-cjk', }
+#   ISL.add u_1, { lo: '里', hi: '里', tag: 'cjk ideograph', }
+#   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'assigned', rsg: 'u-cjk-xa', foo: 'bar', }
+#   ISL.add u_1, { lo: '䊷', hi: '䊷', tag: 'cjk ideograph', }
+#   u_json_1  = ISL.to_xjson        u_1
+#   u_2       = ISL.new_from_xjson  u_json_1
+#   u_json_2  = ISL.to_xjson        u_2
+#   T.eq u_json_1, u_json_2
+#   T.eq ( ISL.aggregate u_1, '䊷', reducers ), ( ISL.aggregate u_2, '䊷', reducers )
+#   #.........................................................................................................
+#   return null
 
 #-----------------------------------------------------------------------------------------------------------
 @[ "(v2) create custom aggregate" ] = ( T ) ->

@@ -18,6 +18,10 @@ echo                      = CND.echo.bind CND
 σ_misfit                  = Symbol.for 'misfit'
 #...........................................................................................................
 { mix, }                  = require 'multimix'
+types                     = require './types'
+{ isa
+  validate
+  type_of }               = types.export()
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -67,7 +71,7 @@ echo                      = CND.echo.bind CND
   ### TAINT currently we keep the identity of `entry` and amend it; wouldn't it be better to copy? or deep
   copy? it and then amend it? ###
   throw new Error "expected 2 arguments, got #{arity}" unless ( arity = arguments.length ) is 2
-  throw new Error "expected a POD, got a #{CND.type_of entry}" unless CND.isa_pod entry
+  throw new Error "expected a POD, got a #{type_of entry}" unless isa.object entry
   { lo, hi, id, name, } = entry
   throw new Error "expected setting for 'lo', found none" unless lo?
   throw new Error "expected setting for 'hi', found none" unless hi?
@@ -88,10 +92,10 @@ echo                      = CND.echo.bind CND
   me[ 'min'           ]       = Math.min me[ 'min' ], lo
   me[ 'max'           ]      ?= hi
   me[ 'max'           ]       = Math.max me[ 'max' ], lo
-  if CND.isa_number lo
+  if isa.float lo
     me[ 'fmin'  ]              ?= lo
     me[ 'fmin'  ]               = Math.min me[ 'fmin' ], lo
-  if CND.isa_number hi
+  if isa.float hi
     me[ 'fmax'  ]              ?= hi
     me[ 'fmax'  ]               = Math.max me[ 'fmax' ], lo
   me[ 'name-by-ids'   ][ id ] = name
@@ -109,22 +113,22 @@ echo                      = CND.echo.bind CND
 @delete = ( me, id ) -> me[ '%self' ].remove id
 
 
-#===========================================================================================================
-# SERIALIZATION
-#-----------------------------------------------------------------------------------------------------------
-@to_xjson = ( me ) ->
-  R =
-    'index-keys': ( key   for key       of me[ 'indexes'      ] )
-    'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
-  return CND.XJSON.stringify R, null, '  '
+# #===========================================================================================================
+# # SERIALIZATION
+# #-----------------------------------------------------------------------------------------------------------
+# @to_xjson = ( me ) ->
+#   R =
+#     'index-keys': ( key   for key       of me[ 'indexes'      ] )
+#     'entries':    ( entry for _, entry  of me[ 'entry-by-ids' ] )
+#   return CND.XJSON.stringify R, null, '  '
 
-#-----------------------------------------------------------------------------------------------------------
-@new_from_xjson = ( xjson ) ->
-  description = CND.XJSON.parse xjson
-  R           = @new()
-  @add_index  R, key    for key   in description[ 'index-keys'  ]
-  @add        R, entry  for entry in description[ 'entries'     ]
-  return R
+# #-----------------------------------------------------------------------------------------------------------
+# @new_from_xjson = ( xjson ) ->
+#   description = CND.XJSON.parse xjson
+#   R           = @new()
+#   @add_index  R, key    for key   in description[ 'index-keys'  ]
+#   @add        R, entry  for entry in description[ 'entries'     ]
+#   return R
 
 
 #===========================================================================================================
@@ -180,7 +184,7 @@ echo                      = CND.echo.bind CND
 @_match_or_intersect = ( me, mode, points, settings ) ->
   # throw new Error "ISL.match, ISL.intersect on hold for revision"
   ### TAINT can probably be greatly simplified since advanced functionality here is not needed ###
-  unless CND.is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
+  unless is_subset ( keys = Object.keys settings ), setting_keys_of_cover_and_intersect
     expected  = setting_keys_of_cover_and_intersect.join ', '
     got       = keys.join ', '
     throw new Error "expected settings out of #{expected}, got #{got}"
@@ -231,7 +235,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
   mixin = ( lohi ) ->
     return lohi unless mixins.length > 0
     return Object.assign {}, mixins..., lohi
-  points = [ points, ] unless CND.isa_list points
+  points = [ points, ] unless isa.list points
   points = unique as_numbers points
   points.sort ( a, b ) ->
     return +1 if a > b
@@ -266,7 +270,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
 
 #-----------------------------------------------------------------------------------------------------------
 @aggregate.use = ( me, reducers, settings = {} ) =>
-  unless CND.is_subset ( keys = Object.keys settings ), [ 'memoize', ]
+  unless is_subset ( keys = Object.keys settings ), [ 'memoize', ]
     throw new Error "unknown keys in #{rpr keys}"
   #.........................................................................................................
   if ( memoize = settings[ 'memoize' ] ? yes ) then cache = {}
@@ -285,7 +289,7 @@ setting_keys_of_cover_and_intersect = [ 'pick', ]
     my_mix                = mix.use reducers
   #.........................................................................................................
   mix_entries_of_point = ( point ) =>
-    point_count = if ( CND.isa_list point ) then point.length else 1
+    point_count = if ( isa.list point ) then point.length else 1
     throw new Error "need single point, got #{point_count}" unless point_count is 1
     entries = @entries_of me, @_find_ids_with_any_points me, point
     return my_mix entries...
@@ -332,8 +336,8 @@ sort_ids_by_insertion_order = ( me, ids ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 as_number = ( x ) ->
-  return x if x in [ -Infinity, +Infinity, ] or CND.isa_number x
-  unless ( type = CND.type_of x ) is 'text'
+  return x if x in [ -Infinity, +Infinity, ] or isa.float x
+  unless ( type = type_of x ) is 'text'
     throw new Error "expected number or single character text, got a #{type}"
   unless ( length = ( Array.from x ).length ) is 1
     throw new Error "expected single character text, got one of length #{length}"
@@ -344,14 +348,14 @@ as_numbers = ( list ) -> ( as_number x for x in list )
 
 #-----------------------------------------------------------------------------------------------------------
 normalize_points = ( points ) ->
-  points = [ points, ] unless CND.isa_list points
+  points = [ points, ] unless isa.list points
   return as_numbers points
 
 #-----------------------------------------------------------------------------------------------------------
 normalize_tag = ( tag ) ->
   ### Given a single string or a list of strings, return a new list that contains all whitespace-delimited
   words in the strings ###
-  return normalize_tag [ tag, ] unless CND.isa_list tag
+  return normalize_tag [ tag, ] unless isa.list tag
   R = []
   for t in tag
     continue if t.length is 0
@@ -382,7 +386,7 @@ append = ( a, b ) ->
 #-----------------------------------------------------------------------------------------------------------
 meld = ( list, value ) ->
   ### When `value` is a list, `append` it to `list`; else, `push` `value` to `list` ###
-  if CND.isa_list value then  append list, value
+  if isa.list value then  append list, value
   else                        list.push value
   return list
 
@@ -412,5 +416,32 @@ reduce_tag = ( raw ) ->
   #.........................................................................................................
   return R
 
+#-----------------------------------------------------------------------------------------------------------
+is_subset = ( subset, superset ) ->
+  ### `is_subset subset, superset` returns whether `subset` is a subset of `superset`; this is true if each
+  element of `subset` is also an element of `superset`. ###
+  type_of_sub   = type_of subset
+  type_of_super = type_of superset
+  unless type_of_sub is type_of_super
+    throw new Error "expected two arguments of same type, got #{type_of_sub} and #{type_of_super}"
+  switch type_of_sub
+    when 'list'
+      return false unless subset.length <= superset.length
+      for element in subset
+        return false unless element in superset
+      return true
+    when 'set'
+      return false unless subset.size <= superset.size
+      iterator = subset.values()
+      loop
+        { value, done, } = iterator.next()
+        return true if done
+        return false unless superset.has value
+      # for element in
+      #   return false unless element in subset
+      return true
+    else
+      throw new Error "expected lists or sets, got #{type_of_sub} and #{type_of_super}"
+  return null
 
 
