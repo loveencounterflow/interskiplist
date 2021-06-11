@@ -37,7 +37,7 @@
     "cnd": "9.2.1",
     "intertype": "^7.6.7",
     "interval-skip-list": "^2.0.1",
-    "multimix": "0.0.6"
+    "multimix006modern": "^0.0.6"
   },
   "devDependencies": {
     "guy-test": "4.1.0"

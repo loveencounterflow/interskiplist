@@ -5,69 +5,26 @@ specifiers:
   guy-test: 4.1.0
   intertype: ^7.6.7
   interval-skip-list: ^2.0.1
-  multimix: 0.0.6
+  multimix006modern: ^0.0.6
 
 dependencies:
   cnd: 9.2.1
   intertype: 7.6.7
   interval-skip-list: 2.0.1
-  multimix: 0.0.6
+  multimix006modern: 0.0.6
 
 devDependencies:
   guy-test: 4.1.0
 
 packages:
 
-  /after-all-results/2.0.0:
-    resolution: {integrity: sha1-asL8ICtQD4jaj09VMM+hAPTGotA=}
-    dev: false
-
-  /ansi-styles/1.1.0:
-    resolution: {integrity: sha1-6uy/Zs1waIJ2Cy9GkVgrj1XXp94=}
-    engines: {node: '>=0.10.0'}
-    dev: false
-    optional: true
-
-  /async-cache/1.1.0:
-    resolution: {integrity: sha1-SppaidBl7F2OUlS9nulrp2xTK1o=}
-    dependencies:
-      lru-cache: 4.1.5
-    dev: false
-
   /async/3.2.0:
     resolution: {integrity: sha512-TR2mEZFVOj2pLStYxLht7TyfuRzaydfpxr3k9RpHIzMgw7A64dzsdqCxH1WJyQdoe8T10nDXd9wnEigmiuHIZw==}
     dev: true
 
-  /cnd/4.9.0:
-    resolution: {integrity: sha512-87P86V5a2/PKQ1FU6weIXA1jcj2D/hlhY1TBrqgqciJFbXlaMhFKMIjSdUmV0U1BHFY9l+/hBUuTZHVeyHdPFQ==}
-    hasBin: true
-    dependencies:
-      mkdirp: 0.5.5
-      stackman: 4.0.1
-      trycatch: 1.5.21
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /cnd/9.2.1:
     resolution: {integrity: sha512-JszZtSlOCxkIvNPKpw1PmIcQUjYO+pBqVoKVH2STHLtG4JHHJ1NHowv39lhyxzlPxUTZk7pZ3qO7CfrfJ8ZSKw==}
     hasBin: true
-
-  /debug/4.3.1:
-    resolution: {integrity: sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.2
-    dev: false
-
-  /error-callsites/2.0.3:
-    resolution: {integrity: sha512-v036z4IEffZFE5kBkV5/F2MzhLnG0vuDyN+VXpzCf4yWXvX/1WJCI0A+TGTr8HWzBfCw5k8gr9rwAo09V+obTA==}
-    dev: false
 
   /guy-test/4.1.0:
     resolution: {integrity: sha512-SlqymC5lfTdGREzAJN00ZDVmZy9lytHLyTAewZptOmyxA0ux7dHpVUM6rbjkWkmnYlH+01d4McBeiyjYV7wcPw==}
@@ -76,15 +33,6 @@ packages:
       cnd: 9.2.1
       intertype: 7.6.7
     dev: true
-
-  /hookit/1.1.3:
-    resolution: {integrity: sha1-YnvRuQvE7sHTe2OiCCzv9Rgb+xk=}
-    dev: false
-
-  /in-publish/2.0.1:
-    resolution: {integrity: sha512-oDM0kUSNFC31ShNxHKUyfZKy8ZeXZBWMjMdZHKLOk13uvT27VTL/QzRGfRUcevJhpkZAvlhPYuXkF7eNWrtyxQ==}
-    hasBin: true
-    dev: false
 
   /intertype/7.6.7:
     resolution: {integrity: sha512-vBgYabqxX3fLa9f0Z3QeXgYszadAGdAHXdLcdQc5ZxZSG5CmbJCdYcudZLYtgmNo8epQag8zzyg7wwx+OD5J8g==}
@@ -97,80 +45,14 @@ packages:
       underscore-plus: 1.7.0
     dev: false
 
-  /load-source-map/1.0.0:
-    resolution: {integrity: sha1-MY9JkFzopwnft8w/FvPv47zx3QU=}
-    dependencies:
-      in-publish: 2.0.1
-      semver: 5.7.1
-      source-map: 0.5.7
-    dev: false
-
-  /lru-cache/4.1.5:
-    resolution: {integrity: sha512-sWZlbEP2OsHNkXrMl5GYk/jKk70MBng6UU4YI/qGDYbgf6YbP4EvmqISbXCoJiRKs+1bSpFHVgQxvJ17F2li5g==}
-    dependencies:
-      pseudomap: 1.0.2
-      yallist: 2.1.2
-    dev: false
-
-  /minimist/1.2.5:
-    resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
-    dev: false
-
-  /mkdirp/0.5.5:
-    resolution: {integrity: sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==}
-    hasBin: true
-    dependencies:
-      minimist: 1.2.5
-    dev: false
-
-  /ms/2.1.2:
-    resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
-    dev: false
-
-  /multimix/0.0.6:
-    resolution: {integrity: sha1-f/ZlvYlQ12669J4buuyWnxEqV1A=}
-    dependencies:
-      cnd: 4.9.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /multimix/5.0.0:
     resolution: {integrity: sha512-N9cdGSDDD7kxOV7R6e4iZqsHTZ4F4iiSDWqMcVqx4gEH6HBtRXav39Gj3fgT1YqvBcwPCQuf0Oa5R2cDaLWK8A==}
 
-  /pseudomap/1.0.2:
-    resolution: {integrity: sha1-8FKijacOYYkX7wqKw0wa5aaChrM=}
-    dev: false
-
-  /semver/5.7.1:
-    resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
-    hasBin: true
-    dev: false
-
-  /source-map/0.5.7:
-    resolution: {integrity: sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
-  /stackman/4.0.1:
-    resolution: {integrity: sha512-lntIge3BFEElgvpZT2ld5f4U+mF84fRtJ8vA3ymUVx1euVx43ZMkd09+5RWW4FmvYDFhZwPh1gvtdsdnJyF4Fg==}
+  /multimix006modern/0.0.6:
+    resolution: {integrity: sha512-r7Kfb/jZtgEj8EuVnqIsHydQ0u+rNdo2zUFOTSQ/bBpUnZsJkAQj4/8t+/fXpDlzKpN1LckkghV4WsL84DQpTQ==}
     dependencies:
-      after-all-results: 2.0.0
-      async-cache: 1.1.0
-      debug: 4.3.1
-      error-callsites: 2.0.3
-      load-source-map: 1.0.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /trycatch/1.5.21:
-    resolution: {integrity: sha1-LLFdQ9T0X3Q2dweYoQvfvh1aVv4=}
-    engines: {node: '>=0.8.14'}
-    dependencies:
-      hookit: 1.1.3
-    optionalDependencies:
-      ansi-styles: 1.1.0
+      cnd: 9.2.1
+      intertype: 7.6.7
     dev: false
 
   /underscore-plus/1.7.0:
@@ -181,8 +63,4 @@ packages:
 
   /underscore/1.13.1:
     resolution: {integrity: sha512-hzSoAVtJF+3ZtiFX0VgfFPHEDRm7Y/QPjGyNo4TVdnDTdft3tr8hEkD25a1jC+TjTuE7tkHGKkhwCgs9dgBB2g==}
-    dev: false
-
-  /yallist/2.1.2:
-    resolution: {integrity: sha1-HBH5IY8HYImkfdUS+TxmmaaoHVI=}
     dev: false
